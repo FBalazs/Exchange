@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">ExchangeClient</string>
+    <string name="action_settings">Settings</string>
+    <string name="btnConnect">Connect</string>
+    <string name="hintIP">Address</string>
+    <string name="hintPort">Port</string>
+    <string name="hintName">Name</string>
+
+</resources>
