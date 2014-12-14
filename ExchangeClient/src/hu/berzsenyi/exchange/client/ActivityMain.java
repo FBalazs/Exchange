@@ -8,6 +8,10 @@ import hu.berzsenyi.exchange.net.cmd.CmdClientInfo;
 import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.Spinner;
 import android.widget.TabHost;
 import android.widget.TabHost.TabSpec;
 
@@ -58,7 +62,10 @@ public class ActivityMain extends Activity implements IClientListener {
 	public boolean running;
 	
 	public TabHost tabHost;
-	public TabSpec tabSpecMain, tabSpecExchange;
+	public TabSpec tabSpecMain, tabStocks, tabSpecExchange;
+	
+	public Spinner listTeams, listStocks;
+	public Button buttonOffer;
 	
 	public String name;
 	public TCPClient net;
@@ -77,11 +84,26 @@ public class ActivityMain extends Activity implements IClientListener {
 		this.tabSpecMain.setContent(R.id.tabMain);
 		this.tabSpecMain.setIndicator("Overview");
 		
+		this.tabStocks = this.tabHost.newTabSpec("Stocks");
+		this.tabStocks.setContent(R.id.tabStocks);
+		this.tabStocks.setIndicator("Stocks");
+		
 		this.tabSpecExchange = this.tabHost.newTabSpec("Exchange");
 		this.tabSpecExchange.setContent(R.id.tabExchange);
 		this.tabSpecExchange.setIndicator("Exchange");
 		
+		this.listTeams = (Spinner)this.findViewById(R.id.listTeams);
+		this.listStocks = (Spinner)this.findViewById(R.id.listStocks);
+		this.buttonOffer = (Button)this.findViewById(R.id.buttonOffer);
+		this.buttonOffer.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				onClickButtonOffer();
+			}
+		});
+		
 		this.tabHost.addTab(this.tabSpecMain);
+		this.tabHost.addTab(this.tabStocks);
 		this.tabHost.addTab(this.tabSpecExchange);
 		
 		this.name = this.getIntent().getStringExtra(EXTRA_NAME);
@@ -92,6 +114,24 @@ public class ActivityMain extends Activity implements IClientListener {
 	public void onConnect(TCPClient client) {
 		this.running = true;
 		new UpdateThread(this).start();
+	}
+	
+	public void onClickButtonOffer() {
+		// TODO send offer message
+	}
+	
+	public void setModel(Model model) {
+		this.model = model;
+		
+		String[] array = new String[this.model.teams.size()];
+		for(int i = 0; i < array.length; i++)
+			array[i] = this.model.teams.get(i).name;
+		this.listTeams.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, array));
+		
+		array = new String[this.model.stockList.length];
+		for(int i = 0; i < array.length; i++)
+			array[i] = this.model.stockList[i].name;
+		this.listStocks.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, array));
 	}
 	
 	public void update() {

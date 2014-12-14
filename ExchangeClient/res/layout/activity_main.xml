@@ -36,6 +36,9 @@
                     android:id="@+id/tabMain"
                     layout="@layout/activity_main_tab_main"/>
                 <include
+                    android:id="@+id/tabStocks"
+                    layout="@layout/activity_main_tab_stocks"/>
+                <include
                     android:id="@+id/tabExchange"
                     layout="@layout/activity_main_tab_exchange"/>
             </FrameLayout>

@@ -18,7 +18,7 @@ public class CmdHandlerClient implements ICmdHandler {
 		Log.d(this.getClass().getName(), "Received command! "+cmd.getClass().getName());
 		
 		if(cmd instanceof CmdServerInfo) {
-			this.client.model = ((CmdServerInfo)cmd).model;
+			this.client.setModel(((CmdServerInfo)cmd).model);
 			return;
 		}
 	}
