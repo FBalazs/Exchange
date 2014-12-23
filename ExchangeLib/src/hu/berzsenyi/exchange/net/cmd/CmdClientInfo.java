@@ -13,7 +13,7 @@ public class CmdClientInfo extends TCPCommand {
 	}
 	
 	public CmdClientInfo(String name) {
-		super(ID, name.length());
+		super(ID, 4+name.length());
 		this.name = name;
 	}
 	

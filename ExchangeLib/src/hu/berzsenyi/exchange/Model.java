@@ -41,6 +41,13 @@ public class Model {
 		return null;
 	}
 	
+	public Team getTeamByName(String name) {
+		for(Team team : this.teams)
+			if(team.name.equals(name))
+				return team;
+		return null;
+	}
+	
 	public void removeTeam(String id) {
 		for(int i = 0; i < this.teams.size(); i++)
 			if(this.teams.get(i).id.equals(id))

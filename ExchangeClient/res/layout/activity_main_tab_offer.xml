@@ -6,29 +6,29 @@
     android:rowCount="3" >
     
    	<TextView
-        android:id="@+id/textViewTeam"
+        android:id="@+id/tabOffer_textViewTeam"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/textTeam" />
         
     <Spinner
-     	android:id="@+id/listTeams"
+     	android:id="@+id/tabOffer_listTeams"
      	android:layout_width="wrap_content"
      	android:layout_height="wrap_content" />
         
     <TextView
-	    android:id="@+id/textViewStock"
+	    android:id="@+id/tabOffer_textViewStock"
 	    android:layout_width="wrap_content"
 	    android:layout_height="wrap_content"
 	    android:text="@string/textStock" />
     
     <Spinner
-	    android:id="@+id/listStocks"
+	    android:id="@+id/tabOffer_listStocks"
 	    android:layout_width="wrap_content"
 	    android:layout_height="wrap_content" />
     
     <Button
-        android:id="@+id/buttonOffer"
+        android:id="@+id/tabOffer_buttonOffer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/textOffer"

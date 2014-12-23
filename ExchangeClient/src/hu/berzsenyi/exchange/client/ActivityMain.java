@@ -1,21 +1,30 @@
 package hu.berzsenyi.exchange.client;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import hu.berzsenyi.exchange.Model;
 import hu.berzsenyi.exchange.net.IClientListener;
 import hu.berzsenyi.exchange.net.TCPClient;
+import hu.berzsenyi.exchange.net.TCPConnection;
 import hu.berzsenyi.exchange.net.cmd.CmdClientDisconnect;
 import hu.berzsenyi.exchange.net.cmd.CmdClientInfo;
+import hu.berzsenyi.exchange.net.cmd.CmdOffer;
+import hu.berzsenyi.exchange.net.cmd.CmdServerInfo;
+import hu.berzsenyi.exchange.net.cmd.ICmdHandler;
+import hu.berzsenyi.exchange.net.cmd.TCPCommand;
 import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TabHost;
 import android.widget.TabHost.TabSpec;
 
-public class ActivityMain extends Activity implements IClientListener {
+public class ActivityMain extends Activity implements IClientListener, ICmdHandler {
 	public static class TCPConnectThread extends Thread {
 		public ActivityMain client;
 		
@@ -26,7 +35,7 @@ public class ActivityMain extends Activity implements IClientListener {
 		
 		@Override
 		public void run() {
-			this.client.net = new TCPClient(this.client.getIntent().getStringExtra(EXTRA_IP), this.client.getIntent().getIntExtra(EXTRA_PORT, -1), new CmdHandlerClient(this.client), this.client);
+			this.client.net = new TCPClient(this.client.getIntent().getStringExtra(EXTRA_IP), this.client.getIntent().getIntExtra(EXTRA_PORT, -1), this.client, this.client);
 			this.client.net.writeCommand(new CmdClientInfo(this.client.name));
 		}
 	}
@@ -62,10 +71,16 @@ public class ActivityMain extends Activity implements IClientListener {
 	public boolean running;
 	
 	public TabHost tabHost;
-	public TabSpec tabSpecMain, tabStocks, tabSpecExchange;
+	public TabSpec tabMain, tabStocks, tabOffer, tabAccept;
 	
-	public Spinner listTeams, listStocks;
-	public Button buttonOffer;
+	public ListView tabStocks_listStocks;
+	
+	public Spinner tabOffer_listTeams, tabOffer_listStocks;
+	public Button tabOffer_buttonOffer;
+	
+	public ListView tabAccept_listOffers;
+	public List<CmdOffer> offersIn = new ArrayList<CmdOffer>();
+	public List<String> offersInStrings = new ArrayList<String>();
 	
 	public String name;
 	public TCPClient net;
@@ -80,31 +95,40 @@ public class ActivityMain extends Activity implements IClientListener {
 		this.tabHost = (TabHost)this.findViewById(R.id.tabHost);
 		this.tabHost.setup();
 		
-		this.tabSpecMain = this.tabHost.newTabSpec("Overview");
-		this.tabSpecMain.setContent(R.id.tabMain);
-		this.tabSpecMain.setIndicator("Overview");
+		this.tabMain = this.tabHost.newTabSpec("Overview");
+		this.tabMain.setContent(R.id.tabMain);
+		this.tabMain.setIndicator("Overview");
 		
 		this.tabStocks = this.tabHost.newTabSpec("Stocks");
 		this.tabStocks.setContent(R.id.tabStocks);
 		this.tabStocks.setIndicator("Stocks");
 		
-		this.tabSpecExchange = this.tabHost.newTabSpec("Exchange");
-		this.tabSpecExchange.setContent(R.id.tabExchange);
-		this.tabSpecExchange.setIndicator("Exchange");
+		this.tabOffer = this.tabHost.newTabSpec("Offer");
+		this.tabOffer.setContent(R.id.tabOffer);
+		this.tabOffer.setIndicator("Offer");
 		
-		this.listTeams = (Spinner)this.findViewById(R.id.listTeams);
-		this.listStocks = (Spinner)this.findViewById(R.id.listStocks);
-		this.buttonOffer = (Button)this.findViewById(R.id.buttonOffer);
-		this.buttonOffer.setOnClickListener(new View.OnClickListener() {
+		this.tabAccept = this.tabHost.newTabSpec("Incoming");
+		this.tabAccept.setContent(R.id.tabAccept);
+		this.tabAccept.setIndicator("Incoming");
+		
+		this.tabStocks_listStocks = (ListView)this.findViewById(R.id.tabStocks_listStocks);
+		
+		this.tabOffer_listTeams = (Spinner)this.findViewById(R.id.tabOffer_listTeams);
+		this.tabOffer_listStocks = (Spinner)this.findViewById(R.id.tabOffer_listStocks);
+		this.tabOffer_buttonOffer = (Button)this.findViewById(R.id.tabOffer_buttonOffer);
+		this.tabOffer_buttonOffer.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				onClickButtonOffer();
 			}
 		});
 		
-		this.tabHost.addTab(this.tabSpecMain);
+		this.tabAccept_listOffers = (ListView)this.findViewById(R.id.tabAccept_listOffers);
+		
+		this.tabHost.addTab(this.tabMain);
 		this.tabHost.addTab(this.tabStocks);
-		this.tabHost.addTab(this.tabSpecExchange);
+		this.tabHost.addTab(this.tabOffer);
+		this.tabHost.addTab(this.tabAccept);
 		
 		this.name = this.getIntent().getStringExtra(EXTRA_NAME);
 		new TCPConnectThread(this).start();
@@ -116,22 +140,48 @@ public class ActivityMain extends Activity implements IClientListener {
 		new UpdateThread(this).start();
 	}
 	
+	@Override
+	public void handleCmd(TCPCommand cmd, TCPConnection conn) {
+		Log.d(this.getClass().getName(), "Received command! "+cmd.getClass().getName());
+		
+		if(cmd instanceof CmdServerInfo) {
+			this.setModel(((CmdServerInfo)cmd).model);
+			return;
+		}
+		
+		if(cmd instanceof CmdOffer) {
+			CmdOffer offer = (CmdOffer)cmd;
+			this.offersIn.add(offer);
+			this.offersInStrings.add(this.model.getTeamById(offer.senderID).name+" wants "+this.model.stockList[offer.stockID].name+", "+offer.amount+" for "+offer.money);
+			return;
+		}
+	}
+	
 	public void onClickButtonOffer() {
 		// TODO send offer message
+		this.net.writeCommand(new CmdOffer(this.model.getTeamByName(this.name).id, this.model.teams.get(this.tabOffer_listTeams.getSelectedItemPosition()).id, this.tabOffer_listStocks.getSelectedItemPosition(), 1, 1.0));
 	}
 	
 	public void setModel(Model model) {
 		this.model = model;
 		
-		String[] array = new String[this.model.teams.size()];
-		for(int i = 0; i < array.length; i++)
-			array[i] = this.model.teams.get(i).name;
-		this.listTeams.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, array));
+		String[] array;
 		
 		array = new String[this.model.stockList.length];
 		for(int i = 0; i < array.length; i++)
+			array[i] = this.model.stockList[i].name+" "+this.model.stockList[i].value;
+		this.tabStocks_listStocks.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, array));
+		
+		array = new String[this.model.teams.size()];
+		for(int i = 0; i < array.length; i++)
+			array[i] = this.model.teams.get(i).name;
+		this.tabOffer_listTeams.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, array));
+		array = new String[this.model.stockList.length];
+		for(int i = 0; i < array.length; i++)
 			array[i] = this.model.stockList[i].name;
-		this.listStocks.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, array));
+		this.tabOffer_listStocks.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, array));
+		
+		this.tabAccept_listOffers.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, this.offersInStrings));
 	}
 	
 	public void update() {

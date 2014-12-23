@@ -2,6 +2,7 @@ package hu.berzsenyi.exchange.net;
 
 import hu.berzsenyi.exchange.net.cmd.CmdClientDisconnect;
 import hu.berzsenyi.exchange.net.cmd.CmdClientInfo;
+import hu.berzsenyi.exchange.net.cmd.CmdOffer;
 import hu.berzsenyi.exchange.net.cmd.CmdServerInfo;
 import hu.berzsenyi.exchange.net.cmd.TCPCommand;
 
@@ -32,6 +33,9 @@ public class TCPReceiveThread extends Thread {
 					break;
 				case CmdServerInfo.ID:
 					cmd = new CmdServerInfo(length);
+					break;
+				case CmdOffer.ID:
+					cmd = new CmdOffer(length);
 					break;
 				}
 				if(cmd != null)

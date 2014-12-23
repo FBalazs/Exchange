@@ -34,13 +34,16 @@
 
                 <include
                     android:id="@+id/tabMain"
-                    layout="@layout/activity_main_tab_main"/>
+                    layout="@layout/activity_main_tab_main" />
                 <include
                     android:id="@+id/tabStocks"
-                    layout="@layout/activity_main_tab_stocks"/>
+                    layout="@layout/activity_main_tab_stocks" />
                 <include
-                    android:id="@+id/tabExchange"
-                    layout="@layout/activity_main_tab_exchange"/>
+                    android:id="@+id/tabOffer"
+                    layout="@layout/activity_main_tab_offer" />
+                <include
+                    android:id="@+id/tabAccept"
+                    layout="@layout/activity_main_tab_accept" />
             </FrameLayout>
         </LinearLayout>
     </TabHost>
