@@ -6,7 +6,7 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="hu.berzsenyi.exchange.client.ActivityConnect" >
+    tools:context="hu.berzsenyi.exchange.client.ActivityMain" >
 
     <TabHost
         android:id="@+id/tabHost"

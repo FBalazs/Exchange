@@ -9,14 +9,18 @@ import hu.berzsenyi.exchange.net.TCPClient;
 import hu.berzsenyi.exchange.net.TCPConnection;
 import hu.berzsenyi.exchange.net.cmd.CmdClientDisconnect;
 import hu.berzsenyi.exchange.net.cmd.CmdClientInfo;
+import hu.berzsenyi.exchange.net.cmd.CmdClientOfferResponse;
 import hu.berzsenyi.exchange.net.cmd.CmdOffer;
 import hu.berzsenyi.exchange.net.cmd.CmdServerInfo;
 import hu.berzsenyi.exchange.net.cmd.ICmdHandler;
 import hu.berzsenyi.exchange.net.cmd.TCPCommand;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
@@ -124,6 +128,12 @@ public class ActivityMain extends Activity implements IClientListener, ICmdHandl
 		});
 		
 		this.tabAccept_listOffers = (ListView)this.findViewById(R.id.tabAccept_listOffers);
+		this.tabAccept_listOffers.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> adapter, View view, int pos, long id) {
+				onClickOffer(pos);
+			}
+		});
 		
 		this.tabHost.addTab(this.tabMain);
 		this.tabHost.addTab(this.tabStocks);
@@ -152,14 +162,43 @@ public class ActivityMain extends Activity implements IClientListener, ICmdHandl
 		if(cmd instanceof CmdOffer) {
 			CmdOffer offer = (CmdOffer)cmd;
 			this.offersIn.add(offer);
-			this.offersInStrings.add(this.model.getTeamById(offer.senderID).name+" wants "+this.model.stockList[offer.stockID].name+", "+offer.amount+" for "+offer.money);
+			this.offersInStrings.add(this.model.getTeamById(offer.playerID).name+" wants "+this.model.stockList[offer.stockID].name+", "+offer.amount+" for "+offer.money);
+			this.tabAccept_listOffers.setAdapter(this.tabAccept_listOffers.getAdapter());
 			return;
 		}
 	}
 	
 	public void onClickButtonOffer() {
 		// TODO send offer message
-		this.net.writeCommand(new CmdOffer(this.model.getTeamByName(this.name).id, this.model.teams.get(this.tabOffer_listTeams.getSelectedItemPosition()).id, this.tabOffer_listStocks.getSelectedItemPosition(), 1, 1.0));
+		this.net.writeCommand(new CmdOffer(this.model.teams.get(this.tabOffer_listTeams.getSelectedItemPosition()).id, this.tabOffer_listStocks.getSelectedItemPosition(), 1, 1.0));
+	}
+	
+	public void onOfferAccept(int pos) {
+		CmdOffer offer = this.offersIn.get(pos);
+		this.net.writeCommand(new CmdClientOfferResponse(offer.playerID, offer.stockID, offer.amount, offer.money));
+		this.offersIn.remove(pos);
+		this.offersInStrings.remove(pos);
+		this.tabAccept_listOffers.setAdapter(this.tabAccept_listOffers.getAdapter());
+	}
+	
+	public void onOfferDeny(int pos) {
+		this.offersIn.remove(pos);
+		this.offersInStrings.remove(pos);
+		this.tabAccept_listOffers.setAdapter(this.tabAccept_listOffers.getAdapter());
+	}
+	
+	public void onClickOffer(final int offer) {
+		new AlertDialog.Builder(this).setMessage("Do you want to accept this offer? "+this.offersInStrings.get(offer)).setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				onOfferAccept(offer);
+			}
+		}).setNegativeButton("No", new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				onOfferDeny(offer);
+			}
+		}).show();
 	}
 	
 	public void setModel(Model model) {

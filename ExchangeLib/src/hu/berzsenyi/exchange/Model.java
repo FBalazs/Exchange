@@ -9,6 +9,10 @@ public class Model {
 	public Stock[] stockList;
 	public List<Team> teams = new ArrayList<Team>();
 	
+	/**
+	 * Returns the number of bytes that can store this objects data.
+	 * @return The number of bytes.
+	 */
 	public int getCmdLength() {
 		int ret = 0;
 		ret += 4;
@@ -20,6 +24,10 @@ public class Model {
 		return ret;
 	}
 	
+	/**
+	 * Loads the stocks from the data files.
+	 * @param stockFolder The folder where the files are located.
+	 */
 	public void loadStocks(String stockFolder) {
 		File[] files = new File(stockFolder).listFiles();
 		this.stockList = new Stock[files.length];
@@ -30,6 +38,11 @@ public class Model {
 		}
 	}
 	
+	/**
+	 * Adds a new team to the game.
+	 * @param id The id (the address) of the team.
+	 * @param name The name of the team.
+	 */
 	public void newTeam(String id, String name) {
 		this.teams.add(new Team(id, name, 1000, this.stockList.length));
 	}
@@ -41,6 +54,7 @@ public class Model {
 		return null;
 	}
 	
+	@Deprecated
 	public Team getTeamByName(String name) {
 		for(Team team : this.teams)
 			if(team.name.equals(name))

@@ -8,7 +8,8 @@ import hu.berzsenyi.exchange.net.TCPServerClient;
 import hu.berzsenyi.exchange.net.cmd.CmdClientDisconnect;
 import hu.berzsenyi.exchange.net.cmd.CmdClientInfo;
 import hu.berzsenyi.exchange.net.cmd.CmdOffer;
-import hu.berzsenyi.exchange.net.cmd.CmdOfferResponse;
+import hu.berzsenyi.exchange.net.cmd.CmdClientOfferResponse;
+import hu.berzsenyi.exchange.net.cmd.CmdServerExchange;
 import hu.berzsenyi.exchange.net.cmd.CmdServerInfo;
 import hu.berzsenyi.exchange.net.cmd.ICmdHandler;
 import hu.berzsenyi.exchange.net.cmd.TCPCommand;
@@ -55,12 +56,17 @@ public class ExchangeServer implements Runnable, IServerListener, ICmdHandler {
 		}
 		
 		if(cmd instanceof CmdOffer) {
-			this.net.writeCmdTo(cmd, ((CmdOffer)cmd).receiverID);
+			CmdOffer offer = (CmdOffer)cmd;
+			String to = offer.playerID;
+			offer.playerID = conn.getAddrString();
+			this.net.writeCmdTo(offer, to);
 			return;
 		}
 		
-		if(cmd instanceof CmdOfferResponse) {
-			
+		if(cmd instanceof CmdClientOfferResponse) {
+			CmdClientOfferResponse offer = (CmdClientOfferResponse)cmd;
+			// TODO handle exchange
+			this.net.writeCmdToAll(new CmdServerExchange(offer.playerID, conn.getAddrString(), offer.stockID, offer.amount, offer.money));
 			return;
 		}
 	}
@@ -68,7 +74,7 @@ public class ExchangeServer implements Runnable, IServerListener, ICmdHandler {
 	@Override
 	public void onClientDisconnected(TCPServerClient client) {
 		System.out.println("Client disconnected!");
-		
+		this.model.removeTeam(client.getAddrString());
 	}
 	
 	public void update() {

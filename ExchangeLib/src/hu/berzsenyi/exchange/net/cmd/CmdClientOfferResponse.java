@@ -3,18 +3,18 @@ package hu.berzsenyi.exchange.net.cmd;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 
-public class CmdOffer extends TCPCommand {
-	public static final int ID = 4;
+public class CmdClientOfferResponse extends TCPCommand {
+	public static final int ID = 5;
 	
 	public String playerID;
 	public int stockID, amount;
 	public double money;
 	
-	public CmdOffer(int length) {
+	public CmdClientOfferResponse(int length) {
 		super(ID, length);
 	}
 	
-	public CmdOffer(String playerID, int stockID, int amount, double money) {
+	public CmdClientOfferResponse(String playerID, int stockID, int amount, double money) {
 		super(ID, 4+playerID.length()+4+4+8);
 		this.playerID = playerID;
 		this.stockID = stockID;

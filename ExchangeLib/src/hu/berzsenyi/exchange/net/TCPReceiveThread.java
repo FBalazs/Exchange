@@ -1,10 +1,6 @@
 package hu.berzsenyi.exchange.net;
 
-import hu.berzsenyi.exchange.net.cmd.CmdClientDisconnect;
-import hu.berzsenyi.exchange.net.cmd.CmdClientInfo;
-import hu.berzsenyi.exchange.net.cmd.CmdOffer;
-import hu.berzsenyi.exchange.net.cmd.CmdServerInfo;
-import hu.berzsenyi.exchange.net.cmd.TCPCommand;
+import hu.berzsenyi.exchange.net.cmd.*;
 
 public class TCPReceiveThread extends Thread {
 	public TCPConnection connection;
@@ -36,6 +32,15 @@ public class TCPReceiveThread extends Thread {
 					break;
 				case CmdOffer.ID:
 					cmd = new CmdOffer(length);
+					break;
+				case CmdClientOfferResponse.ID:
+					cmd = new CmdClientOfferResponse(length);
+					break;
+				case CmdServerExchange.ID:
+					cmd = new CmdServerExchange(length);
+					break;
+				case CmdClientBuy.ID:
+					cmd = new CmdClientBuy(length);
 					break;
 				}
 				if(cmd != null)
