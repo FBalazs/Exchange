@@ -15,5 +15,6 @@
 	<string name="ok">Ok</string>
 	
 	<string name="money">Money:&#x20;</string>
+	<string name="unit_price">Unit price:&#x20;</string>
 
 </resources>
