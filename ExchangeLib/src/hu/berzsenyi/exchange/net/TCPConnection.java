@@ -15,6 +15,7 @@ public abstract class TCPConnection {
 
 		@Override
 		public void run() {
+			System.out.println("TCPReceiveThread started");
 			while(TCPConnection.this.open) {
 				try {
 					while(TCPConnection.this.din.available() < 4+4)
@@ -50,17 +51,19 @@ public abstract class TCPConnection {
 						cmd.read(TCPConnection.this.din);
 					
 					cmdHandler.handleCmd(cmd, TCPConnection.this);
+					System.out.println("A command has arrived");
 				} catch(Exception e) {
 					e.printStackTrace();
 					TCPConnection.this.close();
 				}
 			}
+			System.out.println("TCPReceiveThread stopped");
 		}
 	}
 	
 	
 	public Socket socket;
-	public boolean open = true;
+	public boolean open = false;
 	public DataInputStream din;
 	public DataOutputStream dout;
 	public ICmdHandler cmdHandler;
@@ -85,6 +88,8 @@ public abstract class TCPConnection {
 	}
 	
 	protected void onConnect() {
+		System.out.println("TCPConnection.onConnect()");
+		this.open = true;
 		new TCPReceiveThread().start();
 	}
 	
