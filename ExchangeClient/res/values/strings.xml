@@ -13,5 +13,7 @@
 	
 	<string name="could_not_connect">Could not connect</string>
 	<string name="ok">Ok</string>
+	
+	<string name="money">Money:&#x20;</string>
 
 </resources>

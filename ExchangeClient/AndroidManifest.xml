@@ -27,6 +27,9 @@
         <activity
 	        android:name=".ActivityMain"
 	        android:label="@string/app_name" />
+        <activity
+	        android:name=".ActivityZerothRound"
+	        android:label="@string/app_name" />
     </application>
 
 </manifest>

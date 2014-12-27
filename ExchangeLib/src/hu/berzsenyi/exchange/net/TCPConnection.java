@@ -18,7 +18,7 @@ public abstract class TCPConnection {
 			System.out.println("TCPReceiveThread started");
 			while(TCPConnection.this.open) {
 				try {
-					while(TCPConnection.this.din.available() < 4+4)
+					while(TCPConnection.this.open && TCPConnection.this.din.available() < 4+4)
 						Thread.sleep(10);
 					int id = TCPConnection.this.din.readInt();
 					int length = TCPConnection.this.din.readInt();

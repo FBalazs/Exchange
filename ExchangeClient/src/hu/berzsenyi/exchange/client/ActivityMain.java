@@ -31,12 +31,11 @@ import android.content.DialogInterface.OnClickListener;
 import java.io.IOException;
 
 public class ActivityMain extends Activity implements IClientListener, ICmdHandler {
-	public static class TCPConnectThread extends Thread {
-		public ActivityMain activity;
+	public class TCPConnectThread extends Thread {
+		
 
-		public TCPConnectThread(ActivityMain client) {
+		public TCPConnectThread() {
 			super("Thread-TCPConnect");
-			this.activity = client;
 		}
 
 		@Override
@@ -44,10 +43,10 @@ public class ActivityMain extends Activity implements IClientListener, ICmdHandl
 			Log.d(this.getClass().getName(),"run()");
 			try {
 				Connection.client = new TCPClient(
-					this.activity.getIntent().getStringExtra(EXTRA_IP),
-					this.activity.getIntent().getIntExtra(EXTRA_PORT, -1),
-					this.activity,
-					this.activity);
+					ActivityMain.this.getIntent().getStringExtra(EXTRA_IP),
+					ActivityMain.this.getIntent().getIntExtra(EXTRA_PORT, -1),
+					ActivityMain.this,
+					ActivityMain.this);
 				Log.d(this.getClass().getName(),"success");
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -63,7 +62,7 @@ public class ActivityMain extends Activity implements IClientListener, ICmdHandl
 					});*/
 				return;
 			}
-			Connection.client.writeCommand(new CmdClientInfo(this.activity.name));
+			Connection.client.writeCommand(new CmdClientInfo(ActivityMain.this.name));
 		}
 	}
 
@@ -142,7 +141,7 @@ public class ActivityMain extends Activity implements IClientListener, ICmdHandl
 		this.tabHost.addTab(this.tabAccept);
 
 		this.name = this.getIntent().getStringExtra(EXTRA_NAME);
-		new TCPConnectThread(this).start();
+		new TCPConnectThread().start();
 	}
 
 	@Override
@@ -164,7 +163,11 @@ public class ActivityMain extends Activity implements IClientListener, ICmdHandl
 			CmdOffer offer = (CmdOffer)cmd;
 			this.offersIn.add(offer);
 			this.offersInStrings.add(this.model.getTeamById(offer.playerID).name + " wants " + this.model.stockList[offer.stockID].name + ", " + offer.amount + " for " + offer.money);
-			this.tabAccept_listOffers.setAdapter(this.tabAccept_listOffers.getAdapter());
+			this.runOnUiThread(new Runnable() {
+				public void run() {
+					ActivityMain.this.tabAccept_listOffers.setAdapter(ActivityMain.this.tabAccept_listOffers.getAdapter());
+				}
+			});
 			return;
 		}
 	}
@@ -236,9 +239,27 @@ public class ActivityMain extends Activity implements IClientListener, ICmdHandl
 		Log.d(this.getClass().getName(), "onDestroy()");
 		if (Connection.client != null) {
 			Connection.client.writeCommand(new CmdClientDisconnect());
+			Log.d(this.getClass().getName(), "Disconnect message has been sent");
 			Connection.client.close();
 			Connection.client = null;
 		}
 		super.onDestroy();
 	}
+
+	@Override
+	protected void onPause() {
+		Log.d(this.getClass().getName(),"onPause()");
+		super.onPause();
+	}
+
+	@Override
+	protected void onStop() {
+		Log.d(this.getClass().getName(),"onStop()");
+		Log.d(this.getClass().getName(),"isFinishing? "+this.isFinishing());
+		super.onStop();
+	}
+	
+	
+	
+	
 }
