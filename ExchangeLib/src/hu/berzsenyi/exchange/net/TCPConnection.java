@@ -1,17 +1,66 @@
 package hu.berzsenyi.exchange.net;
 
-import hu.berzsenyi.exchange.net.cmd.ICmdHandler;
-import hu.berzsenyi.exchange.net.cmd.TCPCommand;
+import hu.berzsenyi.exchange.net.cmd.*;
+import java.io.*;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.net.Socket;
-import java.util.LinkedList;
 
-public class TCPConnection {
+public abstract class TCPConnection {
+	
+	private class TCPReceiveThread extends Thread {
+
+		public TCPReceiveThread() {
+			super("Thread-TCPReceive");
+		}
+
+		@Override
+		public void run() {
+			while(TCPConnection.this.open) {
+				try {
+					while(TCPConnection.this.din.available() < 4+4)
+						Thread.sleep(10);
+					int id = TCPConnection.this.din.readInt();
+					int length = TCPConnection.this.din.readInt();
+					while(TCPConnection.this.din.available() < length);
+					TCPCommand cmd = null;
+					switch(id) {
+					case CmdClientInfo.ID:
+						cmd = new CmdClientInfo(length);
+						break;
+					case CmdClientDisconnect.ID:
+						cmd = new CmdClientDisconnect(length);
+						break;
+					case CmdServerInfo.ID:
+						cmd = new CmdServerInfo(length);
+						break;
+					case CmdOffer.ID:
+						cmd = new CmdOffer(length);
+						break;
+					case CmdClientOfferResponse.ID:
+						cmd = new CmdClientOfferResponse(length);
+						break;
+					case CmdServerExchange.ID:
+						cmd = new CmdServerExchange(length);
+						break;
+					case CmdClientBuy.ID:
+						cmd = new CmdClientBuy(length);
+						break;
+					}
+					if(cmd != null)
+						cmd.read(TCPConnection.this.din);
+					
+					cmdHandler.handleCmd(cmd, TCPConnection.this);
+				} catch(Exception e) {
+					e.printStackTrace();
+					TCPConnection.this.close();
+				}
+			}
+		}
+	}
+	
+	
 	public Socket socket;
 	public boolean open = true;
-	public LinkedList<TCPCommand> commandList = new LinkedList<TCPCommand>();
 	public DataInputStream din;
 	public DataOutputStream dout;
 	public ICmdHandler cmdHandler;
@@ -35,39 +84,10 @@ public class TCPConnection {
 		}
 	}
 	
-	public int available() {
-		try {
-			synchronized (this.commandList) {
-				return this.commandList.size();
-			}
-		} catch(Exception e) {
-			e.printStackTrace();
-			this.close();
-			return -1;
-		}
+	protected void onConnect() {
+		new TCPReceiveThread().start();
 	}
 	
-	public TCPCommand getCommand() {
-		try {
-			synchronized (this.commandList) {
-				return this.commandList.poll();
-			}
-		} catch(Exception e) {
-			e.printStackTrace();
-			this.close();
-			return null;
-		}
-	}
-	
-	public void update() {
-		try {
-			while(0 < this.available())
-				this.cmdHandler.handleCmd(this.getCommand(), this);
-		} catch(Exception e) {
-			e.printStackTrace();
-			this.close();
-		}
-	}
 	
 	public void close() {
 		if(!this.open)

@@ -19,14 +19,21 @@ public class TCPClient extends TCPConnection {
 			this.socket.connect(new InetSocketAddress(host, port));
 			this.din = new DataInputStream(this.socket.getInputStream());
 			this.dout = new DataOutputStream(this.socket.getOutputStream());
-			new TCPReceiveThread(this).start();
-			if(this.listener != null)
-				this.listener.onConnect(this);
+			onConnect();
 		} catch (Exception e) {
 			e.printStackTrace();
 			this.close();
 		}
 	}
+
+	@Override
+	protected void onConnect() {
+		super.onConnect();
+		if(this.listener != null)
+			this.listener.onConnect(this);
+	}
+	
+	
 	
 	@Override
 	public void close() {

@@ -59,9 +59,9 @@ public class TCPServer {
 	public void update() {
 		try {
 			synchronized (this.clients) {
-				for(TCPServerClient client : this.clients) {
+				/*for(TCPServerClient client : this.clients) {
 					client.update();
-				}
+				}*/
 				for(int i = 0; i < this.clients.size(); i++)
 					if(!this.clients.get(i).open) {
 						if(this.listener != null)

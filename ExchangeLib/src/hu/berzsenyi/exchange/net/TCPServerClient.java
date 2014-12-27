@@ -13,7 +13,7 @@ public class TCPServerClient extends TCPConnection {
 			this.socket = socket;
 			this.din = new DataInputStream(this.socket.getInputStream());
 			this.dout = new DataOutputStream(this.socket.getOutputStream());
-			new TCPReceiveThread(this).start();
+			onConnect();
 		} catch (Exception e) {
 			e.printStackTrace();
 			this.close();

@@ -44,29 +44,7 @@ public class ActivityMain extends Activity implements IClientListener, ICmdHandl
 		}
 	}
 	
-	public static class UpdateThread extends Thread {
-		public ActivityMain client;
-		
-		public UpdateThread(ActivityMain client) {
-			super("Thread-Update");
-			this.client = client;
-		}
-		
-		@Override
-		public void run() {
-			while(this.client.running) {
-				long time = System.currentTimeMillis();
-				this.client.update();
-				time = 1000/25-(System.currentTimeMillis()-time);
-				if(0 < time)
-					try {
-						Thread.sleep(time);
-					} catch(InterruptedException e) {
-						e.printStackTrace();
-					}
-			}
-		}
-	}
+	
 	
 	public static final String EXTRA_NAME = "strName",
 								EXTRA_IP = "strIP",
@@ -147,7 +125,7 @@ public class ActivityMain extends Activity implements IClientListener, ICmdHandl
 	@Override
 	public void onConnect(TCPClient client) {
 		this.running = true;
-		new UpdateThread(this).start();
+		// new UpdateThread(this).start();
 	}
 	
 	@Override
@@ -223,9 +201,6 @@ public class ActivityMain extends Activity implements IClientListener, ICmdHandl
 		this.tabAccept_listOffers.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, this.offersInStrings));
 	}
 	
-	public void update() {
-		this.net.update();
-	}
 
 	@Override
 	public void onClose(TCPClient client) {
