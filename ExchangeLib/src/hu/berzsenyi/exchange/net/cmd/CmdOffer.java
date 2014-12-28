@@ -4,7 +4,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 
 public class CmdOffer extends TCPCommand {
-	public static final int ID = 4;
+	public static final int ID = 5;
 	
 	public String playerID;
 	public int stockID, amount;

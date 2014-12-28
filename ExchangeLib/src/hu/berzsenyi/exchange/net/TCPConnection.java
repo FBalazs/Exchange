@@ -1,8 +1,8 @@
 package hu.berzsenyi.exchange.net;
 
 import hu.berzsenyi.exchange.net.cmd.*;
-import java.io.*;
 
+import java.io.*;
 import java.net.Socket;
 
 public abstract class TCPConnection {
@@ -31,17 +31,17 @@ public abstract class TCPConnection {
 					case CmdClientDisconnect.ID:
 						cmd = new CmdClientDisconnect(length);
 						break;
-					case CmdServerInfo.ID:
-						cmd = new CmdServerInfo(length);
+					case CmdServerStocks.ID:
+						cmd = new CmdServerStocks(length);
+						break;
+					case CmdServerTeams.ID:
+						cmd = new CmdServerTeams(length);
 						break;
 					case CmdOffer.ID:
 						cmd = new CmdOffer(length);
 						break;
-					case CmdClientOfferResponse.ID:
-						cmd = new CmdClientOfferResponse(length);
-						break;
-					case CmdServerExchange.ID:
-						cmd = new CmdServerExchange(length);
+					case CmdOfferResponse.ID:
+						cmd = new CmdOfferResponse(length);
 						break;
 					case CmdClientBuy.ID:
 						cmd = new CmdClientBuy(length);

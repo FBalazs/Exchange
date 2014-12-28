@@ -6,23 +6,9 @@ import java.util.List;
 
 public class Model {
 	public int round = 0;
+	public double startMoney = 1000;
 	public Stock[] stockList;
 	public List<Team> teams = new ArrayList<Team>();
-	
-	/**
-	 * Returns the number of bytes that can store this objects data.
-	 * @return The number of bytes.
-	 */
-	public int getCmdLength() {
-		int ret = 0;
-		ret += 4;
-		for(int s = 0; s < this.stockList.length; s++)
-			ret += 4+this.stockList[s].name.length()+8;
-		ret += 4;
-		for(int t = 0; t < this.teams.size(); t++)
-			ret += 4+this.teams.get(t).id.length()+4+this.teams.get(t).name.length()+8;
-		return ret;
-	}
 	
 	/**
 	 * Loads the stocks from the data files.
@@ -38,13 +24,24 @@ public class Model {
 		}
 	}
 	
-	/**
-	 * Adds a new team to the game.
-	 * @param id The id (the address) of the team.
-	 * @param name The name of the team.
-	 */
-	public void newTeam(String id, String name) {
-		this.teams.add(new Team(id, name, 1000, this.stockList.length));
+	public void loadEvents(String eventFolder) {
+		// TODO 
+	}
+	
+	public int getStockCmdLength() {
+		int ret = 0;
+		ret += 4;
+		for(int s = 0; s < this.stockList.length; s++)
+			ret += this.stockList[s].getCmdLength();
+		return ret;
+	}
+	
+	public int getTeamCmdLength() {
+		int ret = 0;
+		ret += 4;
+		for(int t = 0; t < this.teams.size(); t++)
+			ret += this.teams.get(t).getCmdLength();
+		return ret;
 	}
 	
 	public Team getTeamById(String id) {

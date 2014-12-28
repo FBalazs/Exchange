@@ -8,4 +8,8 @@ public class Stock {
 		this.name = name;
 		this.value = value;
 	}
+	
+	public int getCmdLength() {
+		return 8+4+this.name.length();
+	}
 }

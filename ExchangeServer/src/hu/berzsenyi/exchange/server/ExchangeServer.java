@@ -1,16 +1,17 @@
 package hu.berzsenyi.exchange.server;
 
 import hu.berzsenyi.exchange.Model;
+import hu.berzsenyi.exchange.Team;
 import hu.berzsenyi.exchange.net.IServerListener;
 import hu.berzsenyi.exchange.net.TCPConnection;
 import hu.berzsenyi.exchange.net.TCPServer;
 import hu.berzsenyi.exchange.net.TCPServerClient;
+import hu.berzsenyi.exchange.net.cmd.CmdClientBuy;
 import hu.berzsenyi.exchange.net.cmd.CmdClientDisconnect;
 import hu.berzsenyi.exchange.net.cmd.CmdClientInfo;
 import hu.berzsenyi.exchange.net.cmd.CmdOffer;
-import hu.berzsenyi.exchange.net.cmd.CmdClientOfferResponse;
-import hu.berzsenyi.exchange.net.cmd.CmdServerExchange;
-import hu.berzsenyi.exchange.net.cmd.CmdServerInfo;
+import hu.berzsenyi.exchange.net.cmd.CmdOfferResponse;
+import hu.berzsenyi.exchange.net.cmd.CmdServerStocks;
 import hu.berzsenyi.exchange.net.cmd.ICmdHandler;
 import hu.berzsenyi.exchange.net.cmd.TCPCommand;
 
@@ -41,10 +42,11 @@ public class ExchangeServer implements Runnable, IServerListener, ICmdHandler {
 		
 		if(cmd instanceof CmdClientInfo) {
 			if(this.model.round == 0) {
-				this.model.newTeam(conn.getAddrString(), ((CmdClientInfo)cmd).name);
-				conn.writeCommand(new CmdServerInfo(this.model));
+				this.model.teams.add(new Team(conn.getAddrString(), ((CmdClientInfo)cmd).name));
+				conn.writeCommand(new CmdServerStocks(this.model));
 			} else {
 				// TODO send feedback and disconnect client
+				conn.close();
 			}
 			return;
 		}
@@ -52,6 +54,16 @@ public class ExchangeServer implements Runnable, IServerListener, ICmdHandler {
 		if(cmd instanceof CmdClientDisconnect) {
 			this.model.removeTeam(conn.getAddrString());
 			conn.close();
+			return;
+		}
+		
+		if(cmd instanceof CmdClientBuy) {
+			CmdClientBuy buy = (CmdClientBuy)cmd;
+			Team team = this.model.getTeamById(conn.getAddrString());
+			team.stocks = buy.amount;
+			team.money = this.model.startMoney;
+			for(int i = 0; i < team.stocks.length; i++)
+				team.money -= this.model.stockList[i].value*team.stocks[i];
 			return;
 		}
 		
@@ -63,10 +75,18 @@ public class ExchangeServer implements Runnable, IServerListener, ICmdHandler {
 			return;
 		}
 		
-		if(cmd instanceof CmdClientOfferResponse) {
-			CmdClientOfferResponse offer = (CmdClientOfferResponse)cmd;
-			// TODO handle exchange
-			this.net.writeCmdToAll(new CmdServerExchange(offer.playerID, conn.getAddrString(), offer.stockID, offer.amount, offer.money));
+		if(cmd instanceof CmdOfferResponse) {
+			CmdOfferResponse offer = (CmdOfferResponse)cmd;
+			Team teamSender = this.model.getTeamById(offer.playerID);
+			Team teamReceiver = this.model.getTeamById(conn.getAddrString());
+			
+			teamSender.stocks[offer.stockID] += offer.amount;
+			teamSender.money += offer.money;
+			teamReceiver.stocks[offer.stockID] -= offer.amount;
+			teamReceiver.money -= offer.money;
+			
+			conn.writeCommand(offer);
+			this.net.writeCmdTo(new CmdOfferResponse(conn.getAddrString(), offer.stockID, -offer.amount, -offer.money), offer.playerID);
 			return;
 		}
 	}
