@@ -29,6 +29,7 @@ import android.widget.TabHost;
 import android.widget.TabHost.TabSpec;
 import android.content.DialogInterface.OnClickListener;
 import java.io.IOException;
+import android.content.Intent;
 
 public class ActivityMain extends Activity implements IClientListener, ICmdHandler {
 	public class TCPConnectThread extends Thread {
@@ -88,6 +89,9 @@ public class ActivityMain extends Activity implements IClientListener, ICmdHandl
 
 	public String name;
 	public Model model;
+	
+	private boolean zerothRoundDone = false,
+			zerothRoundStarted = false;
 
 	
 	@Override
@@ -145,10 +149,37 @@ public class ActivityMain extends Activity implements IClientListener, ICmdHandl
 	}
 
 	@Override
+	protected void onStart() {
+		super.onStart();
+		if(zerothRoundStarted && !zerothRoundDone) { //ActivityZerothRound was cancelled
+			finish();
+		}
+	}
+	
+	
+
+	@Override
 	public void onConnect(TCPClient client) {
 		this.running = true;
+		
+		// Open Zeroth Round Activity
+		this.runOnUiThread(new Runnable() {
+			public void run() {
+				ActivityMain.this.startActivityForResult(new Intent(ActivityMain.this, ActivityZerothRound.class), ActivityZerothRound.REQUEST_CODE) ;
+				Log.d(ActivityMain.class.getName(), "ActivityZerothRound has been started");
+			}
+		});
 		// new UpdateThread(this).start();
 	}
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		if(requestCode == ActivityZerothRound.REQUEST_CODE) {
+			this.zerothRoundDone = resultCode == Activity.RESULT_OK;
+		} else super.onActivityResult(requestCode, resultCode, data);
+	}
+	
+	
 
 	@Override
 	public void handleCmd(TCPCommand cmd, TCPConnection conn) {
@@ -246,20 +277,5 @@ public class ActivityMain extends Activity implements IClientListener, ICmdHandl
 		super.onDestroy();
 	}
 
-	@Override
-	protected void onPause() {
-		Log.d(this.getClass().getName(),"onPause()");
-		super.onPause();
-	}
-
-	@Override
-	protected void onStop() {
-		Log.d(this.getClass().getName(),"onStop()");
-		Log.d(this.getClass().getName(),"isFinishing? "+this.isFinishing());
-		super.onStop();
-	}
-	
-	
-	
 	
 }
