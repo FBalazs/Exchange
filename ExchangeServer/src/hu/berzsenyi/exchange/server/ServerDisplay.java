@@ -7,14 +7,14 @@ import java.awt.event.WindowListener;
 
 import javax.swing.JFrame;
 
-public class ServerDisplay extends JFrame implements WindowListener {
+public class ServerDisplay extends JFrame implements WindowListener, Runnable {
 	private static final long serialVersionUID = 8256191100104297255L;
 	
 	public ExchangeServer server;
 	
-	public ServerDisplay(ExchangeServer server) {
+	public ServerDisplay() {
 		super("Exchange Server");
-		this.server = server;
+		this.server = new ExchangeServer();
 		
 		this.setSize(1280, 720);
 		this.setLocationRelativeTo(null);
@@ -26,16 +26,37 @@ public class ServerDisplay extends JFrame implements WindowListener {
 	}
 	
 	@Override
+	public void run() {
+		this.server.create();
+		this.server.running = true;
+		while(this.server.running) {
+			long time = System.currentTimeMillis();
+			this.server.update();
+			this.invalidate();
+			time = 1000/25-(System.currentTimeMillis()-time);
+			if(0 < time)
+				try {
+					Thread.sleep(time);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+//			System.out.println(this.net.getClientNumber());
+		}
+		this.server.destroy();
+		System.exit(0);
+	}
+	
+	@Override
 	public void paint(Graphics g) {
-		g.setColor(Color.white);
-		g.fillRect(0, 0, this.getWidth(), this.getHeight());
-//		super.paint(g);
+		super.paint(g);
 		
 		try {
 			int dx = this.getWidth()/10;
 			int dy = this.getHeight()/10;
-			int dw = this.getWidth()*4/10;
+			int dw = this.getWidth()*3/10;
 			int dh = this.getHeight()*8/10;
+			g.setColor(Color.white);
+			g.fillRect(dx, dy, dw, dh);
 			g.setColor(Color.black);
 			g.drawLine(dx, dy, dx, dy+dh);
 			g.drawLine(dx, dy+dh, dx+dw, dy+dh);
@@ -50,10 +71,13 @@ public class ServerDisplay extends JFrame implements WindowListener {
 			}
 			g.drawString(""+maxPrice, dx-(int)g.getFontMetrics().getStringBounds(""+maxPrice, g).getWidth(), dy);
 			
-			int cx = dx+dw+dx;
+			int cx = dx+dw+dx*2;
 			int cy = dy;
 			int cw = dw;
-			int ch = dh;
+			int ch = dh/2;
+			g.setColor(Color.white);
+			g.fillRect(cx, cy, cw, ch);
+			g.setColor(Color.black);
 			for(int i = 0; i < this.server.model.teams.size(); i++) {
 				g.drawString(this.server.model.teams.get(i).id+" "+this.server.model.teams.get(i).name+" "+this.server.model.teams.get(i).money, cx, cy+ch*i/this.server.model.teams.size());
 			}
@@ -85,4 +109,8 @@ public class ServerDisplay extends JFrame implements WindowListener {
 
 	@Override
 	public void windowOpened(WindowEvent event) {}
+	
+	public static void main(String[] args) {
+		new Thread(new ServerDisplay(), "Thread-Server").start();
+	}
 }

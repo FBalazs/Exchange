@@ -15,15 +15,12 @@ import hu.berzsenyi.exchange.net.cmd.CmdServerStocks;
 import hu.berzsenyi.exchange.net.cmd.ICmdHandler;
 import hu.berzsenyi.exchange.net.cmd.TCPCommand;
 
-public class ExchangeServer implements Runnable, IServerListener, ICmdHandler {
+public class ExchangeServer implements IServerListener, ICmdHandler {
 	public boolean running;
 	public TCPServer net;
-	public ServerDisplay display;
 	public Model model;
 	
 	public void create() {
-		this.display = new ServerDisplay(this);
-		
 		this.model = new Model();
 		this.model.loadStocks("data/stocks");
 		
@@ -104,36 +101,7 @@ public class ExchangeServer implements Runnable, IServerListener, ICmdHandler {
 		//System.out.println("clients: "+this.net.getClientNumber());
 	}
 	
-	public void render() {
-		
-	}
-	
 	public void destroy() {
 		this.net.close();
-	}
-	
-	@Override
-	public void run() {
-		this.create();
-		this.running = true;
-		while(this.running) {
-			long time = System.currentTimeMillis();
-			this.update();
-			this.render();
-			time = 1000/25-(System.currentTimeMillis()-time);
-			if(0 < time)
-				try {
-					Thread.sleep(time);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-//			System.out.println(this.net.getClientNumber());
-		}
-		this.destroy();
-		System.exit(0);
-	}
-	
-	public static void main(String[] args) {
-		new Thread(new ExchangeServer(), "Thread-Server").start();
 	}
 }
