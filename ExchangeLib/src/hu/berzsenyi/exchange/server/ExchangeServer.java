@@ -12,6 +12,7 @@ import hu.berzsenyi.exchange.net.cmd.CmdClientInfo;
 import hu.berzsenyi.exchange.net.cmd.CmdOffer;
 import hu.berzsenyi.exchange.net.cmd.CmdOfferResponse;
 import hu.berzsenyi.exchange.net.cmd.CmdServerStocks;
+import hu.berzsenyi.exchange.net.cmd.CmdServerTeams;
 import hu.berzsenyi.exchange.net.cmd.ICmdHandler;
 import hu.berzsenyi.exchange.net.cmd.TCPCommand;
 
@@ -37,6 +38,10 @@ public class ExchangeServer implements IServerListener, ICmdHandler {
 	}
 	
 	public void nextRound() {
+		if(this.model.round == 0) {
+			this.net.writeCmdToAll(new CmdServerTeams(this.model));
+		}
+		
 		this.model.round++;
 		// TODO send cmd
 		if(this.display != null)
