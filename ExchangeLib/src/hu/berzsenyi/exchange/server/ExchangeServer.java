@@ -20,11 +20,27 @@ public class ExchangeServer implements IServerListener, ICmdHandler {
 	public TCPServer net;
 	public Model model;
 	
+	public IServerDisplay display;
+	
+	public void setDisplay(IServerDisplay display) {
+		this.display = display;
+	}
+	
 	public void create() {
 		this.model = new Model();
 		this.model.loadStocks("data/stocks");
 		
 		this.net = new TCPServer(8080, this, this);
+		
+		if(this.display != null)
+			this.display.repaint();
+	}
+	
+	public void nextRound() {
+		this.model.round++;
+		// TODO send cmd
+		if(this.display != null)
+			this.display.repaint();
 	}
 	
 	@Override
@@ -45,13 +61,11 @@ public class ExchangeServer implements IServerListener, ICmdHandler {
 				// TODO send feedback and disconnect client
 				conn.close();
 			}
-			return;
 		}
 		
 		if(cmd instanceof CmdClientDisconnect) {
 			this.model.removeTeam(conn.getAddrString());
 			conn.close();
-			return;
 		}
 		
 		if(cmd instanceof CmdClientBuy) {
@@ -61,7 +75,6 @@ public class ExchangeServer implements IServerListener, ICmdHandler {
 			team.money = this.model.startMoney;
 			for(int i = 0; i < team.stocks.length; i++)
 				team.money -= this.model.stockList[i].value*team.stocks[i];
-			return;
 		}
 		
 		if(cmd instanceof CmdOffer) {
@@ -69,7 +82,6 @@ public class ExchangeServer implements IServerListener, ICmdHandler {
 			String to = offer.playerID;
 			offer.playerID = conn.getAddrString();
 			this.net.writeCmdTo(offer, to);
-			return;
 		}
 		
 		if(cmd instanceof CmdOfferResponse) {
@@ -84,14 +96,19 @@ public class ExchangeServer implements IServerListener, ICmdHandler {
 			
 			conn.writeCommand(offer);
 			this.net.writeCmdTo(new CmdOfferResponse(conn.getAddrString(), offer.stockID, -offer.amount, -offer.money), offer.playerID);
-			return;
 		}
+		
+		if(this.display != null)
+			this.display.repaint();
 	}
 
 	@Override
 	public void onClientDisconnected(TCPServerClient client) {
 		System.out.println("Client disconnected!");
 		this.model.removeTeam(client.getAddrString());
+		
+		if(this.display != null)
+			this.display.repaint();
 	}
 	
 	public void update() {

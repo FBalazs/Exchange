@@ -51,7 +51,7 @@ public abstract class TCPConnection {
 						cmd.read(TCPConnection.this.din);
 					
 					cmdHandler.handleCmd(cmd, TCPConnection.this);
-					System.out.println("A command has arrived");
+//					System.out.println("A command has arrived");
 				} catch(Exception e) {
 					e.printStackTrace();
 					TCPConnection.this.close();
