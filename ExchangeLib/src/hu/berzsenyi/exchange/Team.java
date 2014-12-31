@@ -2,13 +2,15 @@ package hu.berzsenyi.exchange;
 
 public class Team {
 	public String id, name;
-	public double money;
-	public int[] stocks;
+	public double money = 0;
+	public int[] stocks = null;
 	
-	public Team(String id, String name, double money, int stockNumber) {
+	public Team(String id, String name) {
 		this.id = id;
 		this.name = name;
-		this.money = money;
-		this.stocks = new int[stockNumber];
+	}
+	
+	public int getCmdLength() {
+		return 4+this.id.length()+4+this.name.length()+8+4+4*this.stocks.length;
 	}
 }

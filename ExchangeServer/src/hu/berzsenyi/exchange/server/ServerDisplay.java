@@ -2,64 +2,121 @@ package hu.berzsenyi.exchange.server;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
+import java.awt.event.WindowFocusListener;
 import java.awt.event.WindowListener;
+import java.awt.event.WindowStateListener;
 
+import javax.swing.JButton;
 import javax.swing.JFrame;
 
-public class ServerDisplay extends JFrame implements WindowListener {
+public class ServerDisplay extends JFrame implements WindowListener, WindowStateListener, WindowFocusListener, Runnable, IServerDisplay {
 	private static final long serialVersionUID = 8256191100104297255L;
 	
 	public ExchangeServer server;
 	
-	public ServerDisplay(ExchangeServer server) {
+	public int width = 1280, height = 720;
+	
+	public Rectangle rectStocks, rectTeams;
+	public JButton btnNextRound;
+	
+	public ServerDisplay() {
 		super("Exchange Server");
-		this.server = server;
+		this.server = new ExchangeServer();
+		this.server.setDisplay(this);
 		
-		this.setSize(1280, 720);
+		this.setSize(this.width, this.height);
+		this.setLayout(null);
 		this.setLocationRelativeTo(null);
 		this.setBackground(Color.white);
 		
+		this.btnNextRound = new JButton("Next Round");
+		this.btnNextRound.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				ServerDisplay.this.server.nextRound();
+			}
+		});
+		this.add(this.btnNextRound);
+		
+		this.onResize();
+		
 		this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		this.addWindowListener(this);
+		this.addWindowStateListener(this);
+		this.addWindowFocusListener(this);
 		this.setVisible(true);
+	}
+	
+	public void onResize() {
+		int minSize = Math.min(this.width, this.height);
+		this.rectStocks = new Rectangle(minSize/10, minSize/10, this.width/2-minSize/5, this.height/2-minSize/5);
+		this.rectTeams = new Rectangle(this.rectStocks.x, this.rectStocks.y+this.rectStocks.height+minSize/5, this.rectStocks.width, this.rectStocks.height);
+		this.btnNextRound.setBounds(this.width/2-minSize/10, this.height/2-minSize/20, minSize/5, minSize/10);
+	}
+	
+	@Override
+	public void run() {
+		this.server.create();
+		this.server.running = true;
+		while(this.server.running) {
+			long time = System.currentTimeMillis();
+			this.server.update();
+			time = 1000/20-(System.currentTimeMillis()-time);
+			if(0 < time)
+				try {
+					Thread.sleep(time);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+//			System.out.println(this.net.getClientNumber());
+		}
+		this.server.destroy();
+		System.exit(0);
 	}
 	
 	@Override
 	public void paint(Graphics g) {
-		g.setColor(Color.white);
-		g.fillRect(0, 0, this.getWidth(), this.getHeight());
-//		super.paint(g);
+		if(this.getWidth() != this.width || this.getHeight() != this.height) {
+			this.width = this.getWidth();
+			this.height = this.getHeight();
+			this.onResize();
+		}
+		super.paint(g);
 		
 		try {
-			int dx = this.getWidth()/10;
-			int dy = this.getHeight()/10;
-			int dw = this.getWidth()*4/10;
-			int dh = this.getHeight()*8/10;
+			int minSize = Math.min(this.getWidth(), this.getHeight());
+			
+			g.setColor(Color.white);
+			g.fillRect(this.rectStocks.x, this.rectStocks.y, this.rectStocks.width, this.rectStocks.height);
 			g.setColor(Color.black);
-			g.drawLine(dx, dy, dx, dy+dh);
-			g.drawLine(dx, dy+dh, dx+dw, dy+dh);
+			g.drawLine(this.rectStocks.x, this.rectStocks.y, this.rectStocks.x, this.rectStocks.y+this.rectStocks.height);
+			g.drawLine(this.rectStocks.x, this.rectStocks.y+this.rectStocks.height, this.rectStocks.x+this.rectStocks.width, this.rectStocks.y+this.rectStocks.height);
 			double maxPrice = 0;
 			for(int i = 0; i < this.server.model.stockList.length; i++)
 				if(maxPrice < this.server.model.stockList[i].value)
 					maxPrice = this.server.model.stockList[i].value;
 			for(int i = 0; i < this.server.model.stockList.length; i++) {
-				g.drawRect(dx+dw*i/this.server.model.stockList.length, dy+dh-(int)(dh*this.server.model.stockList[i].value/maxPrice), dw/2/this.server.model.stockList.length, (int)(dh*this.server.model.stockList[i].value/maxPrice));
-				g.drawString(""+this.server.model.stockList[i].value, dx+dw*i/this.server.model.stockList.length, dy+dh-(int)(dh*this.server.model.stockList[i].value/maxPrice));
-				g.drawString(this.server.model.stockList[i].name, dx+dw*i/this.server.model.stockList.length, dy+dh+g.getFontMetrics().getHeight());
+				g.drawRect(this.rectStocks.x+this.rectStocks.width*i/this.server.model.stockList.length, this.rectStocks.y+this.rectStocks.height-(int)(this.rectStocks.height*this.server.model.stockList[i].value/maxPrice), this.rectStocks.width/2/this.server.model.stockList.length, (int)(this.rectStocks.height*this.server.model.stockList[i].value/maxPrice));
+				g.drawString(""+this.server.model.stockList[i].value, this.rectStocks.x+this.rectStocks.width*i/this.server.model.stockList.length, this.rectStocks.y+this.rectStocks.height-(int)(this.rectStocks.height*this.server.model.stockList[i].value/maxPrice));
+				g.drawString(this.server.model.stockList[i].name, this.rectStocks.x+this.rectStocks.width*i/this.server.model.stockList.length, this.rectStocks.y+this.rectStocks.height+g.getFontMetrics().getHeight());
 			}
-			g.drawString(""+maxPrice, dx-(int)g.getFontMetrics().getStringBounds(""+maxPrice, g).getWidth(), dy);
+			g.drawString(""+maxPrice, this.rectStocks.x-(int)g.getFontMetrics().getStringBounds(""+maxPrice, g).getWidth(), this.rectStocks.y);
 			
-			int cx = dx+dw+dx;
-			int cy = dy;
-			int cw = dw;
-			int ch = dh;
+			g.setColor(Color.white);
+			g.fillRect(this.rectTeams.x, this.rectTeams.y, this.rectTeams.width, this.rectTeams.height);
+			g.setColor(Color.black);
 			for(int i = 0; i < this.server.model.teams.size(); i++) {
-				g.drawString(this.server.model.teams.get(i).id+" "+this.server.model.teams.get(i).name+" "+this.server.model.teams.get(i).money, cx, cy+ch*i/this.server.model.teams.size());
+				g.drawString(this.server.model.teams.get(i).id+" "+this.server.model.teams.get(i).name+" "+this.server.model.teams.get(i).money, this.rectTeams.x, this.rectTeams.y+this.rectTeams.height*i/this.server.model.teams.size());
 			}
-			System.out.println("paint end");
-		} catch(Exception e) {
 			
+			g.setColor(Color.black);
+			g.drawString("Round "+this.server.model.round, minSize/10, this.getHeight()/2);
+		} catch(Exception e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -85,4 +142,21 @@ public class ServerDisplay extends JFrame implements WindowListener {
 
 	@Override
 	public void windowOpened(WindowEvent event) {}
+	
+	@Override
+	public void windowStateChanged(WindowEvent event) {
+		this.repaint();
+	}
+
+	@Override
+	public void windowGainedFocus(WindowEvent event) {
+		this.repaint();
+	}
+
+	@Override
+	public void windowLostFocus(WindowEvent event) {}
+	
+	public static void main(String[] args) {
+		new Thread(new ServerDisplay(), "Thread-Server").start();
+	}
 }

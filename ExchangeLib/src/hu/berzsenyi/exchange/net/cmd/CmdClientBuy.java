@@ -6,27 +6,28 @@ import java.io.DataOutputStream;
 public class CmdClientBuy extends TCPCommand {
 	public static final int ID = 7;
 	
-	public int stockID, amount;
+	public int[] amount;
 	
 	public CmdClientBuy(int length) {
 		super(ID, length);
 	}
 	
-	public CmdClientBuy(int stockID, int amount) {
-		super(ID, 4+4);
-		this.stockID = stockID;
+	public CmdClientBuy(int[] amount) {
+		super(ID, 4+amount.length*4);
 		this.amount = amount;
 	}
 	
 	@Override
 	public void read(DataInputStream in) throws Exception {
-		this.stockID = in.readInt();
-		this.amount = in.readInt();
+		this.amount = new int[in.readInt()];
+		for(int s = 0; s < this.amount.length; s++)
+			this.amount[s] = in.readInt();
 	}
 	
 	@Override
 	public void write(DataOutputStream out) throws Exception {
-		out.writeInt(this.stockID);
-		out.writeInt(this.amount);
+		out.writeInt(this.amount.length);
+		for(int s = 0; s < this.amount.length; s++)
+			out.writeInt(this.amount[s]);
 	}
 }

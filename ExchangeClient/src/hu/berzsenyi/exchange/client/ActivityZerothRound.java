@@ -1,4 +1,5 @@
 package hu.berzsenyi.exchange.client;
+
 import android.app.Activity;
 import android.os.Bundle;
 import android.widget.BaseAdapter;
@@ -13,7 +14,6 @@ import android.widget.Button;
 import android.util.Log;
 
 public class ActivityZerothRound extends Activity {
-	
 	protected final static int REQUEST_CODE = 1;
 
 	@Override
@@ -90,5 +90,4 @@ public class ActivityZerothRound extends Activity {
 		
 		
 	}
-	
 }
