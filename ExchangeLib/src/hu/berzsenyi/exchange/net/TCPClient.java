@@ -9,9 +9,9 @@ import java.net.Socket;
 import java.io.IOException;
 
 public class TCPClient extends TCPConnection {
-	public IClientListener listener;
+	public IClientConnectionListener listener;
 	
-	public TCPClient(String host, int port, ICmdHandler cmdHandler, IClientListener listener) throws IOException {
+	public TCPClient(String host, int port, ICmdHandler cmdHandler, IClientConnectionListener listener) throws IOException {
 		super(cmdHandler);
 		try {
 			this.listener = listener;
@@ -22,6 +22,8 @@ public class TCPClient extends TCPConnection {
 			this.dout = new DataOutputStream(this.socket.getOutputStream());
 			onConnect();
 		} catch (IOException e) {
+			if(this.listener != null)
+				this.listener.onConnectionFail(this, e);
 			this.close();
 			throw e;
 		}

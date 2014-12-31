@@ -84,8 +84,8 @@ public class ExchangeServer implements IServerListener, ICmdHandler {
 		
 		if(cmd instanceof CmdOffer) {
 			CmdOffer offer = (CmdOffer)cmd;
-			String to = offer.playerID;
-			offer.playerID = conn.getAddrString();
+			String to = offer.teamID;
+			offer.teamID = conn.getAddrString();
 			this.net.writeCmdTo(offer, to);
 		}
 		

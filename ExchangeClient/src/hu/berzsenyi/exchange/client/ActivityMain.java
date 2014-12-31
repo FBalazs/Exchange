@@ -1,20 +1,8 @@
 package hu.berzsenyi.exchange.client;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import hu.berzsenyi.exchange.Model;
-import hu.berzsenyi.exchange.net.IClientListener;
 import hu.berzsenyi.exchange.net.TCPClient;
-import hu.berzsenyi.exchange.net.TCPConnection;
-import hu.berzsenyi.exchange.net.cmd.CmdClientDisconnect;
-import hu.berzsenyi.exchange.net.cmd.CmdClientInfo;
 import hu.berzsenyi.exchange.net.cmd.CmdOffer;
-import hu.berzsenyi.exchange.net.cmd.CmdOfferResponse;
-import hu.berzsenyi.exchange.net.cmd.CmdServerStocks;
-import hu.berzsenyi.exchange.net.cmd.CmdServerTeams;
-import hu.berzsenyi.exchange.net.cmd.ICmdHandler;
-import hu.berzsenyi.exchange.net.cmd.TCPCommand;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -23,6 +11,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Spinner;
@@ -31,64 +20,27 @@ import android.widget.TabHost.TabSpec;
 
 import java.io.IOException;
 
-public class ActivityMain extends Activity implements IClientListener, ICmdHandler {
-	public class TCPConnectThread extends Thread {
-		
-
-		public TCPConnectThread() {
-			super("Thread-TCPConnect");
-		}
-
-		@Override
-		public void run() {
-			Log.d(this.getClass().getName(),"run()");
-			try {
-				Connection.client = new TCPClient(
-					ActivityMain.this.getIntent().getStringExtra(EXTRA_IP),
-					ActivityMain.this.getIntent().getIntExtra(EXTRA_PORT, -1),
-					ActivityMain.this,
-					ActivityMain.this);
-				Log.d(this.getClass().getName(),"success");
-			} catch (IOException e) {
-				e.printStackTrace();
-				/*this.activity.runOnUiThread(new Runnable() {
-						public void run() {
-							new AlertDialog.Builder(TCPConnectThread.this.activity.getParent())
-								.setMessage(R.string.could_not_connect)
-								.setPositiveButton(R.string.ok, null)
-								.setCancelable(false)
-								.create().show();
-							// onClose will finish the Activity
-						}
-					});*/
-				return;
-			}
-			Connection.client.writeCommand(new CmdClientInfo(ActivityMain.this.name));
-		}
-	}
+public class ActivityMain extends Activity implements IClientListener {
+	
 
 
 
-	public static final String EXTRA_NAME = "strName",
+	protected static final String EXTRA_NAME = "strName",
 	EXTRA_IP = "strIP",
 	EXTRA_PORT = "intPort";
 
-	public boolean running;
+	private TabHost tabHost;
+	private TabSpec tabMain, tabStocks, tabOffer, tabAccept;
 
-	public TabHost tabHost;
-	public TabSpec tabMain, tabStocks, tabOffer, tabAccept;
+	private ListView tabStocks_listStocks;
 
-	public ListView tabStocks_listStocks;
+	private Spinner tabOffer_listTeams, tabOffer_listStocks;
+	private Button tabOffer_buttonOffer;
 
-	public Spinner tabOffer_listTeams, tabOffer_listStocks;
-	public Button tabOffer_buttonOffer;
+	private ListView tabAccept_listOffers;
+	
+	private ExchangeClient client = ExchangeClient.getInstance();
 
-	public ListView tabAccept_listOffers;
-	public List<CmdOffer> offersIn = new ArrayList<CmdOffer>();
-	public List<String> offersInStrings = new ArrayList<String>();
-
-	public String name;
-	public Model model = new Model();
 
 	
 	@Override
@@ -141,157 +93,136 @@ public class ActivityMain extends Activity implements IClientListener, ICmdHandl
 		this.tabHost.addTab(this.tabOffer);
 		this.tabHost.addTab(this.tabAccept);
 
-		this.name = this.getIntent().getStringExtra(EXTRA_NAME);
-		new TCPConnectThread().start();
+		this.client.setName(
+				this.getIntent().getStringExtra(EXTRA_NAME));
+		this.client.addIClientListener(this);
+		this.client.connect(
+				ActivityMain.this.getIntent().getStringExtra(
+						ActivityMain.EXTRA_IP),
+				ActivityMain.this.getIntent().getIntExtra(
+						ActivityMain.EXTRA_PORT, -1));
 	}
 
 	@Override
 	public void onConnect(TCPClient client) {
-		this.running = true;
 		// new UpdateThread(this).start();
 	}
 
-	@Override
-	public void handleCmd(TCPCommand cmd, TCPConnection conn) {
-		Log.d(this.getClass().getName(), "Received command! " + cmd.getClass().getName());
-
-		if (cmd instanceof CmdServerStocks) {
-			CmdServerStocks stockInfo = ((CmdServerStocks)cmd);
-			this.model.startMoney = stockInfo.startMoney;
-			this.model.stockList = stockInfo.stockList;
-			this.runOnUiThread(new Runnable() {
-				public void run() {
-					ActivityMain.this.refreshStockList();
-				}
-			});
-			return;
-		}
-		
-		if(cmd instanceof CmdServerTeams) {
-			CmdServerTeams teamInfo = ((CmdServerTeams)cmd);
-			this.model.teams = teamInfo.teams;
-			this.runOnUiThread(new Runnable() {
-				public void run() {
-					ActivityMain.this.refreshTeamList();
-//					ActivityMain.this.tabOffer_listTeams.setAdapter(ActivityMain.this.tabOffer_listTeams.getAdapter());
-				}
-			});
-			return;
-		}
-
-		if (cmd instanceof CmdOffer) {
-			CmdOffer offer = (CmdOffer)cmd;
-			this.offersIn.add(offer);
-			this.offersInStrings.add("name="+this.model.getTeamById(offer.playerID).name + " stockName=" + this.model.stockList[offer.stockID].name + " amount=" + offer.amount + " money=" + offer.money);
-			this.runOnUiThread(new Runnable() {
-				public void run() {
-					ActivityMain.this.tabAccept_listOffers.setAdapter(ActivityMain.this.tabAccept_listOffers.getAdapter());
-				}
-			});
-			return;
-		}
-	}
+	
 
 	public void onClickButtonOffer() {
 		// TODO send offer message
-		Connection.client.writeCommand(new CmdOffer(this.model.teams.get(this.tabOffer_listTeams.getSelectedItemPosition()).id, this.tabOffer_listStocks.getSelectedItemPosition(), 1, -1.0));
+		ExchangeClient
+				.getInstance()
+				.offer(this.client.getModel().teams.get(this.tabOffer_listTeams
+						.getSelectedItemPosition()).id,
+						this.tabOffer_listStocks.getSelectedItemPosition(), 1,
+						-1.0);
 	}
 
 	public void onOfferAccept(int pos) {
-		CmdOffer offer = this.offersIn.get(pos);
-		Connection.client.writeCommand(new CmdOfferResponse(offer.playerID, offer.stockID, offer.amount, offer.money));
-		this.offersIn.remove(pos);
-		this.offersInStrings.remove(pos);
-		this.tabAccept_listOffers.setAdapter(this.tabAccept_listOffers.getAdapter());
+		this.client.acceptOffer(pos);
+		((BaseAdapter) this.tabAccept_listOffers.getAdapter()).notifyDataSetChanged();
 	}
 
 	public void onOfferDeny(int pos) {
-		this.offersIn.remove(pos);
-		this.offersInStrings.remove(pos);
-		this.tabAccept_listOffers.setAdapter(this.tabAccept_listOffers.getAdapter());
+		this.client.denyOffer(pos);
+		((BaseAdapter) this.tabAccept_listOffers.getAdapter()).notifyDataSetChanged();
 	}
 
 	public void onClickOffer(final int offer) {
-		new AlertDialog.Builder(this).setMessage("Do you want to accept this offer? " + this.offersInStrings.get(offer)).setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					onOfferAccept(offer);
-				}
-			}).setNegativeButton("No", new DialogInterface.OnClickListener() {
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					onOfferDeny(offer);
-				}
-			}).show();
+		new AlertDialog.Builder(this)
+				.setMessage(
+						"Do you want to accept this offer? "
+								+ ExchangeClient
+										.getInstance()
+										.getOffer(offer)
+										.toString(
+												this.client
+														.getModel()))
+				.setPositiveButton("Yes",
+						new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog,
+									int which) {
+								onOfferAccept(offer);
+							}
+						})
+				.setNegativeButton("No", new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						onOfferDeny(offer);
+					}
+				}).show();
 	}
 	
-	public void refreshTeamList() {
-		String[] array = new String[this.model.teams.size()];
+	public void refreshTeamList(Model model) {
+		String[] array = new String[model.teams.size()];
 		for(int i = 0; i < array.length; i++)
-			array[i] = this.model.teams.get(i).name;
+			array[i] = model.teams.get(i).name;
 		this.tabOffer_listTeams.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, array));
 	}
 	
-	public void refreshStockList() {
-		String[] array = new String[this.model.stockList.length];
+	public void refreshStockList(Model model) {
+		String[] array = new String[model.stockList.length];
 		for(int i = 0; i < array.length; i++)
-			array[i] = this.model.stockList[i].name;
+			array[i] = model.stockList[i].name;
 		this.tabOffer_listStocks.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, array));
 		this.tabStocks_listStocks.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, array));
 	}
 
-//	public void setModel(Model model) {
-//		this.model = model;
-//
-//		String[] array;
-//
-//		array = new String[this.model.stockList.length];
-//		for (int i = 0; i < array.length; i++)
-//			array[i] = this.model.stockList[i].name + " " + this.model.stockList[i].value;
-//		this.tabStocks_listStocks.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, array));
-//
-//		array = new String[this.model.teams.size()];
-//		for (int i = 0; i < array.length; i++)
-//			array[i] = this.model.teams.get(i).name;
-//		this.tabOffer_listTeams.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, array));
-//		array = new String[this.model.stockList.length];
-//		for (int i = 0; i < array.length; i++)
-//			array[i] = this.model.stockList[i].name;
-//		this.tabOffer_listStocks.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, array));
-//
-//		this.tabAccept_listOffers.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, this.offersInStrings));
-//	}
-
 
 	@Override
 	public void onClose(TCPClient client) {
-		this.running = false;
-		this.finish();
+		this.runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				ActivityMain.this.finish();
+			}
+		});
 	}
 
 	@Override
 	protected void onDestroy() {
 		Log.d(this.getClass().getName(), "onDestroy()");
-		if (Connection.client != null) {
-			Connection.client.writeCommand(new CmdClientDisconnect());
-			Log.d(this.getClass().getName(), "Disconnect message has been sent");
-			Connection.client.close();
-			Connection.client = null;
-		}
+		this.client.disconnect();
+		Log.d(this.getClass().getName(), "Disconnect message has been sent");
 		super.onDestroy();
 	}
 
 	@Override
-	protected void onPause() {
-		Log.d(this.getClass().getName(),"onPause()");
-		super.onPause();
+	public void onConnectionFail(TCPClient client, IOException exception) {
+		Log.d(this.getClass().getName(), "connection failed");
 	}
 
 	@Override
-	protected void onStop() {
-		Log.d(this.getClass().getName(),"onStop()");
-		Log.d(this.getClass().getName(),"isFinishing? "+this.isFinishing());
-		super.onStop();
+	public void onStocksCommand(final ExchangeClient client) {
+		this.runOnUiThread(new Runnable() {
+			public void run() {
+				ActivityMain.this.refreshStockList(client.getModel());
+			}
+		});
+	}
+
+	@Override
+	public void onTeamsCommand(final ExchangeClient client) {
+		this.runOnUiThread(new Runnable() {
+			public void run() {
+				ActivityMain.this.refreshTeamList(client.getModel());
+				// ActivityMain.this.tabOffer_listTeams.setAdapter(ActivityMain.this.tabOffer_listTeams.getAdapter());
+			}
+		});
+	}
+
+	@Override
+	public void onOfferIn(ExchangeClient client, CmdOffer offer) {
+		this.runOnUiThread(new Runnable() {
+			public void run() {
+				ActivityMain.this.tabAccept_listOffers
+						.setAdapter(ActivityMain.this.tabAccept_listOffers
+								.getAdapter());
+			}
+		});
 	}
 	
 	
