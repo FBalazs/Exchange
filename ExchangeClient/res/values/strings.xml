@@ -12,7 +12,8 @@
     <string name="textOffer">Offer</string>
 	
 	<string name="could_not_connect">Could not connect</string>
-	<string name="ok">Ok</string>
+	<string name="ok">OK</string>
+	<string name="done">Done</string>
 	
 	<string name="money">Money:&#x20;</string>
 	<string name="unit_price">Unit price:&#x20;</string>

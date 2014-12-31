@@ -1,6 +1,5 @@
 package hu.berzsenyi.exchange.client;
 import android.app.Activity;
-import android.os.PersistableBundle;
 import android.os.Bundle;
 import android.widget.BaseAdapter;
 import android.view.ViewGroup;
