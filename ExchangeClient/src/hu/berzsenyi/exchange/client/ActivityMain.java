@@ -143,12 +143,14 @@ public class ActivityMain extends Activity implements IClientListener {
 		this.client.acceptOffer(pos);
 		((BaseAdapter) this.tabAccept_listOffers.getAdapter())
 				.notifyDataSetChanged();
+		this.tabAccept_listOffers.invalidate();
 	}
 
 	public void onOfferDeny(int pos) {
 		this.client.denyOffer(pos);
 		((BaseAdapter) this.tabAccept_listOffers.getAdapter())
 				.notifyDataSetChanged();
+		this.tabAccept_listOffers.invalidate();
 	}
 
 	public void onClickOffer(final int offer) {

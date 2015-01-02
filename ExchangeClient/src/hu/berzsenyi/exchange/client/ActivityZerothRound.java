@@ -74,7 +74,6 @@ public class ActivityZerothRound extends Activity {
 			@Override
 			public void onStocksCommand(ExchangeClient client) {
 				mAdapter.updateStocks(client.getModel().stockList);
-				mListView.invalidate();
 			}
 
 			@Override
@@ -192,6 +191,7 @@ public class ActivityZerothRound extends Activity {
 			// be null!
 			mAmounts = new int[ActivityZerothRound.this.mStocks.length];
 			notifyDataSetChanged();
+			mListView.invalidate();
 		}
 
 	}
