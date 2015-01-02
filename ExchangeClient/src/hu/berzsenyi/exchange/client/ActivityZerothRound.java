@@ -79,6 +79,11 @@ public class ActivityZerothRound extends Activity {
 			@Override
 			public void onOfferIn(ExchangeClient client, CmdOffer offer) {
 			}
+
+			@Override
+			public void onRoundCommand(ExchangeClient client) {
+				ActivityZerothRound.this.finish();
+			}
 		});
 
 		((Button) findViewById(R.id.activity_zeroth_round_done))
@@ -94,9 +99,10 @@ public class ActivityZerothRound extends Activity {
 
 	private void onDoneButtonClick() {
 		if (calculateMoney() > 0) { // OK
-			// TODO send result to the server
+			ExchangeClient.getInstance().doBuy(this.mAmounts);
 			setResult(Activity.RESULT_OK);
-			finish();
+			((Button) findViewById(R.id.activity_zeroth_round_done)).setEnabled(false);
+//			finish();
 		} else {
 			new AlertDialog.Builder(this)
 					.setMessage(R.string.dont_have_enough_money)

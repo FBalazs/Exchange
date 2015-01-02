@@ -83,6 +83,10 @@ public class ActivityConnect extends Activity {
 			@Override
 			public void onOfferIn(ExchangeClient client, CmdOffer offer) {
 			}
+
+			@Override
+			public void onRoundCommand(ExchangeClient client) {
+			}
 		});
 		mClient.connect(this.editTextIP.getText().toString(),
 				Integer.parseInt(this.editTextPort.getText().toString()));

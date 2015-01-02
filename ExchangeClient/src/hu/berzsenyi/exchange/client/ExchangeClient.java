@@ -9,6 +9,7 @@ import hu.berzsenyi.exchange.Model;
 import hu.berzsenyi.exchange.net.IClientConnectionListener;
 import hu.berzsenyi.exchange.net.TCPClient;
 import hu.berzsenyi.exchange.net.TCPConnection;
+import hu.berzsenyi.exchange.net.cmd.CmdClientBuy;
 import hu.berzsenyi.exchange.net.cmd.CmdClientDisconnect;
 import hu.berzsenyi.exchange.net.cmd.CmdClientInfo;
 import hu.berzsenyi.exchange.net.cmd.CmdOffer;
@@ -31,7 +32,7 @@ public class ExchangeClient implements ICmdHandler, IClientConnectionListener {
 	private boolean connected = false;
 	private String name;
 	private Model model = new Model();
-	private List<CmdOffer> offersIn = new ArrayList<CmdOffer>();
+	public List<CmdOffer> offersIn = new ArrayList<CmdOffer>();
 	private List<IClientListener> mListeners = new ArrayList<IClientListener>();
 
 	private ExchangeClient() {
@@ -102,6 +103,10 @@ public class ExchangeClient implements ICmdHandler, IClientConnectionListener {
 	public void denyOffer(int index) {
 		offersIn.remove(index);
 	}
+	
+	public void doBuy(int[] amounts) {
+		client.writeCommand(new CmdClientBuy(amounts));
+	}
 
 	public void addIClientListener(IClientListener listener) {
 		mListeners.add(listener);
@@ -164,7 +169,13 @@ public class ExchangeClient implements ICmdHandler, IClientConnectionListener {
 		if(cmd instanceof CmdServerNextRound) {
 			this.offersIn.clear();
 			this.model.round++;
-			// TODO call listener
+			for (IClientListener listener : mListeners)
+				listener.onRoundCommand(this);
+			return;
+		}
+		
+		if(cmd instanceof CmdOfferResponse) {
+			// TODO
 			return;
 		}
 	}

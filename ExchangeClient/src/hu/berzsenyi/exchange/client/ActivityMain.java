@@ -23,12 +23,9 @@ import android.content.Intent;
 
 public class ActivityMain extends Activity implements IClientListener {
 
-	protected static final String EXTRA_NAME = "strName", EXTRA_IP = "strIP",
-			EXTRA_PORT = "intPort";
+	protected static final String EXTRA_NAME = "strName", EXTRA_IP = "strIP", EXTRA_PORT = "intPort";
 
-	protected static final String TAG_OVERVIEW = "overview",
-			TAG_STOCKS = "stocks", TAG_OFFER = "offer",
-			TAG_INCOMING = "incoming";
+	protected static final String TAG_OVERVIEW = "overview", TAG_STOCKS = "stocks", TAG_OFFER = "offer", TAG_INCOMING = "incoming";
 
 	private TabHost tabHost;
 	private TabSpec tabMain, tabStocks, tabOffer, tabAccept;
@@ -69,45 +66,36 @@ public class ActivityMain extends Activity implements IClientListener {
 		this.tabAccept.setContent(R.id.tabAccept);
 		this.tabAccept.setIndicator(this.getString(R.string.incoming));
 
-		this.tabStocks_listStocks = (ListView) this
-				.findViewById(R.id.tabStocks_listStocks);
+		this.tabStocks_listStocks = (ListView) this.findViewById(R.id.tabStocks_listStocks);
 
-		this.tabOffer_listTeams = (Spinner) this
-				.findViewById(R.id.tabOffer_listTeams);
-		this.tabOffer_listStocks = (Spinner) this
-				.findViewById(R.id.tabOffer_listStocks);
-		this.tabOffer_buttonOffer = (Button) this
-				.findViewById(R.id.tabOffer_buttonOffer);
-		this.tabOffer_buttonOffer
-				.setOnClickListener(new View.OnClickListener() {
-					@Override
-					public void onClick(View v) {
-						onClickButtonOffer();
-					}
-				});
+		this.tabOffer_listTeams = (Spinner) this.findViewById(R.id.tabOffer_listTeams);
+		this.tabOffer_listStocks = (Spinner) this.findViewById(R.id.tabOffer_listStocks);
+		this.tabOffer_buttonOffer = (Button) this.findViewById(R.id.tabOffer_buttonOffer);
+		this.tabOffer_buttonOffer.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				onClickButtonOffer();
+			}
+		});
 
-		this.tabAccept_listOffers = (ListView) this
-				.findViewById(R.id.tabAccept_listOffers);
-		this.tabAccept_listOffers
-				.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-					@Override
-					public void onItemClick(AdapterView<?> adapter, View view,
-							int pos, long id) {
-						onClickOffer(pos);
-					}
-				});
+		this.tabAccept_listOffers = (ListView) this.findViewById(R.id.tabAccept_listOffers);
+		this.tabAccept_listOffers.setAdapter(new ArrayAdapter<CmdOffer>(this, android.R.layout.simple_spinner_item, this.client.offersIn));
+		this.tabAccept_listOffers.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> adapter, View view, int pos, long id) {
+				onClickOffer(pos);
+			}
+		});
 
 		this.tabHost.addTab(this.tabMain);
 		this.tabHost.addTab(this.tabStocks);
 		this.tabHost.addTab(this.tabOffer);
 		this.tabHost.addTab(this.tabAccept);
-		
 
-		ActivityMain.this.startActivityForResult(new Intent(
-				ActivityMain.this, ActivityZerothRound.class),
-				ActivityZerothRound.REQUEST_CODE);
-		Log.d(ActivityMain.class.getName(),
-				"ActivityZerothRound has been started");
+		this.client.addIClientListener(this);
+
+		ActivityMain.this.startActivityForResult(new Intent(ActivityMain.this, ActivityZerothRound.class), ActivityZerothRound.REQUEST_CODE);
+		Log.d(ActivityMain.class.getName(), "ActivityZerothRound has been started");
 
 	}
 
@@ -129,27 +117,23 @@ public class ActivityMain extends Activity implements IClientListener {
 	}
 
 	@Override
-	public void onConnect(TCPClient client) {}
+	public void onConnect(TCPClient client) {
+	}
 
 	public void onClickButtonOffer() {
-		// TODO send offer message
-		ExchangeClient.getInstance().offer(
-				this.client.getModel().teams.get(this.tabOffer_listTeams
-						.getSelectedItemPosition()).id,
+		this.client.offer(this.client.getModel().teams.get(this.tabOffer_listTeams.getSelectedItemPosition()).id,
 				this.tabOffer_listStocks.getSelectedItemPosition(), 1, -1.0);
 	}
 
 	public void onOfferAccept(int pos) {
 		this.client.acceptOffer(pos);
-		((BaseAdapter) this.tabAccept_listOffers.getAdapter())
-				.notifyDataSetChanged();
+		((BaseAdapter) this.tabAccept_listOffers.getAdapter()).notifyDataSetChanged();
 		this.tabAccept_listOffers.invalidate();
 	}
 
 	public void onOfferDeny(int pos) {
 		this.client.denyOffer(pos);
-		((BaseAdapter) this.tabAccept_listOffers.getAdapter())
-				.notifyDataSetChanged();
+		((BaseAdapter) this.tabAccept_listOffers.getAdapter()).notifyDataSetChanged();
 		this.tabAccept_listOffers.invalidate();
 	}
 
@@ -157,42 +141,33 @@ public class ActivityMain extends Activity implements IClientListener {
 		new AlertDialog.Builder(this)
 				.setMessage(
 						this.getString(R.string.accept_offer_question)
-								+ ExchangeClient.getInstance().getOffer(offer)
-										.toString(this.client.getModel()))
-				.setPositiveButton(R.string.yes,
-						new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(DialogInterface dialog,
-									int which) {
-								onOfferAccept(offer);
-							}
-						})
-				.setNegativeButton(R.string.no,
-						new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(DialogInterface dialog,
-									int which) {
-								onOfferDeny(offer);
-							}
-						}).show();
+								+ ExchangeClient.getInstance().getOffer(offer).toString(this.client.getModel()))
+				.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						onOfferAccept(offer);
+					}
+				}).setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						onOfferDeny(offer);
+					}
+				}).show();
 	}
 
 	public void refreshTeamList(Model model) {
 		String[] array = new String[model.teams.size()];
 		for (int i = 0; i < array.length; i++)
 			array[i] = model.teams.get(i).name;
-		this.tabOffer_listTeams.setAdapter(new ArrayAdapter<String>(this,
-				android.R.layout.simple_spinner_item, array));
+		this.tabOffer_listTeams.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, array));
 	}
 
 	public void refreshStockList(Model model) {
 		String[] array = new String[model.stockList.length];
 		for (int i = 0; i < array.length; i++)
 			array[i] = model.stockList[i].name;
-		this.tabOffer_listStocks.setAdapter(new ArrayAdapter<String>(this,
-				android.R.layout.simple_spinner_item, array));
-		this.tabStocks_listStocks.setAdapter(new ArrayAdapter<String>(this,
-				android.R.layout.simple_spinner_item, array));
+		this.tabOffer_listStocks.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, array));
+		this.tabStocks_listStocks.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, array));
 	}
 
 	@Override
@@ -241,11 +216,13 @@ public class ActivityMain extends Activity implements IClientListener {
 	public void onOfferIn(ExchangeClient client, CmdOffer offer) {
 		this.runOnUiThread(new Runnable() {
 			public void run() {
-				ActivityMain.this.tabAccept_listOffers
-						.setAdapter(ActivityMain.this.tabAccept_listOffers
-								.getAdapter());
+				ActivityMain.this.tabAccept_listOffers.setAdapter(ActivityMain.this.tabAccept_listOffers.getAdapter());
 			}
 		});
 	}
 
+	@Override
+	public void onRoundCommand(ExchangeClient client) {
+		
+	}
 }

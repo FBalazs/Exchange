@@ -11,4 +11,5 @@ public interface IClientListener extends IClientConnectionListener {
 	
 	public void onOfferIn(ExchangeClient client, CmdOffer offer);
 	
+	public void onRoundCommand(ExchangeClient client);
 }
