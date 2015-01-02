@@ -16,5 +16,13 @@
     <string name="money">Money:&#x20;</string>
     <string name="unit_price">Unit price:&#x20;</string>
     <string name="dont_have_enough_money">You don\'t have enough money to buy all the selected stocks</string>
+    <string name="overview">Overview</string>
+    <string name="stocks">Stocks</string>
+    <string name="offer">Offer</string>
+    <string name="incoming">Incoming</string>
+    <string name="accept_offer_question">Do you want to accept this offer?&#x20;</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="connecting">Connecting</string>
 
 </resources>

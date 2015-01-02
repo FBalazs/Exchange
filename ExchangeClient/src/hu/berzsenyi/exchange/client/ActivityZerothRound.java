@@ -24,13 +24,14 @@ import android.util.Log;
 public class ActivityZerothRound extends Activity {
 
 	protected final static int REQUEST_CODE = 1;
-	private ExchangeClient client = ExchangeClient.getInstance();
-	private StockAdapter adapter;
+	private ExchangeClient mClient = ExchangeClient.getInstance();
+	private StockAdapter mAdapter;
+	private ListView mListView;
 
-	private int[] amounts;
-	private Stock[] stocks;
+	private int[] mAmounts;
+	private Stock[] mStocks;
 
-	private final double MONEY = 2000;
+	private static final double MONEY = 2000;
 
 	private int COLOR_ILLEGAL = Color.RED;
 	private ColorStateList colorDefault;
@@ -48,11 +49,11 @@ public class ActivityZerothRound extends Activity {
 		money.setText(MONEY + "");
 		colorDefault = money.getTextColors();
 
-		ListView stockList = (ListView) findViewById(R.id.stocks);
-		adapter = new StockAdapter(client.getModel().stockList);
-		stockList.setAdapter(adapter);
+		mListView = (ListView) findViewById(R.id.stocks);
+		mAdapter = new StockAdapter(mClient.getModel().stockList);
+		mListView.setAdapter(mAdapter);
 
-		client.addIClientListener(new IClientListener() {
+		mClient.addIClientListener(new IClientListener() {
 
 			@Override
 			public void onConnectionFail(TCPClient client, IOException exception) {
@@ -72,7 +73,7 @@ public class ActivityZerothRound extends Activity {
 
 			@Override
 			public void onStocksCommand(ExchangeClient client) {
-				adapter.updateStocks(client.getModel().stockList);
+				mAdapter.updateStocks(client.getModel().stockList);
 			}
 
 			@Override
@@ -105,27 +106,27 @@ public class ActivityZerothRound extends Activity {
 
 	private double calculateMoney() {
 		double sum = 0.0;
-		for (int i = 0; i < amounts.length; i++)
-			sum += amounts[i] * stocks[i].value;
+		for (int i = 0; i < mAmounts.length; i++)
+			sum += mAmounts[i] * mStocks[i].value;
 		return MONEY - sum;
 	}
 
 	private class StockAdapter extends BaseAdapter {
 
 		public StockAdapter(Stock[] stocks) {
-			ActivityZerothRound.this.stocks = stocks == null ? new Stock[0]
+			ActivityZerothRound.this.mStocks = stocks == null ? new Stock[0]
 					: stocks; // stocks can be null!
-			amounts = new int[ActivityZerothRound.this.stocks.length];
+			mAmounts = new int[ActivityZerothRound.this.mStocks.length];
 		}
 
 		@Override
 		public int getCount() {
-			return stocks.length;
+			return mStocks.length;
 		}
 
 		@Override
 		public Object getItem(int position) {
-			return stocks[position];
+			return mStocks[position];
 		}
 
 		@Override
@@ -149,8 +150,8 @@ public class ActivityZerothRound extends Activity {
 					.setText(getString(R.string.unit_price) + stock.value);
 			SeekBar amount = (SeekBar) out
 					.findViewById(R.id.stock_amount_seekbar);
-			amount.setProgress(amounts[position]);
 			amount.setMax((int) (MONEY / stock.value));
+			amount.setProgress(mAmounts[position]);
 			amount.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
 
 				@Override
@@ -166,7 +167,7 @@ public class ActivityZerothRound extends Activity {
 						boolean fromUser) {
 					((TextView) out.findViewById(R.id.stock_amount_label))
 							.setText(progress + "");
-					amounts[position] = progress;
+					mAmounts[position] = progress;
 
 					double currentMoney = calculateMoney();
 					TextView tv = ((TextView) findViewById(R.id.money));
@@ -185,10 +186,10 @@ public class ActivityZerothRound extends Activity {
 		}
 
 		public void updateStocks(Stock[] stocks) {
-			ActivityZerothRound.this.stocks = stocks == null ? new Stock[0]
+			ActivityZerothRound.this.mStocks = stocks == null ? new Stock[0]
 					: stocks; // stocks can
 			// be null!
-			amounts = new int[ActivityZerothRound.this.stocks.length];
+			mAmounts = new int[ActivityZerothRound.this.mStocks.length];
 			notifyDataSetChanged();
 		}
 
