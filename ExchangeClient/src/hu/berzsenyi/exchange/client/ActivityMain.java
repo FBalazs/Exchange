@@ -115,12 +115,19 @@ public class ActivityMain extends Activity implements IClientListener {
 		}
 	}
 	
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		if(requestCode == ActivityZerothRound.REQUEST_CODE) {
+			zerothRoundDone = resultCode == Activity.RESULT_OK;
+		}
+	}
+	
 	
 
 	@Override
 	public void onConnect(TCPClient client) {
 
-		// new UpdateThread(this).start();
 		this.runOnUiThread(new Runnable() {
 			public void run() {
 				ActivityMain.this.startActivityForResult(new Intent(ActivityMain.this, ActivityZerothRound.class), ActivityZerothRound.REQUEST_CODE) ;

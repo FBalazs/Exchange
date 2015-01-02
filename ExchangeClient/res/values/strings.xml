@@ -10,12 +10,11 @@
     <string name="textTeam">Team</string>
     <string name="textStock">Stock</string>
     <string name="textOffer">Offer</string>
-	
-	<string name="could_not_connect">Could not connect</string>
-	<string name="ok">OK</string>
-	<string name="done">Done</string>
-	
-	<string name="money">Money:&#x20;</string>
-	<string name="unit_price">Unit price:&#x20;</string>
+    <string name="could_not_connect">Could not connect</string>
+    <string name="ok">OK</string>
+    <string name="done">Done</string>
+    <string name="money">Money:&#x20;</string>
+    <string name="unit_price">Unit price:&#x20;</string>
+    <string name="dont_have_enough_money">You don\'t have enough money to buy all the selected stocks</string>
 
 </resources>
