@@ -13,6 +13,7 @@ import hu.berzsenyi.exchange.net.cmd.CmdClientDisconnect;
 import hu.berzsenyi.exchange.net.cmd.CmdClientInfo;
 import hu.berzsenyi.exchange.net.cmd.CmdOffer;
 import hu.berzsenyi.exchange.net.cmd.CmdOfferResponse;
+import hu.berzsenyi.exchange.net.cmd.CmdServerNextRound;
 import hu.berzsenyi.exchange.net.cmd.CmdServerStocks;
 import hu.berzsenyi.exchange.net.cmd.CmdServerTeams;
 import hu.berzsenyi.exchange.net.cmd.ICmdHandler;
@@ -157,6 +158,13 @@ public class ExchangeClient implements ICmdHandler, IClientConnectionListener {
 			this.offersIn.add(offer);
 			for (IClientListener listener : mListeners)
 				listener.onOfferIn(this, offer);
+			return;
+		}
+		
+		if(cmd instanceof CmdServerNextRound) {
+			this.offersIn.clear();
+			this.model.round++;
+			// TODO call listener
 			return;
 		}
 	}
