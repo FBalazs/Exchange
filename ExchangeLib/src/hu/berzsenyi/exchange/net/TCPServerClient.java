@@ -7,6 +7,8 @@ import java.io.DataOutputStream;
 import java.net.Socket;
 
 public class TCPServerClient extends TCPConnection {
+	public IServerClientListener listener = null;
+	
 	public TCPServerClient(Socket socket, ICmdHandler cmdHandler) {
 		super(cmdHandler);
 		try {
@@ -18,5 +20,23 @@ public class TCPServerClient extends TCPConnection {
 			e.printStackTrace();
 			this.close();
 		}
+	}
+	
+	public void setListener(IServerClientListener listener) {
+		this.listener = listener;
+	}
+	
+	@Override
+	protected void onConnect() {
+		super.onConnect();
+		if(this.listener != null)
+			this.listener.onConnect(this);
+	}
+	
+	@Override
+	public void close() {
+		super.close();
+		if(this.listener != null)
+			this.listener.onClose(this);
 	}
 }

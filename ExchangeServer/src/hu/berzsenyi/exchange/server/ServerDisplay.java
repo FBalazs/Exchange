@@ -13,7 +13,7 @@ import java.awt.event.WindowStateListener;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 
-public class ServerDisplay extends JFrame implements WindowListener, WindowStateListener, WindowFocusListener, Runnable, IServerDisplay {
+public class ServerDisplay extends JFrame implements WindowListener, WindowStateListener, WindowFocusListener, IServerDisplay {
 	private static final long serialVersionUID = 8256191100104297255L;
 	
 	public ExchangeServer server;
@@ -49,6 +49,9 @@ public class ServerDisplay extends JFrame implements WindowListener, WindowState
 		this.addWindowStateListener(this);
 		this.addWindowFocusListener(this);
 		this.setVisible(true);
+		
+		this.server.create();
+		this.server.running = true;
 	}
 	
 	public void onResize() {
@@ -56,26 +59,6 @@ public class ServerDisplay extends JFrame implements WindowListener, WindowState
 		this.rectStocks = new Rectangle(minSize/10, minSize/10, this.width/2-minSize/5, this.height/2-minSize/5);
 		this.rectTeams = new Rectangle(this.rectStocks.x, this.rectStocks.y+this.rectStocks.height+minSize/5, this.rectStocks.width, this.rectStocks.height);
 		this.btnNextRound.setBounds(this.width/2-minSize/10, this.height/2-minSize/20, minSize/5, minSize/10);
-	}
-	
-	@Override
-	public void run() {
-		this.server.create();
-		this.server.running = true;
-		while(this.server.running) {
-			long time = System.currentTimeMillis();
-			this.server.update();
-			time = 1000/20-(System.currentTimeMillis()-time);
-			if(0 < time)
-				try {
-					Thread.sleep(time);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-//			System.out.println(this.net.getClientNumber());
-		}
-		this.server.destroy();
-		System.exit(0);
 	}
 	
 	@Override
@@ -128,7 +111,8 @@ public class ServerDisplay extends JFrame implements WindowListener, WindowState
 
 	@Override
 	public void windowClosing(WindowEvent event) {
-		this.server.running = false;
+		this.server.destroy();
+		System.exit(0);
 	}
 
 	@Override
@@ -157,6 +141,6 @@ public class ServerDisplay extends JFrame implements WindowListener, WindowState
 	public void windowLostFocus(WindowEvent event) {}
 	
 	public static void main(String[] args) {
-		new Thread(new ServerDisplay(), "Thread-Server").start();
+		new ServerDisplay();
 	}
 }

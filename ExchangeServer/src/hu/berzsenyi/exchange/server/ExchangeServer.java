@@ -117,13 +117,6 @@ public class ExchangeServer implements IServerListener, ICmdHandler {
 			this.display.repaint();
 	}
 	
-	public void update() {
-		if(!this.net.open)
-			this.net = new TCPServer(8080, this, this);
-		this.net.update();
-		//System.out.println("clients: "+this.net.getClientNumber());
-	}
-	
 	public void destroy() {
 		this.net.close();
 	}
