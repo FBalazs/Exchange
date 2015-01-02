@@ -8,8 +8,8 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TCPServer {
-	public static class TCPListenThread extends Thread {
+public class TCPServer implements IServerClientListener {
+	public class TCPListenThread extends Thread {
 		public TCPServer server;
 		
 		public TCPListenThread(TCPServer server) {
@@ -25,9 +25,10 @@ public class TCPServer {
 					if(socket != null)
 						synchronized (this.server.clients) {
 							TCPServerClient client = new TCPServerClient(socket, this.server.cmdHandler);
+							client.setListener(TCPServer.this);
 							this.server.clients.add(client);
-							if(this.server.listener != null)
-								this.server.listener.onClientConnected(client);
+//							if(this.server.listener != null)
+//								this.server.listener.onClientConnected(client);
 						}
 				} catch(Exception e) {
 					e.printStackTrace();
@@ -56,24 +57,39 @@ public class TCPServer {
 		}
 	}
 	
-	public void update() {
-		try {
-			synchronized (this.clients) {
-				/*for(TCPServerClient client : this.clients) {
-					client.update();
-				}*/
-				for(int i = 0; i < this.clients.size(); i++)
-					if(!this.clients.get(i).open) {
-						if(this.listener != null)
-							this.listener.onClientDisconnected(this.clients.get(i));
-						this.clients.remove(i--);
-					}
-			}
-		} catch(Exception e) {
-			e.printStackTrace();
-			this.close();
+	@Override
+	public void onConnect(TCPServerClient client) {
+		if(this.listener != null)
+			this.listener.onClientConnected(client);
+	}
+
+	@Override
+	public void onClose(TCPServerClient client) {
+		synchronized (this.clients) {
+			this.clients.remove(client);
+			if(this.listener != null)
+				this.listener.onClientDisconnected(client);
 		}
 	}
+	
+//	public void update() {
+//		try {
+//			synchronized (this.clients) {
+//				/*for(TCPServerClient client : this.clients) {
+//					client.update();
+//				}*/
+//				for(int i = 0; i < this.clients.size(); i++)
+//					if(!this.clients.get(i).open) {
+//						if(this.listener != null)
+//							this.listener.onClientDisconnected(this.clients.get(i));
+//						this.clients.remove(i--);
+//					}
+//			}
+//		} catch(Exception e) {
+//			e.printStackTrace();
+//			this.close();
+//		}
+//	}
 	
 	public int getClientNumber() {
 		try {
