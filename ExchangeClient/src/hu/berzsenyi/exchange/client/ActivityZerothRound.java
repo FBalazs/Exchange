@@ -171,6 +171,7 @@ public class ActivityZerothRound extends Activity {
 				@Override
 				public void onProgressChanged(SeekBar seekBar, int progress,
 						boolean fromUser) {
+					if(!fromUser) return;
 					((TextView) out.findViewById(R.id.stock_amount_label))
 							.setText(progress + "");
 					mAmounts[position] = progress;
