@@ -31,8 +31,6 @@ public class ActivityZerothRound extends Activity {
 	private int[] mAmounts;
 	private Stock[] mStocks;
 
-	private static final double MONEY = 2000;
-
 	private int COLOR_ILLEGAL = Color.RED;
 	private ColorStateList colorDefault;
 
@@ -46,7 +44,7 @@ public class ActivityZerothRound extends Activity {
 		setContentView(R.layout.activity_zeroth_round);
 
 		TextView money = ((TextView) findViewById(R.id.money));
-		money.setText(MONEY + "");
+		money.setText(mClient.getModel().startMoney + "");
 		colorDefault = money.getTextColors();
 
 		mListView = (ListView) findViewById(R.id.stocks);
@@ -114,7 +112,7 @@ public class ActivityZerothRound extends Activity {
 		double sum = 0.0;
 		for (int i = 0; i < mAmounts.length; i++)
 			sum += mAmounts[i] * mStocks[i].value;
-		return MONEY - sum;
+		return mClient.getModel().startMoney - sum;
 	}
 
 	private class StockAdapter extends BaseAdapter {
@@ -156,7 +154,7 @@ public class ActivityZerothRound extends Activity {
 					.setText(getString(R.string.unit_price) + stock.value);
 			SeekBar amount = (SeekBar) out
 					.findViewById(R.id.stock_amount_seekbar);
-			amount.setMax((int) (MONEY / stock.value));
+			amount.setMax((int) (mClient.getModel().startMoney / stock.value));
 			amount.setProgress(mAmounts[position]);
 			amount.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
 
