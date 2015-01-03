@@ -18,11 +18,12 @@ public abstract class TCPConnection {
 			System.out.println("TCPReceiveThread started");
 			while(TCPConnection.this.open) {
 				try {
-					while(TCPConnection.this.open && TCPConnection.this.din.available() < 4+4)
-						Thread.sleep(10);
+					while(TCPConnection.this.open && TCPConnection.this.din.available() < 4+4);
 					int id = TCPConnection.this.din.readInt();
 					int length = TCPConnection.this.din.readInt();
+//					System.out.println("start receiving command id="+id+" length="+length);
 					while(TCPConnection.this.din.available() < length);
+//					System.out.println("start reading command");
 					TCPCommand cmd = null;
 					switch(id) {
 					case CmdClientInfo.ID:
@@ -84,6 +85,7 @@ public abstract class TCPConnection {
 			this.dout.writeInt(cmd.id);
 			this.dout.writeInt(cmd.length);
 			cmd.write(this.dout);
+			this.dout.flush();
 		} catch(Exception e) {
 			e.printStackTrace();
 			this.close();

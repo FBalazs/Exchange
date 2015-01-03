@@ -195,11 +195,11 @@ public class ActivityMain extends Activity implements IClientListener {
 
 	@Override
 	public void onStocksCommand(final ExchangeClient client) {
-		this.runOnUiThread(new Runnable() {
-			public void run() {
-				ActivityMain.this.refreshStockList(client.getModel());
-			}
-		});
+//		this.runOnUiThread(new Runnable() {
+//			public void run() {
+//				ActivityMain.this.refreshStockList(client.getModel());
+//			}
+//		});
 	}
 
 	@Override
@@ -207,7 +207,7 @@ public class ActivityMain extends Activity implements IClientListener {
 		this.runOnUiThread(new Runnable() {
 			public void run() {
 				ActivityMain.this.refreshTeamList(client.getModel());
-				// ActivityMain.this.tabOffer_listTeams.setAdapter(ActivityMain.this.tabOffer_listTeams.getAdapter());
+				ActivityMain.this.refreshStockList(client.getModel());
 			}
 		});
 	}

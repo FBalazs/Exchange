@@ -1,5 +1,7 @@
 package hu.berzsenyi.exchange;
 
+import hu.berzsenyi.exchange.net.cmd.TCPCommand;
+
 public class Team {
 	public String id, name;
 	public double money = 0;
@@ -11,6 +13,6 @@ public class Team {
 	}
 	
 	public int getCmdLength() {
-		return 4+this.id.length()+4+this.name.length()+8+4+4*this.stocks.length;
+		return 4+TCPCommand.stringLength(this.id)+4+TCPCommand.stringLength(this.name);
 	}
 }

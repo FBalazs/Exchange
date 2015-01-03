@@ -15,7 +15,7 @@ public class CmdOfferResponse extends TCPCommand {
 	}
 	
 	public CmdOfferResponse(String playerID, int stockID, int amount, double money) {
-		super(ID, 4+playerID.length()+4+4+8);
+		super(ID, 4+stringLength(playerID)+4+4+8);
 		this.playerID = playerID;
 		this.stockID = stockID;
 		this.amount = amount;
