@@ -1,7 +1,15 @@
 package hu.berzsenyi.exchange.server;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import hu.berzsenyi.exchange.Model;
 import hu.berzsenyi.exchange.Team;
+import hu.berzsenyi.exchange.log.LogEvent;
+import hu.berzsenyi.exchange.log.LogEventConnAccept;
+import hu.berzsenyi.exchange.log.LogEventConnAttempt;
+import hu.berzsenyi.exchange.log.LogEventConnRefuse;
+import hu.berzsenyi.exchange.log.LogEventDisconnect;
 import hu.berzsenyi.exchange.net.IServerListener;
 import hu.berzsenyi.exchange.net.TCPConnection;
 import hu.berzsenyi.exchange.net.TCPServer;
@@ -22,6 +30,7 @@ public class ExchangeServer implements IServerListener, ICmdHandler {
 	public boolean running;
 	public TCPServer net;
 	public Model model;
+	public List<LogEvent> log;
 	
 	public IServerDisplay display;
 	
@@ -30,22 +39,31 @@ public class ExchangeServer implements IServerListener, ICmdHandler {
 	}
 	
 	public void create() {
+		this.log = new ArrayList<LogEvent>();
+		
 		this.model = new Model();
 		this.model.loadStocks("data/stocks");
 		
 		this.net = new TCPServer(8080, this, this);
+		
+		this.log.add(new LogEvent("Server start", "Server started."));
 		
 		if(this.display != null)
 			this.display.repaint();
 	}
 	
 	public void nextRound() {
+		this.log.add(new LogEvent("Round end", "Round "+this.model.round+" ended."));
+		
 		if(this.model.round == 0) {
 			this.net.writeCmdToAll(new CmdServerTeams(this.model));
 		}
 		
 		this.model.round++;
 		this.net.writeCmdToAll(new CmdServerNextRound());
+		
+		this.log.add(new LogEvent("Round start", "Round "+this.model.round+" started."));
+		
 		if(this.display != null)
 			this.display.repaint();
 	}
@@ -54,6 +72,7 @@ public class ExchangeServer implements IServerListener, ICmdHandler {
 	public void onClientConnected(TCPServerClient client) {
 		System.out.println("Client connected!");
 		
+		this.log.add(new LogEventConnAttempt(client.getAddrString()));
 	}
 	
 	@Override
@@ -65,13 +84,16 @@ public class ExchangeServer implements IServerListener, ICmdHandler {
 				this.model.teams.add(new Team(conn.getAddrString(), ((CmdClientInfo)cmd).name));
 				conn.writeCommand(new CmdServerInfo(this.model.startMoney, conn.getAddrString()));
 				conn.writeCommand(new CmdServerStocks(this.model));
+				this.log.add(new LogEventConnAccept(conn.getAddrString(), ((CmdClientInfo)cmd).name));
 			} else {
 				// TODO send feedback
 				conn.close();
+				this.log.add(new LogEventConnRefuse(conn.getAddrString(), ((CmdClientInfo)cmd).name));
 			}
 		}
 		
 		if(cmd instanceof CmdClientDisconnect) {
+			this.log.add(new LogEventDisconnect(conn.getAddrString(), this.model.getTeamById(conn.getAddrString()).name));
 			this.model.removeTeam(conn.getAddrString());
 			conn.close();
 		}
@@ -83,6 +105,7 @@ public class ExchangeServer implements IServerListener, ICmdHandler {
 			team.money = this.model.startMoney;
 			for(int i = 0; i < team.stocks.length; i++)
 				team.money -= this.model.stockList[i].value*team.stocks[i];
+			this.log.add(new LogEvent("First round buy", team.name+"("+team.id+") performed the first round buy"));
 		}
 		
 		if(cmd instanceof CmdOffer) {
@@ -121,5 +144,6 @@ public class ExchangeServer implements IServerListener, ICmdHandler {
 	
 	public void destroy() {
 		this.net.close();
+		this.log.add(new LogEvent("Server start", "Server closed."));
 	}
 }
