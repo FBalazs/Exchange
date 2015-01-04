@@ -11,6 +11,7 @@ import hu.berzsenyi.exchange.net.cmd.CmdClientDisconnect;
 import hu.berzsenyi.exchange.net.cmd.CmdClientInfo;
 import hu.berzsenyi.exchange.net.cmd.CmdOffer;
 import hu.berzsenyi.exchange.net.cmd.CmdOfferResponse;
+import hu.berzsenyi.exchange.net.cmd.CmdServerInfo;
 import hu.berzsenyi.exchange.net.cmd.CmdServerNextRound;
 import hu.berzsenyi.exchange.net.cmd.CmdServerStocks;
 import hu.berzsenyi.exchange.net.cmd.CmdServerTeams;
@@ -62,9 +63,10 @@ public class ExchangeServer implements IServerListener, ICmdHandler {
 		if(cmd instanceof CmdClientInfo) {
 			if(this.model.round == 0) {
 				this.model.teams.add(new Team(conn.getAddrString(), ((CmdClientInfo)cmd).name));
+				conn.writeCommand(new CmdServerInfo(this.model.startMoney, conn.getAddrString()));
 				conn.writeCommand(new CmdServerStocks(this.model));
 			} else {
-				// TODO send feedback and disconnect client
+				// TODO send feedback
 				conn.close();
 			}
 		}

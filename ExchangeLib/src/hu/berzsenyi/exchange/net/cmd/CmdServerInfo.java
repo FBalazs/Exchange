@@ -1,38 +1,33 @@
 package hu.berzsenyi.exchange.net.cmd;
 
-import hu.berzsenyi.exchange.Model;
-import hu.berzsenyi.exchange.Stock;
-
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 
 public class CmdServerInfo extends TCPCommand {
-	public static final int ID = 3;
+	public static final int ID = 9;
 	
-	public Stock[] stockList;
+	public double startMoney;
+	public String clientID;
 	
 	public CmdServerInfo(int length) {
 		super(ID, length);
 	}
 	
-	public CmdServerInfo(Model model) {
-		super(ID, model.getStockCmdLength());
-		this.stockList = model.stockList;
+	public CmdServerInfo(double startMoney, String clientID) {
+		super(ID, 8+4+stringLength(clientID));
+		this.startMoney = startMoney;
+		this.clientID = clientID;
 	}
 	
 	@Override
 	public void read(DataInputStream in) throws Exception {
-		this.stockList = new Stock[in.readInt()];
-		for(int s = 0; s < this.stockList.length; s++)
-			this.stockList[s] = new Stock(readString(in), in.readDouble());
+		this.startMoney = in.readDouble();
+		this.clientID = readString(in);
 	}
 	
 	@Override
 	public void write(DataOutputStream out) throws Exception {
-		out.writeInt(this.stockList.length);
-		for(int s = 0; s < this.stockList.length; s++) {
-			writeString(out, this.stockList[s].name);
-			out.writeDouble(this.stockList[s].value);
-		}
+		out.writeDouble(this.startMoney);
+		writeString(out, this.clientID);
 	}
 }

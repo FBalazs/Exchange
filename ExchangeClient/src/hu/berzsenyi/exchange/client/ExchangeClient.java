@@ -6,6 +6,7 @@ import java.util.List;
 
 import android.util.Log;
 import hu.berzsenyi.exchange.Model;
+import hu.berzsenyi.exchange.Team;
 import hu.berzsenyi.exchange.net.IClientConnectionListener;
 import hu.berzsenyi.exchange.net.TCPClient;
 import hu.berzsenyi.exchange.net.TCPConnection;
@@ -14,6 +15,7 @@ import hu.berzsenyi.exchange.net.cmd.CmdClientDisconnect;
 import hu.berzsenyi.exchange.net.cmd.CmdClientInfo;
 import hu.berzsenyi.exchange.net.cmd.CmdOffer;
 import hu.berzsenyi.exchange.net.cmd.CmdOfferResponse;
+import hu.berzsenyi.exchange.net.cmd.CmdServerInfo;
 import hu.berzsenyi.exchange.net.cmd.CmdServerNextRound;
 import hu.berzsenyi.exchange.net.cmd.CmdServerStocks;
 import hu.berzsenyi.exchange.net.cmd.CmdServerTeams;
@@ -34,6 +36,7 @@ public class ExchangeClient implements ICmdHandler, IClientConnectionListener {
 	private Model model = new Model();
 	public List<CmdOffer> offersIn = new ArrayList<CmdOffer>();
 	private List<IClientListener> mListeners = new ArrayList<IClientListener>();
+	private Team ownTeam;
 
 	private ExchangeClient() {
 	}
@@ -105,6 +108,9 @@ public class ExchangeClient implements ICmdHandler, IClientConnectionListener {
 	}
 	
 	public void doBuy(int[] amounts) {
+		this.ownTeam.stocks = amounts;
+		for(int i = 0; i < amounts.length; i++)
+			this.ownTeam.money -= amounts[i]*this.model.stockList[i].value;
 		client.writeCommand(new CmdClientBuy(amounts));
 	}
 
@@ -140,10 +146,16 @@ public class ExchangeClient implements ICmdHandler, IClientConnectionListener {
 	public void handleCmd(TCPCommand cmd, TCPConnection conn) {
 		Log.d(this.getClass().getName(), "Received command! "
 				+ cmd.getClass().getName());
+		
+		if(cmd instanceof CmdServerInfo) {
+			CmdServerInfo info = (CmdServerInfo)cmd;
+			this.ownTeam = new Team(info.clientID, this.name);
+			this.ownTeam.money = this.model.startMoney = info.startMoney;
+			return;
+		}
 
 		if (cmd instanceof CmdServerStocks) {
-			CmdServerStocks stockInfo = ((CmdServerStocks) cmd);
-			model.startMoney = stockInfo.startMoney;
+			CmdServerStocks stockInfo = (CmdServerStocks) cmd;
 			model.stockList = stockInfo.stockList;
 			for (IClientListener listener : mListeners)
 				listener.onStocksCommand(this);
@@ -151,8 +163,11 @@ public class ExchangeClient implements ICmdHandler, IClientConnectionListener {
 		}
 
 		if (cmd instanceof CmdServerTeams) {
-			CmdServerTeams teamInfo = ((CmdServerTeams) cmd);
+			CmdServerTeams teamInfo = (CmdServerTeams) cmd;
 			this.model.teams = teamInfo.teams;
+			for(int i = 0; i < this.model.teams.size(); i++)
+				if(this.model.teams.get(i).id.equals(this.ownTeam.id))
+					this.model.teams.set(i, this.ownTeam);
 			for (IClientListener listener : mListeners)
 				listener.onTeamsCommand(this);
 			return;
@@ -175,7 +190,9 @@ public class ExchangeClient implements ICmdHandler, IClientConnectionListener {
 		}
 		
 		if(cmd instanceof CmdOfferResponse) {
-			// TODO
+			CmdOfferResponse offer = (CmdOfferResponse)cmd;
+			this.ownTeam.money += offer.money;
+			this.ownTeam.stocks[offer.stockID] += offer.amount;
 			return;
 		}
 	}

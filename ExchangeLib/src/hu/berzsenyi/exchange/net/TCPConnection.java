@@ -50,6 +50,9 @@ public abstract class TCPConnection {
 					case CmdServerNextRound.ID:
 						cmd = new CmdServerNextRound(length);
 						break;
+					case CmdServerInfo.ID:
+						cmd = new CmdServerInfo(length);
+						break;
 					}
 					if(cmd != null)
 						cmd.read(TCPConnection.this.din);
