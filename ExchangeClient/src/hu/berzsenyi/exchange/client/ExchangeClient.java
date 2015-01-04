@@ -87,6 +87,10 @@ public class ExchangeClient implements ICmdHandler, IClientConnectionListener {
 	public CmdOffer getOffer(int index) {
 		return offersIn.get(index);
 	}
+	
+	public Team getOwnTeam() {
+		return ownTeam;
+	}
 
 	public boolean isConnected() {
 		return connected;
@@ -107,11 +111,25 @@ public class ExchangeClient implements ICmdHandler, IClientConnectionListener {
 		offersIn.remove(index);
 	}
 	
-	public void doBuy(int[] amounts) {
-		this.ownTeam.stocks = amounts;
-		for(int i = 0; i < amounts.length; i++)
-			this.ownTeam.money -= amounts[i]*this.model.stockList[i].value;
+	public boolean doBuy(int[] amounts) {
+		if(getModel().round != 0)
+			throw new IllegalStateException("doBuy can be called only in the 0th round");
+		
+		double calculated = calculateMoney(amounts);
+		if(calculated < 0)
+			return false;
+		
+		ownTeam.stocks = amounts;
+		ownTeam.money = calculated;
 		client.writeCommand(new CmdClientBuy(amounts));
+		return true;
+	}
+	
+	public double calculateMoney(int[] amounts) {
+		double sum = 0.0;
+		for (int i = 0; i < amounts.length; i++)
+			sum += amounts[i] * getModel().stockList[i].value;
+		return getOwnTeam().money - sum;
 	}
 
 	public void addIClientListener(IClientListener listener) {

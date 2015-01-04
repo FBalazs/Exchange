@@ -105,8 +105,7 @@ public class ActivityZerothRound extends Activity {
 	}
 
 	private void onDoneButtonClick() {
-		if (calculateMoney() > 0) { // OK
-			ExchangeClient.getInstance().doBuy(this.mAmounts);
+		if (mClient.doBuy(this.mAmounts)) { // OK
 			setResult(Activity.RESULT_OK);
 			// ((Button)
 			// findViewById(R.id.activity_zeroth_round_done)).setEnabled(false);
@@ -120,12 +119,6 @@ public class ActivityZerothRound extends Activity {
 		}
 	}
 
-	private double calculateMoney() {
-		double sum = 0.0;
-		for (int i = 0; i < mAmounts.length; i++)
-			sum += mAmounts[i] * mStocks[i].value;
-		return mClient.getModel().startMoney - sum;
-	}
 
 	private class StockAdapter extends BaseAdapter {
 
@@ -187,7 +180,7 @@ public class ActivityZerothRound extends Activity {
 							.setText(progress + "");
 					mAmounts[position] = progress;
 
-					double currentMoney = calculateMoney();
+					double currentMoney = mClient.calculateMoney(mAmounts);
 					TextView tv = ((TextView) findViewById(R.id.money));
 					if (currentMoney < 0)
 						tv.setTextColor(COLOR_ILLEGAL);
