@@ -94,8 +94,6 @@ public class ActivityMain extends Activity implements IClientListener {
 
 		this.client.addIClientListener(this);
 
-		ActivityMain.this.startActivityForResult(new Intent(ActivityMain.this, ActivityZerothRound.class), ActivityZerothRound.REQUEST_CODE);
-		Log.d(ActivityMain.class.getName(), "ActivityZerothRound has been started");
 
 	}
 
@@ -105,6 +103,9 @@ public class ActivityMain extends Activity implements IClientListener {
 		if (zerothRoundStarted && !zerothRoundDone) { // ActivityZerothRound was
 														// cancelled
 			finish();
+		} else if(!zerothRoundStarted) {
+			ActivityMain.this.startActivityForResult(new Intent(ActivityMain.this, ActivityZerothRound.class), ActivityZerothRound.REQUEST_CODE);
+			zerothRoundStarted = true;
 		}
 	}
 

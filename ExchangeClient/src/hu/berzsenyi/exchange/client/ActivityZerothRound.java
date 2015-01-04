@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -27,6 +28,7 @@ public class ActivityZerothRound extends Activity {
 	private ExchangeClient mClient = ExchangeClient.getInstance();
 	private StockAdapter mAdapter;
 	private ListView mListView;
+	private ProgressDialog mProgressDialog;
 
 	private int[] mAmounts;
 	private Stock[] mStocks;
@@ -94,13 +96,23 @@ public class ActivityZerothRound extends Activity {
 
 				});
 	}
+	
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		if(mProgressDialog != null)
+			mProgressDialog.dismiss();
+	}
 
 	private void onDoneButtonClick() {
 		if (calculateMoney() > 0) { // OK
 			ExchangeClient.getInstance().doBuy(this.mAmounts);
 			setResult(Activity.RESULT_OK);
-			((Button) findViewById(R.id.activity_zeroth_round_done)).setEnabled(false);
-//			finish();
+			// ((Button)
+			// findViewById(R.id.activity_zeroth_round_done)).setEnabled(false);
+			mProgressDialog = ProgressDialog.show(this, null,
+					getString(R.string.waiting_for_the_first_round), true,
+					false);
 		} else {
 			new AlertDialog.Builder(this)
 					.setMessage(R.string.dont_have_enough_money)
@@ -169,7 +181,8 @@ public class ActivityZerothRound extends Activity {
 				@Override
 				public void onProgressChanged(SeekBar seekBar, int progress,
 						boolean fromUser) {
-					if(!fromUser) return;
+					if (!fromUser)
+						return;
 					((TextView) out.findViewById(R.id.stock_amount_label))
 							.setText(progress + "");
 					mAmounts[position] = progress;
@@ -192,11 +205,15 @@ public class ActivityZerothRound extends Activity {
 
 		public void updateStocks(Stock[] stocks) {
 			ActivityZerothRound.this.mStocks = stocks == null ? new Stock[0]
-					: stocks; // stocks can
-			// be null!
+					: stocks; // stocks can be null!
 			mAmounts = new int[ActivityZerothRound.this.mStocks.length];
-			notifyDataSetChanged();
-			mListView.invalidate();
+			runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					notifyDataSetChanged();
+					mListView.invalidate();
+				}
+			});
 		}
 
 	}

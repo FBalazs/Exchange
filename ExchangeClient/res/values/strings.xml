@@ -24,5 +24,6 @@
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="connecting">Connecting</string>
+    <string name="waiting_for_the_first_round">Waiting for the first round</string>
 
 </resources>
