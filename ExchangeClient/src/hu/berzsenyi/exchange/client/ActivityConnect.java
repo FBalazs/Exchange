@@ -1,5 +1,6 @@
 package hu.berzsenyi.exchange.client;
 
+import hu.berzsenyi.exchange.Team;
 import hu.berzsenyi.exchange.net.TCPClient;
 import hu.berzsenyi.exchange.net.cmd.CmdOffer;
 
@@ -34,6 +35,7 @@ public class ActivityConnect extends Activity {
 				getString(R.string.connecting), true, false);
 
 		mClient.setName(this.editTextName.getText().toString());
+		// TODO Unregister listener
 		mClient.addIClientListener(new IClientListener() {
 
 			@Override
@@ -87,6 +89,15 @@ public class ActivityConnect extends Activity {
 			@Override
 			public void onRoundCommand(ExchangeClient client) {
 			}
+
+			@Override
+			public void onMoneyChanged(Team ownTeam) {
+			}
+
+			@Override
+			public void onStocksChanged(Team ownTeam, int position) {
+			}
+
 		});
 		mClient.connect(this.editTextIP.getText().toString(),
 				Integer.parseInt(this.editTextPort.getText().toString()));

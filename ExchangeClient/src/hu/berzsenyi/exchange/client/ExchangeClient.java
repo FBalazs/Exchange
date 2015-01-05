@@ -33,12 +33,22 @@ public class ExchangeClient implements ICmdHandler, IClientConnectionListener {
 	private TCPClient client;
 	private boolean connected = false;
 	private String name;
-	private Model model = new Model();
-	public List<CmdOffer> offersIn = new ArrayList<CmdOffer>();
-	private List<IClientListener> mListeners = new ArrayList<IClientListener>();
+	private Model model;
+	public List<CmdOffer> offersIn;
+	private List<IClientListener> mListeners;
 	private Team ownTeam;
 
 	private ExchangeClient() {
+		init();
+	}
+
+	private void init() {
+		client = null;
+		name = null;
+		model = new Model();
+		offersIn = new ArrayList<CmdOffer>();
+		mListeners = new ArrayList<IClientListener>();
+		ownTeam = null;
 	}
 
 	public static ExchangeClient getInstance() {
@@ -87,7 +97,7 @@ public class ExchangeClient implements ICmdHandler, IClientConnectionListener {
 	public CmdOffer getOffer(int index) {
 		return offersIn.get(index);
 	}
-	
+
 	public Team getOwnTeam() {
 		return ownTeam;
 	}
@@ -110,26 +120,20 @@ public class ExchangeClient implements ICmdHandler, IClientConnectionListener {
 	public void denyOffer(int index) {
 		offersIn.remove(index);
 	}
-	
+
 	public boolean doBuy(int[] amounts) {
-		if(getModel().round != 0)
-			throw new IllegalStateException("doBuy can be called only in the 0th round");
-		
-		double calculated = calculateMoney(amounts);
-		if(calculated < 0)
+		if (getModel().round != 0)
+			throw new IllegalStateException(
+					"doBuy can be called only in the 0th round");
+
+		double calculated = getModel().calculateMoneyAfterPurchase(amounts);
+		if (calculated < 0)
 			return false;
-		
-		ownTeam.stocks = amounts;
-		ownTeam.money = calculated;
+
+		ownTeam.setStocks(amounts);
+		ownTeam.setMoney(calculated);
 		client.writeCommand(new CmdClientBuy(amounts));
 		return true;
-	}
-	
-	public double calculateMoney(int[] amounts) {
-		double sum = 0.0;
-		for (int i = 0; i < amounts.length; i++)
-			sum += amounts[i] * getModel().stockList[i].value;
-		return getOwnTeam().money - sum;
 	}
 
 	public void addIClientListener(IClientListener listener) {
@@ -152,6 +156,7 @@ public class ExchangeClient implements ICmdHandler, IClientConnectionListener {
 		connected = false;
 		for (IClientListener listener : mListeners)
 			listener.onClose(client);
+		init();
 	}
 
 	@Override
@@ -164,11 +169,25 @@ public class ExchangeClient implements ICmdHandler, IClientConnectionListener {
 	public void handleCmd(TCPCommand cmd, TCPConnection conn) {
 		Log.d(this.getClass().getName(), "Received command! "
 				+ cmd.getClass().getName());
-		
-		if(cmd instanceof CmdServerInfo) {
-			CmdServerInfo info = (CmdServerInfo)cmd;
+
+		if (cmd instanceof CmdServerInfo) {
+			CmdServerInfo info = (CmdServerInfo) cmd;
 			this.ownTeam = new Team(info.clientID, this.name);
-			this.ownTeam.money = this.model.startMoney = info.startMoney;
+			this.ownTeam.setOnChangeListener(new Team.OnChangeListener() {
+
+				@Override
+				public void onStocksChanged(Team team, int position) {
+					for (IClientListener listener : mListeners)
+						listener.onStocksChanged(team, position);
+				}
+
+				@Override
+				public void onMoneyChanged(Team team) {
+					for (IClientListener listener : mListeners)
+						listener.onMoneyChanged(team);
+				}
+			});
+			this.ownTeam.setMoney(this.model.startMoney = info.startMoney);
 			return;
 		}
 
@@ -183,8 +202,8 @@ public class ExchangeClient implements ICmdHandler, IClientConnectionListener {
 		if (cmd instanceof CmdServerTeams) {
 			CmdServerTeams teamInfo = (CmdServerTeams) cmd;
 			this.model.teams = teamInfo.teams;
-			for(int i = 0; i < this.model.teams.size(); i++)
-				if(this.model.teams.get(i).id.equals(this.ownTeam.id))
+			for (int i = 0; i < this.model.teams.size(); i++)
+				if (this.model.teams.get(i).id.equals(this.ownTeam.id))
 					this.model.teams.set(i, this.ownTeam);
 			for (IClientListener listener : mListeners)
 				listener.onTeamsCommand(this);
@@ -198,19 +217,20 @@ public class ExchangeClient implements ICmdHandler, IClientConnectionListener {
 				listener.onOfferIn(this, offer);
 			return;
 		}
-		
-		if(cmd instanceof CmdServerNextRound) {
+
+		if (cmd instanceof CmdServerNextRound) {
 			this.offersIn.clear();
 			this.model.round++;
 			for (IClientListener listener : mListeners)
 				listener.onRoundCommand(this);
 			return;
 		}
-		
-		if(cmd instanceof CmdOfferResponse) {
-			CmdOfferResponse offer = (CmdOfferResponse)cmd;
-			this.ownTeam.money += offer.money;
-			this.ownTeam.stocks[offer.stockID] += offer.amount;
+
+		if (cmd instanceof CmdOfferResponse) {
+			CmdOfferResponse offer = (CmdOfferResponse) cmd;
+			this.ownTeam.setMoney(this.ownTeam.getMoney() + offer.money);
+			this.ownTeam.setStock(offer.stockID,
+					this.ownTeam.getStock(offer.stockID) + offer.amount);
 			return;
 		}
 	}

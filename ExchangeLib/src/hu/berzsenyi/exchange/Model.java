@@ -9,6 +9,7 @@ public class Model {
 	public double startMoney = 1000;
 	public Stock[] stockList;
 	public List<Team> teams = new ArrayList<Team>();
+	public String eventMessage = "2-t fizet 3-at kap akció a Trióban!!!"; // TODO
 	
 	/**
 	 * Loads the stocks from the data files.
@@ -63,5 +64,19 @@ public class Model {
 		for(int i = 0; i < this.teams.size(); i++)
 			if(this.teams.get(i).id.equals(id))
 				this.teams.remove(i--);
+	}
+	
+
+
+	/**
+	 * Only in the zeroth round!
+	 * @param amounts
+	 * @return
+	 */
+	public double calculateMoneyAfterPurchase(int[] amounts) {
+		double sum = 0.0;
+		for (int i = 0; i < amounts.length; i++)
+			sum += amounts[i] * stockList[i].value;
+		return this.startMoney - sum;
 	}
 }

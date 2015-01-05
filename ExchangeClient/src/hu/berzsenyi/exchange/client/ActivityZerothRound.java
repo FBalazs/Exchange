@@ -12,6 +12,7 @@ import android.widget.BaseAdapter;
 import android.view.ViewGroup;
 import android.view.View;
 import hu.berzsenyi.exchange.Stock;
+import hu.berzsenyi.exchange.Team;
 import hu.berzsenyi.exchange.net.TCPClient;
 import hu.berzsenyi.exchange.net.cmd.CmdOffer;
 import android.widget.SeekBar.OnSeekBarChangeListener;
@@ -53,6 +54,7 @@ public class ActivityZerothRound extends Activity {
 		mAdapter = new StockAdapter(mClient.getModel().stockList);
 		mListView.setAdapter(mAdapter);
 
+		// TODO Unregister listener
 		mClient.addIClientListener(new IClientListener() {
 
 			@Override
@@ -84,6 +86,19 @@ public class ActivityZerothRound extends Activity {
 			public void onRoundCommand(ExchangeClient client) {
 				ActivityZerothRound.this.finish();
 			}
+
+			@Override
+			public void onMoneyChanged(Team ownTeam) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void onStocksChanged(Team ownTeam, int position) {
+				// TODO Auto-generated method stub
+				
+			}
+
 		});
 
 		((Button) findViewById(R.id.activity_zeroth_round_done))
@@ -96,11 +111,11 @@ public class ActivityZerothRound extends Activity {
 
 				});
 	}
-	
+
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
-		if(mProgressDialog != null)
+		if (mProgressDialog != null)
 			mProgressDialog.dismiss();
 	}
 
@@ -118,7 +133,6 @@ public class ActivityZerothRound extends Activity {
 					.setPositiveButton(R.string.ok, null).create().show();
 		}
 	}
-
 
 	private class StockAdapter extends BaseAdapter {
 
@@ -180,7 +194,8 @@ public class ActivityZerothRound extends Activity {
 							.setText(progress + "");
 					mAmounts[position] = progress;
 
-					double currentMoney = mClient.calculateMoney(mAmounts);
+					double currentMoney = mClient.getModel()
+							.calculateMoneyAfterPurchase(mAmounts);
 					TextView tv = ((TextView) findViewById(R.id.money));
 					if (currentMoney < 0)
 						tv.setTextColor(COLOR_ILLEGAL);
