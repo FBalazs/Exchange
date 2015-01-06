@@ -3,15 +3,16 @@ package hu.berzsenyi.exchange;
 import hu.berzsenyi.exchange.net.cmd.TCPCommand;
 
 public class Stock {
-	public String name;
+	public String id, name;
 	public double value;
 	
-	public Stock(String name, double value) {
+	public Stock(String id, String name, double value) {
+		this.id = id;
 		this.name = name;
 		this.value = value;
 	}
 	
 	public int getCmdLength() {
-		return 8+4+TCPCommand.stringLength(this.name);
+		return 8+4+TCPCommand.stringLength(this.id)+4+TCPCommand.stringLength(this.name);
 	}
 }

@@ -24,13 +24,14 @@ public class CmdServerStocks extends TCPCommand {
 	public void read(DataInputStream in) throws Exception {
 		this.stockList = new Stock[in.readInt()];
 		for(int s = 0; s < this.stockList.length; s++)
-			this.stockList[s] = new Stock(readString(in), in.readDouble());
+			this.stockList[s] = new Stock(readString(in), readString(in), in.readDouble());
 	}
 	
 	@Override
 	public void write(DataOutputStream out) throws Exception {
 		out.writeInt(this.stockList.length);
 		for(int s = 0; s < this.stockList.length; s++) {
+			writeString(out, this.stockList[s].id);
 			writeString(out, this.stockList[s].name);
 			out.writeDouble(this.stockList[s].value);
 		}

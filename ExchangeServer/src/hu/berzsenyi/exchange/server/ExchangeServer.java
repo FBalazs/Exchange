@@ -2,6 +2,7 @@ package hu.berzsenyi.exchange.server;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import hu.berzsenyi.exchange.Model;
 import hu.berzsenyi.exchange.Team;
@@ -31,6 +32,7 @@ public class ExchangeServer implements IServerListener, ICmdHandler {
 	public TCPServer net;
 	public Model model;
 	public List<LogEvent> log;
+	public Random rand;
 
 	public IServerDisplay display;
 
@@ -40,9 +42,12 @@ public class ExchangeServer implements IServerListener, ICmdHandler {
 
 	public void create() {
 		this.log = new ArrayList<LogEvent>();
-
+		
+		this.rand = new Random(System.currentTimeMillis());
+		
 		this.model = new Model();
 		this.model.loadStocks("data/stocks");
+		this.model.loadEvents("data/events");
 
 		this.net = new TCPServer(8080, this, this);
 
@@ -59,9 +64,13 @@ public class ExchangeServer implements IServerListener, ICmdHandler {
 		if (this.model.round == 0) {
 			this.net.writeCmdToAll(new CmdServerTeams(this.model));
 		}
+		
+		int eventNum = this.rand.nextInt(this.model.eventList.length); // TODO howmany
+		this.model.nextRound(eventNum);
+//		System.out.println(this.model.eventMessage);
 
 		this.model.round++;
-		this.net.writeCmdToAll(new CmdServerNextRound());
+		this.net.writeCmdToAll(new CmdServerNextRound(this.model.eventMessage, this.model.eventList[eventNum].multipliers));
 
 		this.log.add(new LogEvent("Round start", "Round " + this.model.round
 				+ " started."));
