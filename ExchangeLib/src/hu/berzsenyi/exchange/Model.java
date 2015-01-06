@@ -45,9 +45,13 @@ public class Model {
 	}
 	
 	public void nextRound(int eventNum) {
-		this.eventMessage = this.eventList[eventNum].desc;
+		this.nextRound(this.eventList[eventNum].desc, this.eventList[eventNum].multipliers);
+	}
+	
+	public void nextRound(String eventDesc, double[] multipliers) {
+		this.eventMessage = eventDesc;
 		for(int i = 0; i < this.stockList.length; i++)
-			this.stockList[i].value *= this.eventList[eventNum].multipliers[i];
+			this.stockList[i].value *= multipliers[i];
 	}
 	
 	public int getStockCmdLength() {

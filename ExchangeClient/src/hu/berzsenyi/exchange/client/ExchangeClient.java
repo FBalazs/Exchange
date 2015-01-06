@@ -219,8 +219,10 @@ public class ExchangeClient implements ICmdHandler, IClientConnectionListener {
 		}
 
 		if (cmd instanceof CmdServerNextRound) {
+			CmdServerNextRound cmdNextRound = (CmdServerNextRound)cmd;
 			this.offersIn.clear();
 			this.model.round++;
+			this.model.nextRound(cmdNextRound.eventDesc, cmdNextRound.multipliers);
 			for (IClientListener listener : mListeners)
 				listener.onRoundCommand(this);
 			return;
