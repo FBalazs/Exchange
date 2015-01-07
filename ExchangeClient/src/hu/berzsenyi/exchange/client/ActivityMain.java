@@ -255,8 +255,12 @@ public class ActivityMain extends Activity implements IClientListener {
 
 	@Override
 	public void onRoundCommand(ExchangeClient client) {
-		((TextView) findViewById(R.id.tabMain_eventMessage)).setText(client
-				.getModel().eventMessage);
+		this.runOnUiThread(new Runnable() {
+			public void run() {
+				((TextView) ActivityMain.this.findViewById(R.id.tabMain_eventMessage)).setText(ExchangeClient.getInstance()
+						.getModel().eventMessage);
+			}
+		});
 	}
 
 	@Override
