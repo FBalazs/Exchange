@@ -67,6 +67,7 @@ public class ActivityZerothRound extends Activity {
 
 			@Override
 			public void onClose(TCPClient client) {
+				ActivityZerothRound.this.finish();
 			}
 
 			@Override
@@ -89,17 +90,15 @@ public class ActivityZerothRound extends Activity {
 
 			@Override
 			public void onMoneyChanged(Team ownTeam) {
-				// TODO Auto-generated method stub
-				
 			}
 
 			@Override
 			public void onStocksChanged(Team ownTeam, int position) {
-				// TODO Auto-generated method stub
-				
 			}
 
 		});
+		if(!mClient.isConnected())
+			finish();
 
 		((Button) findViewById(R.id.activity_zeroth_round_done))
 				.setOnClickListener(new OnClickListener() {
