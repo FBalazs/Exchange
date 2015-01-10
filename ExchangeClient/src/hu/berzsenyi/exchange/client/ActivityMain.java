@@ -1,6 +1,7 @@
 package hu.berzsenyi.exchange.client;
 
 import hu.berzsenyi.exchange.Model;
+import hu.berzsenyi.exchange.Stock;
 import hu.berzsenyi.exchange.Team;
 import hu.berzsenyi.exchange.net.TCPClient;
 import hu.berzsenyi.exchange.net.cmd.CmdOffer;
@@ -10,6 +11,7 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
@@ -21,6 +23,7 @@ import android.widget.TabHost.TabSpec;
 import android.widget.TextView;
 
 import java.io.IOException;
+import java.text.DecimalFormat;
 
 import android.content.Intent;
 
@@ -196,8 +199,7 @@ public class ActivityMain extends Activity implements IClientListener {
 			array[i] = model.stockList[i].name;
 		this.tabOffer_listStocks.setAdapter(new ArrayAdapter<String>(this,
 				android.R.layout.simple_spinner_item, array));
-		this.tabStocks_listStocks.setAdapter(new ArrayAdapter<String>(this,
-				android.R.layout.simple_spinner_item, array));
+		this.tabStocks_listStocks.setAdapter(new StockAdapter());
 	}
 
 	@Override
@@ -257,8 +259,10 @@ public class ActivityMain extends Activity implements IClientListener {
 	public void onRoundCommand(ExchangeClient client) {
 		this.runOnUiThread(new Runnable() {
 			public void run() {
-				((TextView) ActivityMain.this.findViewById(R.id.tabMain_eventMessage)).setText(ExchangeClient.getInstance()
-						.getModel().eventMessage);
+				((TextView) ActivityMain.this
+						.findViewById(R.id.tabMain_eventMessage))
+						.setText(ExchangeClient.getInstance().getModel().eventMessage);
+				refreshStockList(mClient.getModel());
 			}
 		});
 	}
@@ -282,5 +286,63 @@ public class ActivityMain extends Activity implements IClientListener {
 						.setText("" + ownTeam.getStockValue(mClient.getModel()));
 			}
 		});
+	}
+
+	private class StockAdapter extends BaseAdapter {
+
+		private Stock[] stocks;
+
+		public StockAdapter() {
+			stocks = mClient.getModel().stockList;
+		}
+
+		@Override
+		public int getCount() {
+			return stocks.length;
+		}
+
+		@Override
+		public Object getItem(int position) {
+			return stocks[position];
+		}
+
+		@Override
+		public long getItemId(int position) {
+			return 0;
+		}
+
+		@Override
+		public View getView(int position, View convertView, ViewGroup parent) {
+			View out;
+			if (convertView == null)
+				out = getLayoutInflater().inflate(
+						R.layout.activity_main_tab_stocks_list_item, parent,
+						false);
+			else
+				out = convertView;
+
+			Stock stock = (Stock) getItem(position);
+
+			((TextView) out.findViewById(R.id.tabStocks_stockName))
+					.setText(stock.name);
+			TextView change = (TextView) out
+					.findViewById(R.id.tabStocks_stockChange);
+
+			DecimalFormat df = new DecimalFormat("+#0.00;-#");
+			int colorID;
+			if (stock.change > 1) {
+				colorID = R.color.stock_change_increase;
+			} else if (stock.change == 1) {
+				colorID = R.color.stock_change_stagnation;
+			} else {
+				colorID = R.color.stock_change_decrease;
+			}
+			change.setText(df.format((stock.change - 1.0)*100) + "%");
+
+			change.setTextColor(getResources().getColor(colorID));
+
+			return out;
+		}
+
 	}
 }

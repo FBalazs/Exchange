@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="stock_change_increase">#093</color>
+    <color name="stock_change_stagnation">#FA3</color>
+    <color name="stock_change_decrease">#F00</color>
+
+</resources>

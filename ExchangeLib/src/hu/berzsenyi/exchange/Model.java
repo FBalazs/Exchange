@@ -50,8 +50,10 @@ public class Model {
 	
 	public void nextRound(String eventDesc, double[] multipliers) {
 		this.eventMessage = eventDesc;
-		for(int i = 0; i < this.stockList.length; i++)
+		for(int i = 0; i < this.stockList.length; i++) {
 			this.stockList[i].value *= multipliers[i];
+			this.stockList[i].change = multipliers[i];
+		}
 	}
 	
 	public int getStockCmdLength() {
