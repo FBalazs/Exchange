@@ -42,7 +42,7 @@ public class ActivityMain extends Activity implements IClientListener {
 	private ListView tabStocks_listStocks;
 
 	private Spinner tabOffer_listTeams, tabOffer_listStocks;
-	private Button tabOffer_buttonOffer;
+	private Button tabOffer_buttonOfferSell, tabOffer_buttonOfferBuy;
 
 	private ListView tabAccept_listOffers;
 
@@ -82,13 +82,22 @@ public class ActivityMain extends Activity implements IClientListener {
 				.findViewById(R.id.tabOffer_listTeams);
 		this.tabOffer_listStocks = (Spinner) this
 				.findViewById(R.id.tabOffer_listStocks);
-		this.tabOffer_buttonOffer = (Button) this
-				.findViewById(R.id.tabOffer_buttonOffer);
-		this.tabOffer_buttonOffer
+		this.tabOffer_buttonOfferSell = (Button) this
+				.findViewById(R.id.tabOffer_buttonOfferSell);
+		this.tabOffer_buttonOfferSell
 				.setOnClickListener(new View.OnClickListener() {
 					@Override
 					public void onClick(View v) {
-						onClickButtonOffer();
+						onClickButtonOfferSell();
+					}
+				});
+		this.tabOffer_buttonOfferBuy = (Button) this
+				.findViewById(R.id.tabOffer_buttonOfferBuy);
+		this.tabOffer_buttonOfferBuy
+				.setOnClickListener(new View.OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						onClickButtonOfferBuy();
 					}
 				});
 
@@ -141,10 +150,14 @@ public class ActivityMain extends Activity implements IClientListener {
 	public void onConnect(TCPClient client) {
 	}
 
-	public void onClickButtonOffer() {
+	public void onClickButtonOfferSell() {
 		this.mClient.offer(this.mClient.getModel().teams
 				.get(this.tabOffer_listTeams.getSelectedItemPosition()).id,
 				this.tabOffer_listStocks.getSelectedItemPosition(), 1, -1.0);
+	}
+	
+	public void onClickButtonOfferBuy() {
+		// TODO 
 	}
 
 	public void acceptOffer(int pos) {

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Exchange</string>
+    <string name="action_settings">Settings</string>
+    <string name="btnConnect">Connect</string>
+    <string name="hintIP">Address</string>
+    <string name="hintPort">Port</string>
+    <string name="hintName">Name</string>
+    <string name="textTeam">Team</string>
+    <string name="textStock">Stock</string>
+    <string name="textOfferSell">Ajánlat eladásra</string>
+    <string name="textOfferBuy">Ajánlat vételre</string>
+    <string name="could_not_connect">Couldn\'t connect :(</string>
+    <string name="ok">OK</string>
+    <string name="done">Done</string>
+    <string name="money">Money:</string>
+    <string name="unit_price">Unit pricer:</string>
+    <string name="dont_have_enough_money">You don\'t have enough money to buy all the selected stocks</string>
+    <string name="overview">Overview</string>
+    <string name="stocks">Stocks</string>
+    <string name="offer">Ajánlat</string>
+    <string name="incoming">Incoming</string>
+    <string name="accept_offer_question">Do you accept the offer?</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="connecting">Connecting</string>
+    <string name="waiting_for_the_first_round">Waiting for the first round</string>
+    <string name="value_of_stocks">Value of stocks:</string>
+
+</resources>

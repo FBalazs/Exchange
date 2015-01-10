@@ -28,9 +28,15 @@
 	    android:layout_height="wrap_content" />
     
     <Button
-        android:id="@+id/tabOffer_buttonOffer"
+        android:id="@+id/tabOffer_buttonOfferSell"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/textOffer"
+        android:text="@string/textOfferBuy"
+        android:layout_columnSpan="2" />
+    <Button
+        android:id="@+id/tabOffer_buttonOfferBuy"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/textOfferSell"
         android:layout_columnSpan="2" />
 </GridLayout>
