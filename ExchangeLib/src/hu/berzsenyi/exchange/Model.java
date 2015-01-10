@@ -10,6 +10,7 @@ public class Model {
 	public Stock[] stockList;
 	public List<Team> teams = new ArrayList<Team>();
 	public String eventMessage = "2-t fizet 3-at kap akció a Trióban!!!"; // TODO
+	public Event[] eventList;
 	
 	/**
 	 * Loads the stocks from the data files.
@@ -19,14 +20,38 @@ public class Model {
 		File[] files = new File(stockFolder).listFiles();
 		this.stockList = new Stock[files.length];
 		for(int i = 0; i < files.length; i++) {
-			Configuration config = new Configuration(files[i].getAbsolutePath());
-			config.read();
-			this.stockList[i] = new Stock(config.getValue("name", "null"), Double.parseDouble(config.getValue("initvalue", "0")));
+			DatParser parser = new DatParser(files[i].getAbsolutePath());
+			parser.parse();
+			this.stockList[i] = new Stock(files[i].getName().substring(0, files[i].getName().lastIndexOf('.')), parser.getValue("name"), Double.parseDouble(parser.getValue("initvalue")));
 		}
 	}
 	
 	public void loadEvents(String eventFolder) {
-		// TODO 
+		File[] files = new File(eventFolder).listFiles();
+		this.eventList = new Event[files.length];
+		for(int i = 0; i < files.length; i++) {
+			DatParser parser = new DatParser(files[i].getAbsolutePath());
+			parser.parse();
+			this.eventList[i] = new Event(files[i].getName().substring(0, files[i].getName().lastIndexOf('.')), parser.getValue("desc"), Integer.parseInt(parser.getValue("howmany")));
+			this.eventList[i].multipliers = new double[this.stockList.length];
+			for(int s = 0; s < this.stockList.length; s++) {
+				String var = parser.getValue(this.stockList[s].id);
+				if(var != null)
+					this.eventList[i].multipliers[s] = Double.parseDouble(var);
+				else
+					this.eventList[i].multipliers[s] = 1;
+			}
+		}
+	}
+	
+	public void nextRound(int eventNum) {
+		this.nextRound(this.eventList[eventNum].desc, this.eventList[eventNum].multipliers);
+	}
+	
+	public void nextRound(String eventDesc, double[] multipliers) {
+		this.eventMessage = eventDesc;
+		for(int i = 0; i < this.stockList.length; i++)
+			this.stockList[i].value *= multipliers[i];
 	}
 	
 	public int getStockCmdLength() {
