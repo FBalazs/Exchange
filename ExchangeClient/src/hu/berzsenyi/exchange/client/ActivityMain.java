@@ -153,7 +153,8 @@ public class ActivityMain extends Activity implements IClientListener {
 	public void onClickButtonOffer(boolean sell) {
 		this.mClient.offer(this.mClient.getModel().teams
 				.get(this.tabOffer_listTeams.getSelectedItemPosition()).id,
-				this.tabOffer_listStocks.getSelectedItemPosition(), 1, -1.0, sell);
+				this.tabOffer_listStocks.getSelectedItemPosition(), 1, -1.0,
+				sell);
 	}
 
 	public void acceptOffer(int pos) {
@@ -338,6 +339,9 @@ public class ActivityMain extends Activity implements IClientListener {
 			((TextView) out.findViewById(R.id.tabStocks_stockValue))
 					.setText(new DecimalFormat("#0.00").format(stock.value)
 							+ "");
+
+			((TextView) out.findViewById(R.id.tabStocks_stockAmount))
+					.setText(mClient.getOwnTeam().getStock(position) + "");
 
 			TextView change = (TextView) out
 					.findViewById(R.id.tabStocks_stockChange);

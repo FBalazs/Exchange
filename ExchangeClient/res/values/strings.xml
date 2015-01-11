@@ -16,6 +16,7 @@
     <string name="done">Kész!</string>
     <string name="money">Pénz:</string>
     <string name="unit_price">Egységár:</string>
+    <string name="amount">Mennyiség:</string>
     <string name="dont_have_enough_money">Nincs elég pénzed, hogy ennyi részvényt megvegyél</string>
     <string name="overview">Áttekintés</string>
     <string name="stocks">Részvények</string>

@@ -16,6 +16,7 @@
     <string name="done">Done</string>
     <string name="money">Money:</string>
     <string name="unit_price">Unit pricer:</string>
+    <string name="amount">Amount:</string>
     <string name="dont_have_enough_money">You don\'t have enough money to buy all the selected stocks</string>
     <string name="overview">Overview</string>
     <string name="stocks">Stocks</string>

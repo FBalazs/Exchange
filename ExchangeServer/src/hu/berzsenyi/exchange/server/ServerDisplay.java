@@ -9,6 +9,7 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
 import java.awt.event.WindowListener;
 import java.awt.event.WindowStateListener;
+import java.text.DecimalFormat;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -92,6 +93,7 @@ public class ServerDisplay extends JFrame implements WindowListener,
 			for (int i = 0; i < this.server.model.stockList.length; i++)
 				if (maxPrice < this.server.model.stockList[i].value)
 					maxPrice = this.server.model.stockList[i].value;
+			DecimalFormat df = new DecimalFormat("#0.00");
 			for (int i = 0; i < this.server.model.stockList.length; i++) {
 				g.drawRect(
 						this.rectStocks.x + this.rectStocks.width * i
@@ -105,7 +107,7 @@ public class ServerDisplay extends JFrame implements WindowListener,
 						(int) (this.rectStocks.height
 								* this.server.model.stockList[i].value / maxPrice));
 				g.drawString(
-						"" + this.server.model.stockList[i].value,
+						df.format(this.server.model.stockList[i].value),
 						this.rectStocks.x + this.rectStocks.width * i
 								/ this.server.model.stockList.length,
 						this.rectStocks.y
