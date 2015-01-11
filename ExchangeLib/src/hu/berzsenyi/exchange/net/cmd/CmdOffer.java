@@ -16,12 +16,12 @@ public class CmdOffer extends TCPCommand {
 		super(ID, length);
 	}
 
-	public CmdOffer(String playerID, int stockID, int amount, double money) {
+	public CmdOffer(String playerID, int stockID, int amount, double money, boolean sell) {
 		super(ID, 4 + stringLength(playerID) + 4 + 4 + 8);
 		this.teamID = playerID;
 		this.stockID = stockID;
-		this.amount = amount;
-		this.money = money;
+		this.amount = sell ? amount : -amount;
+		this.money = sell ? money : -money;
 	}
 
 	@Override
@@ -41,7 +41,12 @@ public class CmdOffer extends TCPCommand {
 	}
 
 	public String toString(Model model) {
-		return "name=" + model.getTeamById(this.teamID).name + " stockName="
+		if (this.amount < 0)
+			return "Stock for sale. name=" + model.getTeamById(this.teamID).name + " stockName="
+				+ model.stockList[this.stockID].name + " amount=" + (-this.amount)
+				+ " money=" + (-this.money);
+		else
+			return "Stock for buying. name=" + model.getTeamById(this.teamID).name + " stockName="
 				+ model.stockList[this.stockID].name + " amount=" + this.amount
 				+ " money=" + this.money;
 	}

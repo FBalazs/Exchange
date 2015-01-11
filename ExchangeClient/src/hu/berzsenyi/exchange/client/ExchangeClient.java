@@ -106,8 +106,8 @@ public class ExchangeClient implements ICmdHandler, IClientConnectionListener {
 		return connected;
 	}
 
-	public void offer(String teamID, int stockID, int amount, double money) {
-		client.writeCommand(new CmdOffer(teamID, stockID, amount, money));
+	public void offer(String teamID, int stockID, int amount, double money, boolean sell) {
+		client.writeCommand(new CmdOffer(teamID, stockID, amount, money, sell));
 	}
 
 	public void acceptOffer(int index) {

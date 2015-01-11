@@ -88,7 +88,7 @@ public class ActivityMain extends Activity implements IClientListener {
 				.setOnClickListener(new View.OnClickListener() {
 					@Override
 					public void onClick(View v) {
-						onClickButtonOfferSell();
+						onClickButtonOffer(true);
 					}
 				});
 		this.tabOffer_buttonOfferBuy = (Button) this
@@ -97,7 +97,7 @@ public class ActivityMain extends Activity implements IClientListener {
 				.setOnClickListener(new View.OnClickListener() {
 					@Override
 					public void onClick(View v) {
-						onClickButtonOfferBuy();
+						onClickButtonOffer(false);
 					}
 				});
 
@@ -150,14 +150,10 @@ public class ActivityMain extends Activity implements IClientListener {
 	public void onConnect(TCPClient client) {
 	}
 
-	public void onClickButtonOfferSell() {
+	public void onClickButtonOffer(boolean sell) {
 		this.mClient.offer(this.mClient.getModel().teams
 				.get(this.tabOffer_listTeams.getSelectedItemPosition()).id,
-				this.tabOffer_listStocks.getSelectedItemPosition(), 1, -1.0);
-	}
-
-	public void onClickButtonOfferBuy() {
-		// TODO
+				this.tabOffer_listStocks.getSelectedItemPosition(), 1, -1.0, sell);
 	}
 
 	public void acceptOffer(int pos) {
