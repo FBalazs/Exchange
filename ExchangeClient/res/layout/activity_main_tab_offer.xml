@@ -1,42 +1,85 @@
 <?xml version="1.0" encoding="utf-8"?>
-<GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:columnCount="2"
-    android:rowCount="3" >
-    
-   	<TextView
-        android:id="@+id/tabOffer_textViewTeam"
-        android:layout_width="wrap_content"
+    android:weightSum="1" >
+
+    <TableRow
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/textTeam" />
-        
-    <Spinner
-     	android:id="@+id/tabOffer_listTeams"
-     	android:layout_width="wrap_content"
-     	android:layout_height="wrap_content" />
-        
-    <TextView
-	    android:id="@+id/tabOffer_textViewStock"
-	    android:layout_width="wrap_content"
-	    android:layout_height="wrap_content"
-	    android:text="@string/textStock" />
-    
-    <Spinner
-	    android:id="@+id/tabOffer_listStocks"
-	    android:layout_width="wrap_content"
-	    android:layout_height="wrap_content" />
-    
-    <Button
-        android:id="@+id/tabOffer_buttonOfferSell"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/textOfferBuy"
-        android:layout_columnSpan="2" />
-    <Button
-        android:id="@+id/tabOffer_buttonOfferBuy"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/textOfferSell"
-        android:layout_columnSpan="2" />
-</GridLayout>
+        android:weightSum="1" >
+
+        <TextView
+            android:id="@+id/tabOffer_textViewTeam"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0"
+            android:text="@string/textTeam" />
+
+        <Spinner
+            android:id="@+id/tabOffer_listTeams"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_span="2"
+            android:layout_weight="1" />
+    </TableRow>
+
+    <TableRow android:weightSum="1" >
+
+        <TextView
+            android:id="@+id/tabOffer_textViewStock"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0"
+            android:text="@string/textStock" />
+
+        <Spinner
+            android:id="@+id/tabOffer_listStocks"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_span="2"
+            android:layout_weight="1" />
+    </TableRow>
+
+    <TableRow android:weightSum="1" >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0"
+            android:text="@string/amount" />
+
+        <TextView
+            android:id="@+id/tabOffer_textAmount"
+            android:layout_weight="0" />
+
+        <SeekBar
+            android:id="@+id/tabOffer_seekBarAmount"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+    </TableRow>
+
+    <TableRow android:weightSum="1" >
+
+        <Button
+            android:id="@+id/tabOffer_buttonOfferSell"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/textOfferBuy"
+            android:layout_span="3"
+            android:layout_weight="1" />
+    </TableRow>
+
+    <TableRow android:weightSum="1" >
+
+        <Button
+            android:id="@+id/tabOffer_buttonOfferBuy"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_span="3"
+            android:text="@string/textOfferSell"
+            android:layout_weight="1" />
+    </TableRow>
+
+</TableLayout>

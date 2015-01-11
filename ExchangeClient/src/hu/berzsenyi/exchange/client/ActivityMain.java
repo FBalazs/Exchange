@@ -13,10 +13,13 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.SeekBar;
+import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.Spinner;
 import android.widget.TabHost;
 import android.widget.TabHost.TabSpec;
@@ -24,6 +27,8 @@ import android.widget.TextView;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 import android.content.Intent;
 
@@ -43,6 +48,8 @@ public class ActivityMain extends Activity implements IClientListener {
 
 	private Spinner tabOffer_listTeams, tabOffer_listStocks;
 	private Button tabOffer_buttonOfferSell, tabOffer_buttonOfferBuy;
+	private SeekBar tabOffer_seekBarAmount;
+	private TextView tabOffer_textAmount;
 
 	private ListView tabAccept_listOffers;
 
@@ -82,6 +89,28 @@ public class ActivityMain extends Activity implements IClientListener {
 				.findViewById(R.id.tabOffer_listTeams);
 		this.tabOffer_listStocks = (Spinner) this
 				.findViewById(R.id.tabOffer_listStocks);
+		this.tabOffer_seekBarAmount = (SeekBar) this
+				.findViewById(R.id.tabOffer_seekBarAmount);
+		this.tabOffer_seekBarAmount
+				.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
+
+					@Override
+					public void onStopTrackingTouch(SeekBar seekBar) {
+					}
+
+					@Override
+					public void onStartTrackingTouch(SeekBar seekBar) {
+					}
+
+					@Override
+					public void onProgressChanged(SeekBar seekBar,
+							int progress, boolean fromUser) {
+						ActivityMain.this.tabOffer_textAmount.setText(progress
+								+ 1 + "");
+					}
+				});
+		this.tabOffer_textAmount = (TextView) this
+				.findViewById(R.id.tabOffer_textAmount);
 		this.tabOffer_buttonOfferSell = (Button) this
 				.findViewById(R.id.tabOffer_buttonOfferSell);
 		this.tabOffer_buttonOfferSell
@@ -153,8 +182,8 @@ public class ActivityMain extends Activity implements IClientListener {
 	public void onClickButtonOffer(boolean sell) {
 		this.mClient.offer(this.mClient.getModel().teams
 				.get(this.tabOffer_listTeams.getSelectedItemPosition()).id,
-				this.tabOffer_listStocks.getSelectedItemPosition(), 1, -1.0,
-				sell);
+				this.tabOffer_listStocks.getSelectedItemPosition(),
+				tabOffer_seekBarAmount.getProgress() + 1, -1.0, sell);
 	}
 
 	public void acceptOffer(int pos) {
@@ -204,11 +233,32 @@ public class ActivityMain extends Activity implements IClientListener {
 	}
 
 	public void refreshStockList(Model model) {
-		String[] array = new String[model.stockList.length];
-		for (int i = 0; i < array.length; i++)
-			array[i] = model.stockList[i].name;
+
+		final List<Integer> amountList = new ArrayList<Integer>();
+		List<String> nameList = new ArrayList<String>();
+		for (int i = 0; i < mClient.getModel().stockList.length; i++)
+			if (mClient.getOwnTeam().getStock(i) > 0) {
+				nameList.add(model.stockList[i].name);
+				amountList.add(mClient.getOwnTeam().getStock(i));
+			}
+
 		this.tabOffer_listStocks.setAdapter(new ArrayAdapter<String>(this,
-				android.R.layout.simple_spinner_item, array));
+				android.R.layout.simple_spinner_item, nameList));
+		this.tabOffer_listStocks
+				.setOnItemSelectedListener(new OnItemSelectedListener() {
+
+					@Override
+					public void onItemSelected(AdapterView<?> parent,
+							View view, int position, long id) {
+						ActivityMain.this.tabOffer_seekBarAmount.setProgress(0);
+						ActivityMain.this.tabOffer_seekBarAmount
+								.setMax(amountList.get(position) - 1);
+					}
+
+					@Override
+					public void onNothingSelected(AdapterView<?> parent) {
+					}
+				});
 		this.tabStocks_listStocks.setAdapter(new StockAdapter());
 	}
 
