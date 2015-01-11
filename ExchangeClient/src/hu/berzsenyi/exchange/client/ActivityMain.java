@@ -155,9 +155,9 @@ public class ActivityMain extends Activity implements IClientListener {
 				.get(this.tabOffer_listTeams.getSelectedItemPosition()).id,
 				this.tabOffer_listStocks.getSelectedItemPosition(), 1, -1.0);
 	}
-	
+
 	public void onClickButtonOfferBuy() {
-		// TODO 
+		// TODO
 	}
 
 	public void acceptOffer(int pos) {
@@ -338,6 +338,11 @@ public class ActivityMain extends Activity implements IClientListener {
 
 			((TextView) out.findViewById(R.id.tabStocks_stockName))
 					.setText(stock.name);
+
+			((TextView) out.findViewById(R.id.tabStocks_stockValue))
+					.setText(new DecimalFormat("#0.00").format(stock.value)
+							+ "");
+
 			TextView change = (TextView) out
 					.findViewById(R.id.tabStocks_stockChange);
 
@@ -350,7 +355,7 @@ public class ActivityMain extends Activity implements IClientListener {
 			} else {
 				colorID = R.color.stock_change_decrease;
 			}
-			change.setText(df.format((stock.change - 1.0)*100) + "%");
+			change.setText(df.format((stock.change - 1.0) * 100) + "%");
 
 			change.setTextColor(getResources().getColor(colorID));
 

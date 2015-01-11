@@ -8,7 +8,13 @@
         android:id="@+id/tabStocks_stockName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
-    
+
+    <TextView
+        android:id="@+id/tabStocks_stockValue"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textStyle="italic" />
+
     <TextView
         android:id="@+id/tabStocks_stockChange"
         android:layout_width="wrap_content"
