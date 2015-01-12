@@ -18,6 +18,7 @@ import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.RadioGroup;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.Spinner;
@@ -47,11 +48,14 @@ public class ActivityMain extends Activity implements IClientListener {
 	private ListView tabStocks_listStocks;
 
 	private Spinner tabOffer_listTeams, tabOffer_listStocks;
-	private Button tabOffer_buttonOfferSell, tabOffer_buttonOfferBuy;
+	private Button tabOffer_buttonOfferSend;
 	private SeekBar tabOffer_seekBarAmount;
 	private TextView tabOffer_textAmount;
+	private RadioGroup tabOffer_radioGroup;
 
 	private ListView tabAccept_listOffers;
+
+	private List<Integer> possessedStockList;
 
 	private ExchangeClient mClient = ExchangeClient.getInstance();
 
@@ -85,6 +89,7 @@ public class ActivityMain extends Activity implements IClientListener {
 		this.tabStocks_listStocks = (ListView) this
 				.findViewById(R.id.tabStocks_listStocks);
 
+		this.tabOffer_radioGroup = (RadioGroup) findViewById(R.id.tabOffer_radioGroup);
 		this.tabOffer_listTeams = (Spinner) this
 				.findViewById(R.id.tabOffer_listTeams);
 		this.tabOffer_listStocks = (Spinner) this
@@ -111,22 +116,13 @@ public class ActivityMain extends Activity implements IClientListener {
 				});
 		this.tabOffer_textAmount = (TextView) this
 				.findViewById(R.id.tabOffer_textAmount);
-		this.tabOffer_buttonOfferSell = (Button) this
-				.findViewById(R.id.tabOffer_buttonOfferSell);
-		this.tabOffer_buttonOfferSell
+		this.tabOffer_buttonOfferSend = (Button) this
+				.findViewById(R.id.tabOffer_buttonOfferSend);
+		this.tabOffer_buttonOfferSend
 				.setOnClickListener(new View.OnClickListener() {
 					@Override
 					public void onClick(View v) {
-						onClickButtonOffer(true);
-					}
-				});
-		this.tabOffer_buttonOfferBuy = (Button) this
-				.findViewById(R.id.tabOffer_buttonOfferBuy);
-		this.tabOffer_buttonOfferBuy
-				.setOnClickListener(new View.OnClickListener() {
-					@Override
-					public void onClick(View v) {
-						onClickButtonOffer(false);
+						onClickButtonOffer();
 					}
 				});
 
@@ -179,11 +175,14 @@ public class ActivityMain extends Activity implements IClientListener {
 	public void onConnect(TCPClient client) {
 	}
 
-	public void onClickButtonOffer(boolean sell) {
-		this.mClient.offer(this.mClient.getModel().teams
-				.get(this.tabOffer_listTeams.getSelectedItemPosition()).id,
-				this.tabOffer_listStocks.getSelectedItemPosition(),
-				tabOffer_seekBarAmount.getProgress() + 1, -1.0, sell);
+	public void onClickButtonOffer() {
+		this.mClient
+				.offer(this.mClient.getModel().teams
+						.get(this.tabOffer_listTeams.getSelectedItemPosition()).id,
+						this.tabOffer_listStocks.getSelectedItemPosition(),
+						tabOffer_seekBarAmount.getProgress() + 1,
+						-1.0,
+						this.tabOffer_radioGroup.getCheckedRadioButtonId() == R.id.tabOffer_radioSell);
 	}
 
 	public void acceptOffer(int pos) {
@@ -234,12 +233,12 @@ public class ActivityMain extends Activity implements IClientListener {
 
 	public void refreshStockList(Model model) {
 
-		final List<Integer> amountList = new ArrayList<Integer>();
+		possessedStockList = new ArrayList<Integer>();
 		List<String> nameList = new ArrayList<String>();
 		for (int i = 0; i < mClient.getModel().stockList.length; i++)
 			if (mClient.getOwnTeam().getStock(i) > 0) {
 				nameList.add(model.stockList[i].name);
-				amountList.add(mClient.getOwnTeam().getStock(i));
+				possessedStockList.add(i);
 			}
 
 		this.tabOffer_listStocks.setAdapter(new ArrayAdapter<String>(this,
@@ -250,9 +249,7 @@ public class ActivityMain extends Activity implements IClientListener {
 					@Override
 					public void onItemSelected(AdapterView<?> parent,
 							View view, int position, long id) {
-						ActivityMain.this.tabOffer_seekBarAmount.setProgress(0);
-						ActivityMain.this.tabOffer_seekBarAmount
-								.setMax(amountList.get(position) - 1);
+						refreshAmountMax();
 					}
 
 					@Override
@@ -260,6 +257,17 @@ public class ActivityMain extends Activity implements IClientListener {
 					}
 				});
 		this.tabStocks_listStocks.setAdapter(new StockAdapter());
+	}
+
+	private void refreshAmountMax() {
+		ActivityMain.this.tabOffer_seekBarAmount.setProgress(0);
+		int selectedStockIndex = this.possessedStockList
+				.get(this.tabOffer_listStocks.getSelectedItemPosition());
+		ActivityMain.this.tabOffer_seekBarAmount
+				.setMax((this.tabOffer_radioGroup.getCheckedRadioButtonId() == R.id.tabOffer_radioSell ? this.mClient
+						.getOwnTeam().getStock(selectedStockIndex)
+						: (int) (this.mClient.getOwnTeam().getMoney() / this.mClient
+								.getModel().stockList[selectedStockIndex].value)) - 1);
 	}
 
 	@Override

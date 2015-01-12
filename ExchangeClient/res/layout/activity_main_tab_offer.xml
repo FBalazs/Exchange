@@ -4,10 +4,26 @@
     android:layout_height="match_parent"
     android:weightSum="1" >
 
-    <TableRow
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:weightSum="1" >
+    <RadioGroup
+        android:id="@+id/tabOffer_radioGroup"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" >
+
+        <RadioButton
+            android:id="@+id/tabOffer_radioSell"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="@string/textOfferSell" />
+
+        <RadioButton
+            android:id="@+id/tabOffer_radioBuy"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/textOfferBuy" />
+    </RadioGroup>
+
+    <TableRow>
 
         <TextView
             android:id="@+id/tabOffer_textViewTeam"
@@ -63,23 +79,13 @@
     <TableRow android:weightSum="1" >
 
         <Button
-            android:id="@+id/tabOffer_buttonOfferSell"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/textOfferBuy"
-            android:layout_span="3"
-            android:layout_weight="1" />
-    </TableRow>
-
-    <TableRow android:weightSum="1" >
-
-        <Button
-            android:id="@+id/tabOffer_buttonOfferBuy"
+            android:id="@+id/tabOffer_buttonOfferSend"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_span="3"
-            android:text="@string/textOfferSell"
-            android:layout_weight="1" />
+            android:layout_weight="1"
+            android:text="@string/textOfferSend" />
     </TableRow>
+
 
 </TableLayout>

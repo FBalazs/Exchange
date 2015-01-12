@@ -9,8 +9,9 @@
     <string name="hintName">Name</string>
     <string name="textTeam">Team</string>
     <string name="textStock">Stock</string>
-    <string name="textOfferSell">Ajánlat eladásra</string>
-    <string name="textOfferBuy">Ajánlat vételre</string>
+    <string name="textOfferSell">Offer for sail</string>
+    <string name="textOfferBuy">Offer for buying</string>
+    <string name="textOfferSend">Send offer</string>
     <string name="could_not_connect">Couldn\'t connect :(</string>
     <string name="ok">OK</string>
     <string name="done">Done</string>
@@ -20,7 +21,7 @@
     <string name="dont_have_enough_money">You don\'t have enough money to buy all the selected stocks</string>
     <string name="overview">Overview</string>
     <string name="stocks">Stocks</string>
-    <string name="offer">Ajánlat</string>
+    <string name="offer">Offer</string>
     <string name="incoming">Incoming</string>
     <string name="accept_offer_question">Do you accept the offer?</string>
     <string name="yes">Yes</string>
