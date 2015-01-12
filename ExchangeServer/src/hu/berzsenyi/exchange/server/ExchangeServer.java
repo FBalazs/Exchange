@@ -1,7 +1,10 @@
 package hu.berzsenyi.exchange.server;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Random;
 
 import hu.berzsenyi.exchange.Model;
@@ -31,7 +34,9 @@ public class ExchangeServer implements IServerListener, ICmdHandler {
 	public boolean running;
 	public TCPServer net;
 	public Model model;
-	public List<LogEvent> log;
+	//private List<LogEvent> log;
+	private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss");
+	private FileOutputStream logFile;
 	public Random rand;
 
 	public IServerDisplay display;
@@ -39,9 +44,23 @@ public class ExchangeServer implements IServerListener, ICmdHandler {
 	public void setDisplay(IServerDisplay display) {
 		this.display = display;
 	}
+	
+	public void log(LogEvent event) {
+		//this.log.add(event);
+		try {
+			this.logFile.write(("["+this.dateFormat.format(new Date(event.time))+"] "+event.title+": "+event.desc+"\n").getBytes());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 
 	public void create() {
-		this.log = new ArrayList<LogEvent>();
+		//this.log = new ArrayList<LogEvent>();
+		try {
+			this.logFile = new FileOutputStream("log.txt");
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
 		
 		this.rand = new Random(System.currentTimeMillis());
 		
@@ -51,14 +70,14 @@ public class ExchangeServer implements IServerListener, ICmdHandler {
 
 		this.net = new TCPServer(8080, this, this);
 
-		this.log.add(new LogEvent("Server start", "Server started."));
+		this.log(new LogEvent("Server start", "Server started."));
 
 		if (this.display != null)
 			this.display.repaint();
 	}
 
 	public void nextRound() {
-		this.log.add(new LogEvent("Round end", "Round " + this.model.round
+		this.log(new LogEvent("Round end", "Round " + this.model.round
 				+ " ended."));
 
 		if (this.model.round == 0) {
@@ -72,7 +91,7 @@ public class ExchangeServer implements IServerListener, ICmdHandler {
 		this.model.round++;
 		this.net.writeCmdToAll(new CmdServerNextRound(this.model.eventMessage, this.model.eventList[eventNum].multipliers));
 
-		this.log.add(new LogEvent("Round start", "Round " + this.model.round
+		this.log(new LogEvent("Round start", "Round " + this.model.round
 				+ " started."));
 
 		if (this.display != null)
@@ -83,7 +102,7 @@ public class ExchangeServer implements IServerListener, ICmdHandler {
 	public void onClientConnected(TCPServerClient client) {
 		System.out.println("Client connected!");
 
-		this.log.add(new LogEventConnAttempt(client.getAddrString()));
+		this.log(new LogEventConnAttempt(client.getAddrString()));
 	}
 
 	@Override
@@ -97,18 +116,18 @@ public class ExchangeServer implements IServerListener, ICmdHandler {
 				conn.writeCommand(new CmdServerInfo(this.model.startMoney, conn
 						.getAddrString()));
 				conn.writeCommand(new CmdServerStocks(this.model));
-				this.log.add(new LogEventConnAccept(conn.getAddrString(),
+				this.log(new LogEventConnAccept(conn.getAddrString(),
 						((CmdClientInfo) cmd).name));
 			} else {
 				// TODO send feedback
 				conn.close();
-				this.log.add(new LogEventConnRefuse(conn.getAddrString(),
+				this.log(new LogEventConnRefuse(conn.getAddrString(),
 						((CmdClientInfo) cmd).name));
 			}
 		}
 
 		if (cmd instanceof CmdClientDisconnect) {
-			this.log.add(new LogEventDisconnect(conn.getAddrString(),
+			this.log(new LogEventDisconnect(conn.getAddrString(),
 					this.model.getTeamById(conn.getAddrString()).name));
 			this.model.removeTeam(conn.getAddrString());
 			conn.close();
@@ -119,7 +138,7 @@ public class ExchangeServer implements IServerListener, ICmdHandler {
 			Team team = this.model.getTeamById(conn.getAddrString());
 			team.setMoney(this.model.calculateMoneyAfterPurchase(buy.amount));
 			team.setStocks(buy.amount);
-			this.log.add(new LogEvent("Zeroth round buy", team.name + "("
+			this.log(new LogEvent("Zeroth round buy", team.name + "("
 					+ team.id + ") performed the zeroth round buy"));
 		}
 
@@ -162,6 +181,11 @@ public class ExchangeServer implements IServerListener, ICmdHandler {
 
 	public void destroy() {
 		this.net.close();
-		this.log.add(new LogEvent("Server start", "Server closed."));
+		try {
+			this.logFile.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		this.log(new LogEvent("Server start", "Server closed."));
 	}
 }

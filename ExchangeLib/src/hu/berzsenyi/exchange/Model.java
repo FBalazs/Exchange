@@ -12,6 +12,8 @@ public class Model {
 	public String eventMessage = "2-t fizet 3-at kap akció a Trióban!!!"; // TODO
 	public Event[] eventList;
 	
+	public double[] ceventMult = null;
+	
 	/**
 	 * Loads the stocks from the data files.
 	 * @param stockFolder The folder where the files are located.
@@ -50,10 +52,12 @@ public class Model {
 	
 	public void nextRound(String eventDesc, double[] multipliers) {
 		this.eventMessage = eventDesc;
-		for(int i = 0; i < this.stockList.length; i++) {
-			this.stockList[i].value *= multipliers[i];
-			this.stockList[i].change = multipliers[i];
-		}
+		if(this.ceventMult != null)
+			for(int i = 0; i < this.stockList.length; i++) {
+				this.stockList[i].value *= this.ceventMult[i];
+				this.stockList[i].change = this.ceventMult[i];
+			}
+		this.ceventMult = multipliers;
 	}
 	
 	public int getStockCmdLength() {
