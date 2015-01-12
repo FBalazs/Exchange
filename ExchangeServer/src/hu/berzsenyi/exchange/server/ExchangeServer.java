@@ -154,16 +154,23 @@ public class ExchangeServer implements IServerListener, ICmdHandler {
 			Team teamSender = this.model.getTeamById(offer.playerID);
 			Team teamReceiver = this.model.getTeamById(conn.getAddrString());
 
-			teamSender.setStock(offer.stockID,
-					teamSender.getStock(offer.stockID) + offer.amount);
-			teamSender.setMoney(teamSender.getMoney() + offer.money);
-			teamReceiver.setStock(offer.stockID,
-					teamReceiver.getStock(offer.stockID) - offer.amount);
-			teamReceiver.setMoney(teamReceiver.getMoney() - offer.money);
-
-			conn.writeCommand(offer);
-			this.net.writeCmdTo(new CmdOfferResponse(conn.getAddrString(),
-					offer.stockID, -offer.amount, -offer.money), offer.playerID);
+			if(0 <= teamSender.getStock(offer.stockID) + offer.amount
+				&& 0 <= teamSender.getMoney() + offer.money
+				&& 0 <= teamReceiver.getStock(offer.stockID) - offer.amount
+				&& 0 <= teamReceiver.getMoney() - offer.money) {
+				teamSender.setStock(offer.stockID,
+						teamSender.getStock(offer.stockID) + offer.amount);
+				teamSender.setMoney(teamSender.getMoney() + offer.money);
+				teamReceiver.setStock(offer.stockID,
+						teamReceiver.getStock(offer.stockID) - offer.amount);
+				teamReceiver.setMoney(teamReceiver.getMoney() - offer.money);
+	
+				conn.writeCommand(offer);
+				this.net.writeCmdTo(new CmdOfferResponse(conn.getAddrString(),
+						offer.stockID, -offer.amount, -offer.money), offer.playerID);
+			} else {
+				// TODO
+			}
 		}
 
 		if (this.display != null)
