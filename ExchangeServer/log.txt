@@ -1,31 +1,7 @@
-[2015-01-12 21-03-32] Server start: Server started.
-[2015-01-12 21-05-05] Connection accepted: Connection accepted from /192.168.0.13:39776 with the nickname NickName
-[2015-01-12 21-05-18] Zeroth round buy: NickName(/192.168.0.13:39776) performed the zeroth round buy
-[2015-01-12 21-05-37] Round end: Round 0 ended.
-[2015-01-12 21-05-37] Round start: Round 1 started.
-[2015-01-12 21-06-15] Round end: Round 1 ended.
-[2015-01-12 21-06-15] Round start: Round 2 started.
-[2015-01-12 21-06-29] Round end: Round 2 ended.
-[2015-01-12 21-06-29] Round start: Round 3 started.
-[2015-01-12 21-06-37] Round end: Round 3 ended.
-[2015-01-12 21-06-37] Round start: Round 4 started.
-[2015-01-12 21-06-40] Round end: Round 4 ended.
-[2015-01-12 21-06-40] Round start: Round 5 started.
-[2015-01-12 21-06-41] Round end: Round 5 ended.
-[2015-01-12 21-06-41] Round start: Round 6 started.
-[2015-01-12 21-06-47] Round end: Round 6 ended.
-[2015-01-12 21-06-47] Round start: Round 7 started.
-[2015-01-12 21-06-48] Round end: Round 7 ended.
-[2015-01-12 21-06-48] Round start: Round 8 started.
-[2015-01-12 21-06-49] Round end: Round 8 ended.
-[2015-01-12 21-06-49] Round start: Round 9 started.
-[2015-01-12 21-06-50] Round end: Round 9 ended.
-[2015-01-12 21-06-50] Round start: Round 10 started.
-[2015-01-12 21-06-50] Round end: Round 10 ended.
-[2015-01-12 21-06-50] Round start: Round 11 started.
-[2015-01-12 21-06-51] Round end: Round 11 ended.
-[2015-01-12 21-06-51] Round start: Round 12 started.
-[2015-01-12 21-06-51] Round end: Round 12 ended.
-[2015-01-12 21-06-51] Round start: Round 13 started.
-[2015-01-12 21-06-51] Round end: Round 13 ended.
-[2015-01-12 21-06-51] Round start: Round 14 started.
+[2015-01-12 21-38-33] Server start: Server started.
+[2015-01-12 21-39-05] Connection accepted: Connection accepted from /192.168.0.13:56041 with the nickname NickName
+[2015-01-12 21-39-16] Zeroth round buy: NickName(/192.168.0.13:56041) performed the zeroth round buy
+[2015-01-12 21-39-23] Round end: Round 0 ended.
+[2015-01-12 21-39-23] Round start: Round 1 started.
+[2015-01-12 21-39-27] Client disconnecting: Client disconnecting with the id /192.168.0.13:56041 and nickname NickName
+[2015-01-12 21-39-29] Connection refused: Connection refused from /192.168.0.13:52527 with the nickname NickName

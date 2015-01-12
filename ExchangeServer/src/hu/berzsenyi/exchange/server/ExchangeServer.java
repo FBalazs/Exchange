@@ -23,6 +23,7 @@ import hu.berzsenyi.exchange.net.cmd.CmdClientDisconnect;
 import hu.berzsenyi.exchange.net.cmd.CmdClientInfo;
 import hu.berzsenyi.exchange.net.cmd.CmdOffer;
 import hu.berzsenyi.exchange.net.cmd.CmdOfferResponse;
+import hu.berzsenyi.exchange.net.cmd.CmdServerError;
 import hu.berzsenyi.exchange.net.cmd.CmdServerInfo;
 import hu.berzsenyi.exchange.net.cmd.CmdServerNextRound;
 import hu.berzsenyi.exchange.net.cmd.CmdServerStocks;
@@ -120,6 +121,7 @@ public class ExchangeServer implements IServerListener, ICmdHandler {
 						((CmdClientInfo) cmd).name));
 			} else {
 				// TODO send feedback
+				conn.writeCommand(new CmdServerError(CmdServerError.ERROR_CONNECT, null));
 				conn.close();
 				this.log(new LogEventConnRefuse(conn.getAddrString(),
 						((CmdClientInfo) cmd).name));
@@ -170,6 +172,8 @@ public class ExchangeServer implements IServerListener, ICmdHandler {
 						offer.stockID, -offer.amount, -offer.money), offer.playerID);
 			} else {
 				// TODO
+				conn.writeCommand(new CmdServerError(CmdServerError.ERROR_OFFER, null));
+				this.net.writeCmdTo(new CmdServerError(CmdServerError.ERROR_OFFER, null), offer.playerID);
 			}
 		}
 
