@@ -95,6 +95,19 @@ public class ServerDisplay extends JFrame implements WindowListener,
 					maxPrice = this.server.model.stockList[i].value;
 			DecimalFormat df = new DecimalFormat("#0.00");
 			for (int i = 0; i < this.server.model.stockList.length; i++) {
+				g.setColor(new Color(0.5F, 0.75F, 1F));
+				g.fillRect(
+						this.rectStocks.x + this.rectStocks.width * i
+								/ this.server.model.stockList.length,
+						this.rectStocks.y
+								+ this.rectStocks.height
+								- (int) (this.rectStocks.height
+										* this.server.model.stockList[i].value / maxPrice),
+						this.rectStocks.width / 2
+								/ this.server.model.stockList.length,
+						(int) (this.rectStocks.height
+								* this.server.model.stockList[i].value / maxPrice));
+				g.setColor(Color.black);
 				g.drawRect(
 						this.rectStocks.x + this.rectStocks.width * i
 								/ this.server.model.stockList.length,
