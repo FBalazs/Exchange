@@ -29,7 +29,8 @@
         android:layout_below="@+id/editTextName"
         android:layout_centerHorizontal="true"
         android:ems="10"
-        android:hint="@string/hintIP" />
+        android:hint="@string/hintIP"
+        android:inputType="text|phone" />
     
     <EditText
         android:id="@+id/editTextPort"

@@ -15,19 +15,21 @@
     <string name="could_not_connect">Nem sikerült a kapcsolódás :(</string>
     <string name="ok">OK</string>
     <string name="done">Kész!</string>
-    <string name="money">Pénz:</string>
-    <string name="unit_price">Egységár:</string>
-    <string name="amount">Mennyiség:</string>
+    <string name="money">Pénz</string>
+    <string name="unit_price">Egységár</string>
+    <string name="amount">Mennyiség</string>
     <string name="dont_have_enough_money">Nincs elég pénzed, hogy ennyi részvényt megvegyél</string>
     <string name="overview">Áttekintés</string>
     <string name="stocks">Részvények</string>
     <string name="offer">Ajánlat</string>
     <string name="incoming">Bejövő</string>
-    <string name="accept_offer_question">Elfogadod az ajánlatot?</string>
     <string name="yes">Igen</string>
     <string name="no">Nem</string>
     <string name="connecting">Kapcsolódás</string>
     <string name="waiting_for_the_first_round">Várakozás az első körre</string>
     <string name="value_of_stocks">Részvények összértéke:</string>
+    <string name="offer_as_string_buy">A(z) \'%1$s\' csapat eladásra kínált %3$d db \'%2$s\'-részvényt, %4$s egységárért. Megveszed?</string>
+    <string name="offer_as_string_sell">A(z) \'%1$s\' csapat szeretne venni tőled %3$d db \'%2$s\'-részvényt, %4$s egységárért. Elfogadod az ajánlatát?</string>
+    <string name="price_must_be_positive">Pozitív árat adj meg!</string>
 
 </resources>

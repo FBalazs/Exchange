@@ -23,11 +23,13 @@
     <string name="stocks">Stocks</string>
     <string name="offer">Offer</string>
     <string name="incoming">Incoming</string>
-    <string name="accept_offer_question">Do you accept the offer?</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="connecting">Connecting</string>
     <string name="waiting_for_the_first_round">Waiting for the first round</string>
     <string name="value_of_stocks">Value of stocks:</string>
+    <string name="offer_as_string_buy">The \'%1$s\' team has offered you %3$d pieces of \'%2$s\' stocks, each costs %4$s. Do you want to buy them?</string>
+    <string name="offer_as_string_sell">The \'%1$s\' team wants to buy %3$d pieces of \'%2$s\' stocks with %4$s unit price. Do you want to accept the offer?</string>
+    <string name="price_must_be_positive">The price must be positive!</string>
 
 </resources>

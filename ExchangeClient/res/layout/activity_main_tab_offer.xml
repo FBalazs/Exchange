@@ -1,91 +1,126 @@
 <?xml version="1.0" encoding="utf-8"?>
-<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:weightSum="1" >
+    android:layout_height="match_parent" >
 
-    <RadioGroup
-        android:id="@+id/tabOffer_radioGroup"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" >
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:weightSum="1" >
 
-        <RadioButton
-            android:id="@+id/tabOffer_radioSell"
+        <RadioGroup
+            android:id="@+id/tabOffer_radioGroup"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:checked="true"
-            android:text="@string/textOfferSell" />
+            android:layout_height="wrap_content" >
 
-        <RadioButton
-            android:id="@+id/tabOffer_radioBuy"
+            <RadioButton
+                android:id="@+id/tabOffer_radioSell"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:text="@string/textOfferSell" />
+
+            <RadioButton
+                android:id="@+id/tabOffer_radioBuy"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/textOfferBuy" />
+        </RadioGroup>
+
+        <TableRow>
+
+            <TextView
+                android:id="@+id/tabOffer_textViewTeam"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="0"
+                android:text="@string/textTeam" />
+
+            <Spinner
+                android:id="@+id/tabOffer_listTeams"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_span="2"
+                android:layout_weight="1" />
+        </TableRow>
+
+        <TableRow android:weightSum="1" >
+
+            <TextView
+                android:id="@+id/tabOffer_textViewStock"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="0"
+                android:text="@string/textStock" />
+
+            <Spinner
+                android:id="@+id/tabOffer_listStocks"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_span="2"
+                android:layout_weight="1" />
+        </TableRow>
+
+        <TableRow
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/textOfferBuy" />
-    </RadioGroup>
+            android:layout_height="wrap_content" >
 
-    <TableRow>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="0"
+                android:text="@string/unit_price" />
 
-        <TextView
-            android:id="@+id/tabOffer_textViewTeam"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="0"
-            android:text="@string/textTeam" />
+            <EditText
+                android:id="@+id/tabOffer_textUnitPrice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_span="2"
+                android:layout_weight="1"
+                android:ems="10"
+                android:inputType="numberDecimal" >
 
-        <Spinner
-            android:id="@+id/tabOffer_listTeams"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_span="2"
-            android:layout_weight="1" />
-    </TableRow>
+                <requestFocus />
+            </EditText>
+        </TableRow>
 
-    <TableRow android:weightSum="1" >
+        <TableRow android:weightSum="1" >
 
-        <TextView
-            android:id="@+id/tabOffer_textViewStock"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="0"
-            android:text="@string/textStock" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="0"
+                android:text="@string/amount" />
 
-        <Spinner
-            android:id="@+id/tabOffer_listStocks"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_span="2"
-            android:layout_weight="1" />
-    </TableRow>
+            <TextView
+                android:id="@+id/tabOffer_textAmount"
+                android:layout_gravity="center_vertical"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_weight="0"
+                android:text="1" />
 
-    <TableRow android:weightSum="1" >
+            <SeekBar
+                android:id="@+id/tabOffer_seekBarAmount"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+        </TableRow>
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="0"
-            android:text="@string/amount" />
+        <TableRow android:weightSum="1" >
 
-        <TextView
-            android:id="@+id/tabOffer_textAmount"
-            android:layout_weight="0" />
+            <Button
+                android:id="@+id/tabOffer_buttonOfferSend"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_span="3"
+                android:layout_weight="1"
+                android:text="@string/textOfferSend" />
+        </TableRow>
+    </TableLayout>
 
-        <SeekBar
-            android:id="@+id/tabOffer_seekBarAmount"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1" />
-    </TableRow>
-
-    <TableRow android:weightSum="1" >
-
-        <Button
-            android:id="@+id/tabOffer_buttonOfferSend"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_span="3"
-            android:layout_weight="1"
-            android:text="@string/textOfferSend" />
-    </TableRow>
-
-
-</TableLayout>
+</ScrollView>
