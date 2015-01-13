@@ -9,8 +9,8 @@
     <string name="hintName">Név</string>
     <string name="textTeam">Csapat</string>
     <string name="textStock">Részvény</string>
-    <string name="textOfferSell">Ajánlat eladásra</string>
-    <string name="textOfferBuy">Ajánlat vételre</string>
+    <string name="textOfferSell">Részvény eladása</string>
+    <string name="textOfferBuy">Részvény vásárlása</string>
     <string name="textOfferSend">Ajánlat küldése</string>
     <string name="could_not_connect">Nem sikerült a kapcsolódás :(</string>
     <string name="ok">OK</string>
