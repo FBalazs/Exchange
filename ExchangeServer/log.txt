@@ -1,7 +1,0 @@
-[2015-01-12 21-38-33] Server start: Server started.
-[2015-01-12 21-39-05] Connection accepted: Connection accepted from /192.168.0.13:56041 with the nickname NickName
-[2015-01-12 21-39-16] Zeroth round buy: NickName(/192.168.0.13:56041) performed the zeroth round buy
-[2015-01-12 21-39-23] Round end: Round 0 ended.
-[2015-01-12 21-39-23] Round start: Round 1 started.
-[2015-01-12 21-39-27] Client disconnecting: Client disconnecting with the id /192.168.0.13:56041 and nickname NickName
-[2015-01-12 21-39-29] Connection refused: Connection refused from /192.168.0.13:52527 with the nickname NickName
