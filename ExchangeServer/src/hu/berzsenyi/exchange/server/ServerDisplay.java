@@ -2,17 +2,17 @@ package hu.berzsenyi.exchange.server;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
 import java.awt.event.WindowListener;
 import java.awt.event.WindowStateListener;
+import java.text.DecimalFormat;
 
-import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JRadioButton;
 
 public class ServerDisplay extends JFrame implements WindowListener,
 		WindowStateListener, WindowFocusListener, IServerDisplay {
@@ -21,32 +21,9 @@ public class ServerDisplay extends JFrame implements WindowListener,
 	public ExchangeServer server;
 
 	public int width = 1280, height = 720;
-	
-	public CompStocks compStocks;
-	public CompTeams compTeams;
-	public JButton btnNextRound;
-	public JRadioButton radioStocks, radioTeams;
-	
-	public void radioStocks() {
-		this.compStocks.setVisible(true);
-		this.compTeams.setVisible(false);
-	}
-	
-	public void radioTeams() {
-		this.compStocks.setVisible(false);
-		this.compTeams.setVisible(true);
-	}
-	
-	@Override
-	public void onRoundBegin(int round) {
-		if(round == 1)
-			this.radioTeams.setEnabled(true);
-	}
 
-	@Override
-	public void onRoundEnd(int round) {
-		
-	}
+	public Rectangle rectStocks, rectTeams;
+	public JButton btnNextRound;
 
 	public ServerDisplay() {
 		super("Exchange Server");
@@ -57,15 +34,7 @@ public class ServerDisplay extends JFrame implements WindowListener,
 		this.setLayout(null);
 		this.setLocationRelativeTo(null);
 		this.setBackground(Color.white);
-		
-		this.compStocks = new CompStocks(this);
-//		this.compStocks.setVisible(false);
-		this.add(this.compStocks);
-		
-		this.compTeams = new CompTeams(this);
-		this.compTeams.setVisible(false);
-		this.add(this.compTeams);
-		
+
 		this.btnNextRound = new JButton("Next Round");
 		this.btnNextRound.addActionListener(new ActionListener() {
 			@Override
@@ -74,30 +43,7 @@ public class ServerDisplay extends JFrame implements WindowListener,
 			}
 		});
 		this.add(this.btnNextRound);
-		
-		this.radioStocks = new JRadioButton("Stocks", true);
-		this.radioStocks.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				ServerDisplay.this.radioStocks();
-			}
-		});
-		this.add(this.radioStocks);
-		
-		this.radioTeams = new JRadioButton("Teams", false);
-		this.radioTeams.setEnabled(false);
-		this.radioTeams.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				ServerDisplay.this.radioTeams();
-			}
-		});
-		this.add(this.radioTeams);
-		
-		ButtonGroup bg = new ButtonGroup();
-		bg.add(this.radioStocks);
-		bg.add(this.radioTeams);
-		
+
 		this.onResize();
 
 		this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
@@ -112,11 +58,13 @@ public class ServerDisplay extends JFrame implements WindowListener,
 
 	public void onResize() {
 		int minSize = Math.min(this.width, this.height);
-		this.compStocks.setBounds(minSize/10, minSize/10, this.width-minSize/5, this.height-minSize/3);
-		this.compTeams.setBounds(this.compStocks.getBounds());
-		this.btnNextRound.setBounds(this.compStocks.getX(), this.compStocks.getY()+this.compStocks.getHeight()+minSize/20, minSize / 5, minSize / 15);
-		this.radioStocks.setBounds(this.btnNextRound.getX()+this.btnNextRound.getWidth()+minSize/20, this.btnNextRound.getY(), minSize/5, minSize/30);
-		this.radioTeams.setBounds(this.radioStocks.getX(), this.radioStocks.getY()+this.radioStocks.getHeight(), radioStocks.getWidth(), radioStocks.getHeight());
+		this.rectStocks = new Rectangle(minSize / 10, minSize / 10, this.width
+				/ 2 - minSize / 5, this.height / 2 - minSize / 5);
+		this.rectTeams = new Rectangle(this.rectStocks.x, this.rectStocks.y
+				+ this.rectStocks.height + minSize / 5, this.rectStocks.width,
+				this.rectStocks.height);
+		this.btnNextRound.setBounds(this.width / 2 - minSize / 10, this.height
+				/ 2 - minSize / 20, minSize / 5, minSize / 10);
 	}
 
 	@Override
@@ -127,6 +75,88 @@ public class ServerDisplay extends JFrame implements WindowListener,
 			this.onResize();
 		}
 		super.paint(g);
+
+		try {
+			int minSize = Math.min(this.getWidth(), this.getHeight());
+
+			g.setColor(Color.white);
+			g.fillRect(this.rectStocks.x, this.rectStocks.y,
+					this.rectStocks.width, this.rectStocks.height);
+			g.setColor(Color.black);
+			g.drawLine(this.rectStocks.x, this.rectStocks.y, this.rectStocks.x,
+					this.rectStocks.y + this.rectStocks.height);
+			g.drawLine(this.rectStocks.x, this.rectStocks.y
+					+ this.rectStocks.height, this.rectStocks.x
+					+ this.rectStocks.width, this.rectStocks.y
+					+ this.rectStocks.height);
+			double maxPrice = 0;
+			for (int i = 0; i < this.server.model.stockList.length; i++)
+				if (maxPrice < this.server.model.stockList[i].value)
+					maxPrice = this.server.model.stockList[i].value;
+			DecimalFormat df = new DecimalFormat("#0.00");
+			for (int i = 0; i < this.server.model.stockList.length; i++) {
+				g.setColor(new Color(0.5F, 0.75F, 1F));
+				g.fillRect(
+						this.rectStocks.x + this.rectStocks.width * i
+								/ this.server.model.stockList.length,
+						this.rectStocks.y
+								+ this.rectStocks.height
+								- (int) (this.rectStocks.height
+										* this.server.model.stockList[i].value / maxPrice),
+						this.rectStocks.width / 2
+								/ this.server.model.stockList.length,
+						(int) (this.rectStocks.height
+								* this.server.model.stockList[i].value / maxPrice));
+				g.setColor(Color.black);
+				g.drawRect(
+						this.rectStocks.x + this.rectStocks.width * i
+								/ this.server.model.stockList.length,
+						this.rectStocks.y
+								+ this.rectStocks.height
+								- (int) (this.rectStocks.height
+										* this.server.model.stockList[i].value / maxPrice),
+						this.rectStocks.width / 2
+								/ this.server.model.stockList.length,
+						(int) (this.rectStocks.height
+								* this.server.model.stockList[i].value / maxPrice));
+				g.drawString(
+						df.format(this.server.model.stockList[i].value),
+						this.rectStocks.x + this.rectStocks.width * i
+								/ this.server.model.stockList.length,
+						this.rectStocks.y
+								+ this.rectStocks.height
+								- (int) (this.rectStocks.height
+										* this.server.model.stockList[i].value / maxPrice));
+				g.drawString(this.server.model.stockList[i].name,
+						this.rectStocks.x + this.rectStocks.width * i
+								/ this.server.model.stockList.length,
+						this.rectStocks.y + this.rectStocks.height
+								+ g.getFontMetrics().getHeight());
+			}
+			g.drawString("" + maxPrice, this.rectStocks.x
+					- (int) g.getFontMetrics()
+							.getStringBounds("" + maxPrice, g).getWidth(),
+					this.rectStocks.y);
+
+			g.setColor(Color.white);
+			g.fillRect(this.rectTeams.x, this.rectTeams.y,
+					this.rectTeams.width, this.rectTeams.height);
+			g.setColor(Color.black);
+			for (int i = 0; i < this.server.model.teams.size(); i++) {
+				g.drawString(this.server.model.teams.get(i).id + " "
+						+ this.server.model.teams.get(i).name + " "
+						+ this.server.model.teams.get(i).getMoney(),
+						this.rectTeams.x, this.rectTeams.y
+								+ this.rectTeams.height * i
+								/ this.server.model.teams.size());
+			}
+
+			g.setColor(Color.black);
+			g.drawString("Round " + this.server.model.round, minSize / 10,
+					this.getHeight() / 2);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override
