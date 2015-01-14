@@ -68,8 +68,10 @@ public class ExchangeClient implements ICmdHandler, IClientConnectionListener {
 	public void disconnect() {
 		if (client != null) {
 			client.writeCommand(new CmdClientDisconnect());
-			client.close();
-			client = null;
+			if(client != null) {
+				client.close();
+				client = null;
+			}
 		}
 	}
 
