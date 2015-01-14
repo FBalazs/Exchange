@@ -172,19 +172,18 @@ public class ExchangeServer implements IServerListener, ICmdHandler {
 				&& 0 <= teamReceiver.getMoney() - offer.money) {
 				teamSender.setStock(offer.stockID,
 						teamSender.getStock(offer.stockID) + offer.amount);
-				teamSender.setMoney(teamSender.getMoney() + offer.money);
+				teamSender.setMoney(teamSender.getMoney() + offer.money*Math.abs(offer.amount));
 				teamReceiver.setStock(offer.stockID,
 						teamReceiver.getStock(offer.stockID) - offer.amount);
-				teamReceiver.setMoney(teamReceiver.getMoney() - offer.money);
+				teamReceiver.setMoney(teamReceiver.getMoney() - offer.money*Math.abs(offer.amount));
 				
 				this.model.stockList[offer.stockID].boughtAmount += Math.abs(offer.amount);
-				this.model.stockList[offer.stockID].boughtFor += Math.abs(offer.money);
+				this.model.stockList[offer.stockID].boughtFor += Math.abs(offer.money*Math.abs(offer.amount));
 	
 				this.net.writeCmdTo(offer, conn.getAddrString());
 				conn.writeCommand(new CmdOfferResponse(offer.playerID,
 						offer.stockID, -offer.amount, -offer.money));
 			} else {
-				System.err.println("hmm?");
 				// TODO
 				conn.writeCommand(new CmdServerError(CmdServerError.ERROR_OFFER, null));
 				this.net.writeCmdTo(new CmdServerError(CmdServerError.ERROR_OFFER, null), offer.playerID);

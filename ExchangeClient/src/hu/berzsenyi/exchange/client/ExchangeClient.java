@@ -232,7 +232,7 @@ public class ExchangeClient implements ICmdHandler, IClientConnectionListener {
 
 		if (cmd instanceof CmdOfferResponse) {
 			CmdOfferResponse offer = (CmdOfferResponse) cmd;
-			this.ownTeam.setMoney(this.ownTeam.getMoney() + offer.money);
+			this.ownTeam.setMoney(this.ownTeam.getMoney() + offer.money*Math.abs(offer.amount));
 			this.ownTeam.setStock(offer.stockID,
 					this.ownTeam.getStock(offer.stockID) + offer.amount);
 			return;
