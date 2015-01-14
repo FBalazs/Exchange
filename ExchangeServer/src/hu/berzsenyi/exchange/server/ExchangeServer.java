@@ -161,10 +161,10 @@ public class ExchangeServer implements IServerListener, ICmdHandler {
 			Team teamSender = this.model.getTeamById(offer.playerID);
 			Team teamReceiver = this.model.getTeamById(conn.getAddrString());
 
-			System.out.println(teamSender.getStock(offer.stockID) + offer.amount);
-			System.out.println(teamSender.getMoney() + offer.money);
-			System.out.println(teamReceiver.getStock(offer.stockID) - offer.amount);
-			System.out.println(teamReceiver.getMoney() - offer.money);
+//			System.out.println(teamSender.getStock(offer.stockID) + offer.amount);
+//			System.out.println(teamSender.getMoney() + offer.money);
+//			System.out.println(teamReceiver.getStock(offer.stockID) - offer.amount);
+//			System.out.println(teamReceiver.getMoney() - offer.money);
 			
 			if(0 <= teamSender.getStock(offer.stockID) + offer.amount
 				&& 0 <= teamSender.getMoney() + offer.money
@@ -180,9 +180,9 @@ public class ExchangeServer implements IServerListener, ICmdHandler {
 				this.model.stockList[offer.stockID].boughtAmount += Math.abs(offer.amount);
 				this.model.stockList[offer.stockID].boughtFor += Math.abs(offer.money);
 	
-				conn.writeCommand(offer);
-				this.net.writeCmdTo(new CmdOfferResponse(conn.getAddrString(),
-						offer.stockID, -offer.amount, -offer.money), offer.playerID);
+				this.net.writeCmdTo(offer, conn.getAddrString());
+				conn.writeCommand(new CmdOfferResponse(offer.playerID,
+						offer.stockID, -offer.amount, -offer.money));
 			} else {
 				System.err.println("hmm?");
 				// TODO
