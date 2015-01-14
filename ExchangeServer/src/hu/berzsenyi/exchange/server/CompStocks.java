@@ -31,8 +31,8 @@ public class CompStocks extends DisplayComp {
 			g.setColor(Color.black);
 			g.drawRect(x, this.getHeight()-h, w, h);
 			
-			drawStringCentered(this.model.stockList[s].name, x+w/2, this.getHeight()-h-w/10-g.getFontMetrics().getHeight(), g);
-			drawStringCentered(""+this.model.stockList[s].value, x+w/2, this.getHeight()-h-w/10, g);
+			drawStringCentered(this.model.stockList[s].name, x+w/2, this.getHeight()-h-g.getFontMetrics().getHeight(), g);
+			drawStringCentered(""+this.model.stockList[s].value, x+w/2, this.getHeight()-h, g);
 		}
 		
 		g.setColor(Color.black);

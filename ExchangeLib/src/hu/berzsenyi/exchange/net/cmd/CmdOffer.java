@@ -18,7 +18,7 @@ public class CmdOffer extends TCPCommand {
 		super(ID, 4 + stringLength(playerID) + 4 + 4 + 8);
 		this.teamID = playerID;
 		this.stockID = stockID;
-		this.amount = sell ? amount : -amount;
+		this.amount = sell ? -amount : amount;
 		this.money = sell ? money : -money;
 	}
 
