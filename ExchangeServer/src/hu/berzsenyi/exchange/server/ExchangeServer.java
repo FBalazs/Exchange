@@ -4,6 +4,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Random;
 
@@ -35,8 +36,11 @@ public class ExchangeServer implements IServerListener, ICmdHandler {
 	public boolean running;
 	public TCPServer net;
 	public Model model;
-	//private List<LogEvent> log;
-	private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss");
+
+	public double[] ceventMult = null;
+	// private List<LogEvent> log;
+	private SimpleDateFormat dateFormat = new SimpleDateFormat(
+			"yyyy-MM-dd HH-mm-ss");
 	private FileOutputStream logFile;
 	public Random rand;
 
@@ -45,26 +49,28 @@ public class ExchangeServer implements IServerListener, ICmdHandler {
 	public void setDisplay(IServerDisplay display) {
 		this.display = display;
 	}
-	
+
 	public void log(LogEvent event) {
-		//this.log.add(event);
+		// this.log.add(event);
 		try {
-			this.logFile.write(("["+this.dateFormat.format(new Date(event.time))+"] "+event.title+": "+event.desc+"\n").getBytes());
+			this.logFile.write(("["
+					+ this.dateFormat.format(new Date(event.time)) + "] "
+					+ event.title + ": " + event.desc + "\n").getBytes());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 
 	public void create() {
-		//this.log = new ArrayList<LogEvent>();
+		// this.log = new ArrayList<LogEvent>();
 		try {
 			this.logFile = new FileOutputStream("log.txt");
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
-		
+
 		this.rand = new Random(System.currentTimeMillis());
-		
+
 		this.model = new Model();
 		this.model.loadStocks("data/stocks");
 		this.model.loadEvents("data/events");
@@ -80,20 +86,41 @@ public class ExchangeServer implements IServerListener, ICmdHandler {
 	public void nextRound() {
 		this.log(new LogEvent("Round end", "Round " + this.model.round
 				+ " ended."));
-		
+
 		if (this.display != null)
 			this.display.onRoundEnd(this.model.round);
 
 		if (this.model.round == 0) {
 			this.net.writeCmdToAll(new CmdServerTeams(this.model));
 		}
-		
-		int eventNum = this.rand.nextInt(this.model.eventList.length); // TODO howmany
-		this.model.nextRound(eventNum);
-//		System.out.println(this.model.eventMessage);
+
+		int eventNum = this.rand.nextInt(this.model.eventList.length); // TODO
+																		// howmany
 
 		this.model.round++;
-		this.net.writeCmdToAll(new CmdServerNextRound(this.model.eventMessage, this.model.eventList[eventNum].multipliers));
+
+		double[] multipliers = new double[this.model.stockList.length];
+		if (this.ceventMult != null) {
+			for (int i = 0; i < this.model.stockList.length; i++) {
+				if (this.model.stockList[i].boughtAmount == 0) {
+					multipliers[i] = this.ceventMult[i];
+				} else {
+					double pvalue = this.model.stockList[i].value;
+					double nvalue = (this.model.stockList[i].value
+							* this.ceventMult[i] + this.model.stockList[i].boughtFor
+							/ this.model.stockList[i].boughtAmount) / 2D;
+					multipliers[i] = nvalue / pvalue;
+					this.model.stockList[i].boughtFor = this.model.stockList[i].boughtAmount = 0;
+				}
+			}
+		} else {
+			Arrays.fill(multipliers, 1.0d);
+		}
+		this.ceventMult = this.model.eventList[eventNum].multipliers;
+
+		this.model.nextRound(this.model.eventList[eventNum].desc, multipliers);
+		this.net.writeCmdToAll(new CmdServerNextRound(this.model.eventMessage,
+				multipliers));
 
 		this.log(new LogEvent("Round start", "Round " + this.model.round
 				+ " started."));
@@ -126,7 +153,8 @@ public class ExchangeServer implements IServerListener, ICmdHandler {
 						((CmdClientInfo) cmd).name));
 			} else {
 				// TODO send feedback
-				conn.writeCommand(new CmdServerError(CmdServerError.ERROR_CONNECT, null));
+				conn.writeCommand(new CmdServerError(
+						CmdServerError.ERROR_CONNECT, null));
 				conn.close();
 				this.log(new LogEventConnRefuse(conn.getAddrString(),
 						((CmdClientInfo) cmd).name));
@@ -134,8 +162,8 @@ public class ExchangeServer implements IServerListener, ICmdHandler {
 		}
 
 		if (cmd instanceof CmdClientDisconnect) {
-			this.log(new LogEventDisconnect(conn.getAddrString(),
-					this.model.getTeamById(conn.getAddrString()).name));
+			this.log(new LogEventDisconnect(conn.getAddrString(), this.model
+					.getTeamById(conn.getAddrString()).name));
 			this.model.removeTeam(conn.getAddrString());
 			conn.close();
 		}
@@ -145,8 +173,8 @@ public class ExchangeServer implements IServerListener, ICmdHandler {
 			Team team = this.model.getTeamById(conn.getAddrString());
 			team.setMoney(this.model.calculateMoneyAfterPurchase(buy.amount));
 			team.setStocks(buy.amount);
-			this.log(new LogEvent("Zeroth round buy", team.name + "("
-					+ team.id + ") performed the zeroth round buy"));
+			this.log(new LogEvent("Zeroth round buy", team.name + "(" + team.id
+					+ ") performed the zeroth round buy"));
 		}
 
 		if (cmd instanceof CmdOffer) {
@@ -161,33 +189,42 @@ public class ExchangeServer implements IServerListener, ICmdHandler {
 			Team teamSender = this.model.getTeamById(offer.playerID);
 			Team teamReceiver = this.model.getTeamById(conn.getAddrString());
 
-//			System.out.println(teamSender.getStock(offer.stockID) + offer.amount);
-//			System.out.println(teamSender.getMoney() + offer.money);
-//			System.out.println(teamReceiver.getStock(offer.stockID) - offer.amount);
-//			System.out.println(teamReceiver.getMoney() - offer.money);
-			
-			if(0 <= teamSender.getStock(offer.stockID) + offer.amount
-				&& 0 <= teamSender.getMoney() + offer.money
-				&& 0 <= teamReceiver.getStock(offer.stockID) - offer.amount
-				&& 0 <= teamReceiver.getMoney() - offer.money) {
+			// System.out.println(teamSender.getStock(offer.stockID) +
+			// offer.amount);
+			// System.out.println(teamSender.getMoney() + offer.money);
+			// System.out.println(teamReceiver.getStock(offer.stockID) -
+			// offer.amount);
+			// System.out.println(teamReceiver.getMoney() - offer.money);
+
+			if (0 <= teamSender.getStock(offer.stockID) + offer.amount
+					&& 0 <= teamSender.getMoney() + offer.money
+					&& 0 <= teamReceiver.getStock(offer.stockID) - offer.amount
+					&& 0 <= teamReceiver.getMoney() - offer.money) {
 				teamSender.setStock(offer.stockID,
 						teamSender.getStock(offer.stockID) + offer.amount);
-				teamSender.setMoney(teamSender.getMoney() + offer.money*Math.abs(offer.amount));
+				teamSender.setMoney(teamSender.getMoney() + offer.money
+						* Math.abs(offer.amount));
 				teamReceiver.setStock(offer.stockID,
 						teamReceiver.getStock(offer.stockID) - offer.amount);
-				teamReceiver.setMoney(teamReceiver.getMoney() - offer.money*Math.abs(offer.amount));
-				
-				this.model.stockList[offer.stockID].boughtAmount += Math.abs(offer.amount);
-				this.model.stockList[offer.stockID].boughtFor += Math.abs(offer.money*Math.abs(offer.amount));
-	
+				teamReceiver.setMoney(teamReceiver.getMoney() - offer.money
+						* Math.abs(offer.amount));
+
+				this.model.stockList[offer.stockID].boughtAmount += Math
+						.abs(offer.amount);
+				this.model.stockList[offer.stockID].boughtFor += Math
+						.abs(offer.money * Math.abs(offer.amount));
+
 				this.net.writeCmdTo(new CmdOfferResponse(conn.getAddrString(),
-						offer.stockID, offer.amount, offer.money), offer.playerID);
+						offer.stockID, offer.amount, offer.money),
+						offer.playerID);
 				conn.writeCommand(new CmdOfferResponse(offer.playerID,
 						offer.stockID, -offer.amount, -offer.money));
 			} else {
 				// TODO
-				conn.writeCommand(new CmdServerError(CmdServerError.ERROR_OFFER, null));
-				this.net.writeCmdTo(new CmdServerError(CmdServerError.ERROR_OFFER, null), offer.playerID);
+				conn.writeCommand(new CmdServerError(
+						CmdServerError.ERROR_OFFER, null));
+				this.net.writeCmdTo(new CmdServerError(
+						CmdServerError.ERROR_OFFER, null), offer.playerID);
 			}
 		}
 

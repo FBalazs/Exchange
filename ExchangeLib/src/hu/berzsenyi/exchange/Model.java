@@ -12,8 +12,6 @@ public class Model {
 	public String eventMessage = "2-t fizet 3-at kap akció a Trióban!!!"; // TODO
 	public Event[] eventList;
 	
-	public double[] ceventMult = null;
-	
 	/**
 	 * Loads the stocks from the data files.
 	 * @param stockFolder The folder where the files are located.
@@ -46,26 +44,13 @@ public class Model {
 		}
 	}
 	
-	public void nextRound(int eventNum) {
-		this.nextRound(this.eventList[eventNum].desc, this.eventList[eventNum].multipliers);
-	}
 	
 	public void nextRound(String eventDesc, double[] multipliers) {
 		this.eventMessage = eventDesc;
-		if(this.ceventMult != null) {
-			for(int i = 0; i < this.stockList.length; i++) {
-				if(this.stockList[i].boughtAmount == 0) {
-					this.stockList[i].value *= this.ceventMult[i];
-					this.stockList[i].change = this.ceventMult[i];
-				} else {
-					double pvalue = this.stockList[i].value;
-					this.stockList[i].value = (this.stockList[i].value*this.ceventMult[i] + this.stockList[i].boughtFor/this.stockList[i].boughtAmount)/2D;
-					this.stockList[i].change = this.stockList[i].value/pvalue;
-					this.stockList[i].boughtFor = this.stockList[i].boughtAmount = 0;
-				}
-			}
+		for(int i=0;i<multipliers.length;i++) {
+			this.stockList[i].value *= multipliers[i];
+			this.stockList[i].change = multipliers[i];			
 		}
-		this.ceventMult = multipliers;
 	}
 	
 	public int getStockCmdLength() {
