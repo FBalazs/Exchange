@@ -235,6 +235,10 @@ public class ExchangeClient implements ICmdHandler, IClientConnectionListener {
 			this.ownTeam.setMoney(this.ownTeam.getMoney() + offer.money*Math.abs(offer.amount));
 			this.ownTeam.setStock(offer.stockID,
 					this.ownTeam.getStock(offer.stockID) + offer.amount);
+			for (IClientListener listener : mListeners)
+				listener.onMoneyChanged(this.ownTeam);
+			for (IClientListener listener : mListeners)
+				listener.onStocksChanged(this.ownTeam, offer.stockID);
 			return;
 		}
 	}

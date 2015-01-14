@@ -180,7 +180,8 @@ public class ExchangeServer implements IServerListener, ICmdHandler {
 				this.model.stockList[offer.stockID].boughtAmount += Math.abs(offer.amount);
 				this.model.stockList[offer.stockID].boughtFor += Math.abs(offer.money*Math.abs(offer.amount));
 	
-				this.net.writeCmdTo(offer, conn.getAddrString());
+				this.net.writeCmdTo(new CmdOfferResponse(conn.getAddrString(),
+						offer.stockID, offer.amount, offer.money), offer.playerID);
 				conn.writeCommand(new CmdOfferResponse(offer.playerID,
 						offer.stockID, -offer.amount, -offer.money));
 			} else {
