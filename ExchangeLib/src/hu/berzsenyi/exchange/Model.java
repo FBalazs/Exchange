@@ -52,11 +52,19 @@ public class Model {
 	
 	public void nextRound(String eventDesc, double[] multipliers) {
 		this.eventMessage = eventDesc;
-		if(this.ceventMult != null)
+		if(this.ceventMult != null) {
 			for(int i = 0; i < this.stockList.length; i++) {
-				this.stockList[i].value *= this.ceventMult[i];
-				this.stockList[i].change = this.ceventMult[i];
+				if(this.stockList[i].boughtAmount == 0) {
+					this.stockList[i].value *= this.ceventMult[i];
+					this.stockList[i].change = this.ceventMult[i];
+				} else {
+					double pvalue = this.stockList[i].value;
+					this.stockList[i].value = (this.stockList[i].value*this.ceventMult[i] + this.stockList[i].boughtFor/this.stockList[i].boughtAmount)/2D;
+					this.stockList[i].change = this.stockList[i].value/pvalue;
+					this.stockList[i].boughtFor = this.stockList[i].boughtAmount = 0;
+				}
 			}
+		}
 		this.ceventMult = multipliers;
 	}
 	

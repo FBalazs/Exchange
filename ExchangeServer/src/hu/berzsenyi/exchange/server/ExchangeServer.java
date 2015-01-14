@@ -80,6 +80,9 @@ public class ExchangeServer implements IServerListener, ICmdHandler {
 	public void nextRound() {
 		this.log(new LogEvent("Round end", "Round " + this.model.round
 				+ " ended."));
+		
+		if (this.display != null)
+			this.display.onRoundEnd(this.model.round);
 
 		if (this.model.round == 0) {
 			this.net.writeCmdToAll(new CmdServerTeams(this.model));
@@ -95,8 +98,10 @@ public class ExchangeServer implements IServerListener, ICmdHandler {
 		this.log(new LogEvent("Round start", "Round " + this.model.round
 				+ " started."));
 
-		if (this.display != null)
+		if (this.display != null) {
+			this.display.onRoundBegin(this.model.round);
 			this.display.repaint();
+		}
 	}
 
 	@Override
@@ -166,6 +171,9 @@ public class ExchangeServer implements IServerListener, ICmdHandler {
 				teamReceiver.setStock(offer.stockID,
 						teamReceiver.getStock(offer.stockID) - offer.amount);
 				teamReceiver.setMoney(teamReceiver.getMoney() - offer.money);
+				
+				this.model.stockList[offer.stockID].boughtAmount += Math.abs(offer.amount);
+				this.model.stockList[offer.stockID].boughtFor += Math.abs(offer.money);
 	
 				conn.writeCommand(offer);
 				this.net.writeCmdTo(new CmdOfferResponse(conn.getAddrString(),

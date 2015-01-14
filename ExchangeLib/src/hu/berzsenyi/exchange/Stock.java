@@ -9,6 +9,8 @@ public class Stock {
 	 * <code>value/last value</code>
 	 */
 	public double change = 1;
+	public double boughtFor;
+	public int boughtAmount;
 	
 	public Stock(String id, String name, double value) {
 		this.id = id;
