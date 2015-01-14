@@ -167,9 +167,9 @@ public class ExchangeServer implements IServerListener, ICmdHandler {
 //			System.out.println(teamReceiver.getMoney() - offer.money);
 			
 			if(0 <= teamSender.getStock(offer.stockID) + offer.amount
-				&& 0 <= teamSender.getMoney() + offer.money
+				&& 0 <= teamSender.getMoney() + offer.money*Math.abs(offer.amount)
 				&& 0 <= teamReceiver.getStock(offer.stockID) - offer.amount
-				&& 0 <= teamReceiver.getMoney() - offer.money) {
+				&& 0 <= teamReceiver.getMoney() - offer.money*Math.abs(offer.amount)) {
 				teamSender.setStock(offer.stockID,
 						teamSender.getStock(offer.stockID) + offer.amount);
 				teamSender.setMoney(teamSender.getMoney() + offer.money*Math.abs(offer.amount));
