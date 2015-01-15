@@ -186,7 +186,7 @@ public class ExchangeServer implements IServerListener, ICmdHandler {
 
 		if (cmd instanceof CmdOfferResponse) {
 			CmdOfferResponse offer = (CmdOfferResponse) cmd;
-			Team teamSender = this.model.getTeamById(offer.playerID);
+			Team teamSender = this.model.getTeamById(offer.teamID);
 			Team teamReceiver = this.model.getTeamById(conn.getAddrString());
 
 			// System.out.println(teamSender.getStock(offer.stockID) +
@@ -218,15 +218,15 @@ public class ExchangeServer implements IServerListener, ICmdHandler {
 
 				this.net.writeCmdTo(new CmdOfferResponse(conn.getAddrString(),
 						offer.stockID, offer.amount, offer.money),
-						offer.playerID);
-				conn.writeCommand(new CmdOfferResponse(offer.playerID,
+						offer.teamID);
+				conn.writeCommand(new CmdOfferResponse(offer.teamID,
 						offer.stockID, -offer.amount, -offer.money));
 			} else {
 				// TODO
 				conn.writeCommand(new CmdServerError(
 						CmdServerError.ERROR_OFFER, null));
 				this.net.writeCmdTo(new CmdServerError(
-						CmdServerError.ERROR_OFFER, null), offer.playerID);
+						CmdServerError.ERROR_OFFER, null), offer.teamID);
 			}
 		}
 

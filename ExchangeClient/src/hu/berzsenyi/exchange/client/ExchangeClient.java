@@ -15,6 +15,7 @@ import hu.berzsenyi.exchange.net.cmd.CmdClientDisconnect;
 import hu.berzsenyi.exchange.net.cmd.CmdClientInfo;
 import hu.berzsenyi.exchange.net.cmd.CmdOffer;
 import hu.berzsenyi.exchange.net.cmd.CmdOfferResponse;
+import hu.berzsenyi.exchange.net.cmd.CmdServerError;
 import hu.berzsenyi.exchange.net.cmd.CmdServerInfo;
 import hu.berzsenyi.exchange.net.cmd.CmdServerNextRound;
 import hu.berzsenyi.exchange.net.cmd.CmdServerStocks;
@@ -172,8 +173,6 @@ public class ExchangeClient implements ICmdHandler, IClientConnectionListener {
 		Log.d(this.getClass().getName(), "Received command! "
 				+ cmd.getClass().getName());
 		
-		for (IClientListener listener : mListeners)
-			listener.onCommand(cmd);
 
 		if (cmd instanceof CmdServerInfo) {
 			CmdServerInfo info = (CmdServerInfo) cmd;
@@ -234,15 +233,23 @@ public class ExchangeClient implements ICmdHandler, IClientConnectionListener {
 		}
 
 		if (cmd instanceof CmdOfferResponse) {
+			// TODO UGLY!
 			CmdOfferResponse offer = (CmdOfferResponse) cmd;
 			this.ownTeam.setMoney(this.ownTeam.getMoney() + offer.money*Math.abs(offer.amount));
 			this.ownTeam.setStock(offer.stockID,
 					this.ownTeam.getStock(offer.stockID) + offer.amount);
-			for (IClientListener listener : mListeners)
+			for (IClientListener listener : mListeners) {
 				listener.onMoneyChanged(this.ownTeam);
-			for (IClientListener listener : mListeners)
 				listener.onStocksChanged(this.ownTeam, offer.stockID);
+				listener.onOfferAccepted(offer);
+			}
 			return;
+		}
+		
+		if(cmd instanceof CmdServerError) {
+			CmdServerError error = (CmdServerError) cmd;
+			for(IClientListener listener : mListeners)
+				listener.onErrorCommand(error);
 		}
 	}
 

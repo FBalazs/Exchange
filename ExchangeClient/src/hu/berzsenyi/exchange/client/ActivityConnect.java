@@ -3,6 +3,8 @@ package hu.berzsenyi.exchange.client;
 import hu.berzsenyi.exchange.Team;
 import hu.berzsenyi.exchange.net.TCPClient;
 import hu.berzsenyi.exchange.net.cmd.CmdOffer;
+import hu.berzsenyi.exchange.net.cmd.CmdOfferResponse;
+import hu.berzsenyi.exchange.net.cmd.CmdServerError;
 import hu.berzsenyi.exchange.net.cmd.TCPCommand;
 
 import java.io.IOException;
@@ -100,8 +102,11 @@ public class ActivityConnect extends Activity {
 			}
 
 			@Override
-			public void onCommand(TCPCommand cmd) {
-				
+			public void onOfferAccepted(CmdOfferResponse offer) {
+			}
+
+			@Override
+			public void onErrorCommand(CmdServerError error) {
 			}
 
 		});
