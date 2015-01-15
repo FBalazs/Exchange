@@ -250,6 +250,6 @@ public class ExchangeServer implements IServerListener, ICmdHandler {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		this.log(new LogEvent("Server start", "Server closed."));
+		//this.log(new LogEvent("Server close", "Server closed."));
 	}
 }
