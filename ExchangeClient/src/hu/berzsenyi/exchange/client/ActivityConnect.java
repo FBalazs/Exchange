@@ -5,7 +5,6 @@ import hu.berzsenyi.exchange.net.TCPClient;
 import hu.berzsenyi.exchange.net.cmd.CmdOffer;
 import hu.berzsenyi.exchange.net.cmd.CmdOfferResponse;
 import hu.berzsenyi.exchange.net.cmd.CmdServerError;
-import hu.berzsenyi.exchange.net.cmd.TCPCommand;
 
 import java.io.IOException;
 

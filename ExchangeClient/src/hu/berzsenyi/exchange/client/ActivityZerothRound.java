@@ -1,5 +1,12 @@
 package hu.berzsenyi.exchange.client;
 
+import hu.berzsenyi.exchange.Stock;
+import hu.berzsenyi.exchange.Team;
+import hu.berzsenyi.exchange.net.TCPClient;
+import hu.berzsenyi.exchange.net.cmd.CmdOffer;
+import hu.berzsenyi.exchange.net.cmd.CmdOfferResponse;
+import hu.berzsenyi.exchange.net.cmd.CmdServerError;
+
 import java.io.IOException;
 
 import android.app.Activity;
@@ -8,23 +15,16 @@ import android.app.ProgressDialog;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.widget.BaseAdapter;
-import android.view.ViewGroup;
+import android.util.Log;
 import android.view.View;
-import hu.berzsenyi.exchange.Stock;
-import hu.berzsenyi.exchange.Team;
-import hu.berzsenyi.exchange.net.TCPClient;
-import hu.berzsenyi.exchange.net.cmd.CmdOffer;
-import hu.berzsenyi.exchange.net.cmd.CmdOfferResponse;
-import hu.berzsenyi.exchange.net.cmd.CmdServerError;
-import hu.berzsenyi.exchange.net.cmd.TCPCommand;
+import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.Button;
+import android.widget.ListView;
+import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
-import android.widget.SeekBar;
-import android.widget.ListView;
-import android.view.View.OnClickListener;
-import android.widget.Button;
-import android.util.Log;
 
 public class ActivityZerothRound extends Activity {
 

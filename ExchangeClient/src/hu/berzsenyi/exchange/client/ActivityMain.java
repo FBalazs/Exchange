@@ -6,9 +6,6 @@ import hu.berzsenyi.exchange.net.TCPClient;
 import hu.berzsenyi.exchange.net.cmd.CmdOffer;
 import hu.berzsenyi.exchange.net.cmd.CmdOfferResponse;
 import hu.berzsenyi.exchange.net.cmd.CmdServerError;
-import hu.berzsenyi.exchange.net.cmd.CmdServerInfo;
-import hu.berzsenyi.exchange.net.cmd.CmdServerNextRound;
-import hu.berzsenyi.exchange.net.cmd.TCPCommand;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
