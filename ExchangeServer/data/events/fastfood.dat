@@ -1,0 +1,8 @@
+
+#esemenymappa/fastfood.dat
+desc = Szigorú egészségügyi korlátozásokat vezetnek be az Amerikai Egyesült Államokban a gyors ételekkel, édességekkel és instant kajákkal kapcsolatban.
+howmany = 3
+food = 0.94
+retail = 0.98
+medical = 0.87
+#

@@ -1,0 +1,7 @@
+#esemenymappa/opec.dat
+desc = A bécsi központú OPEC (Kőolaj-exportáló Országok Szervezete) legutóbbi gyűlésén bejelentette, hogy csökkenteni fogja a kitermelést.
+howmany = 3 
+transport = 0.95 
+travel  = 0.95
+oil = 1.1
+#

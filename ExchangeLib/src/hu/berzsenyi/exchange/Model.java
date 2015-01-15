@@ -20,9 +20,14 @@ public class Model {
 		File[] files = new File(stockFolder).listFiles();
 		this.stockList = new Stock[files.length];
 		for(int i = 0; i < files.length; i++) {
-			DatParser parser = new DatParser(files[i].getAbsolutePath());
-			parser.parse();
-			this.stockList[i] = new Stock(files[i].getName().substring(0, files[i].getName().lastIndexOf('.')), parser.getValue("name"), Double.parseDouble(parser.getValue("initvalue")));
+			try {
+				DatParser parser = new DatParser(files[i].getAbsolutePath());
+				parser.parse();
+				this.stockList[i] = new Stock(files[i].getName().substring(0, files[i].getName().lastIndexOf('.')), parser.getValue("name"), Double.parseDouble(parser.getValue("initvalue")));
+			} catch(Exception e) {
+				e.printStackTrace();
+				System.err.println("Failed to parse stock: "+files[i].getName());
+			}
 		}
 	}
 	
@@ -30,16 +35,21 @@ public class Model {
 		File[] files = new File(eventFolder).listFiles();
 		this.eventList = new Event[files.length];
 		for(int i = 0; i < files.length; i++) {
-			DatParser parser = new DatParser(files[i].getAbsolutePath());
-			parser.parse();
-			this.eventList[i] = new Event(files[i].getName().substring(0, files[i].getName().lastIndexOf('.')), parser.getValue("desc"), Integer.parseInt(parser.getValue("howmany")));
-			this.eventList[i].multipliers = new double[this.stockList.length];
-			for(int s = 0; s < this.stockList.length; s++) {
-				String var = parser.getValue(this.stockList[s].id);
-				if(var != null)
-					this.eventList[i].multipliers[s] = Double.parseDouble(var);
-				else
-					this.eventList[i].multipliers[s] = 1;
+			try {
+				DatParser parser = new DatParser(files[i].getAbsolutePath());
+				parser.parse();
+				this.eventList[i] = new Event(files[i].getName().substring(0, files[i].getName().lastIndexOf('.')), parser.getValue("desc"), Integer.parseInt(parser.getValue("howmany")));
+				this.eventList[i].multipliers = new double[this.stockList.length];
+				for(int s = 0; s < this.stockList.length; s++) {
+					String var = parser.getValue(this.stockList[s].id);
+					if(var != null)
+						this.eventList[i].multipliers[s] = Double.parseDouble(var);
+					else
+						this.eventList[i].multipliers[s] = 1;
+				}
+			} catch(Exception e) {
+				e.printStackTrace();
+				System.err.println("Failed to parse event: "+files[i].getName());
 			}
 		}
 	}

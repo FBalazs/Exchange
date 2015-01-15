@@ -16,8 +16,8 @@ public class TCPClient extends TCPConnection {
 		try {
 			this.listener = listener;
 			this.socket = new Socket();
-			this.socket.setSoTimeout(1000);
-			this.socket.connect(new InetSocketAddress(host, port),1000);
+			this.socket.setSoTimeout(2000);
+			this.socket.connect(new InetSocketAddress(host, port),2000);
 			this.din = new DataInputStream(this.socket.getInputStream());
 			this.dout = new DataOutputStream(this.socket.getOutputStream());
 			onConnect();

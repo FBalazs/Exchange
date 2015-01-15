@@ -1,0 +1,7 @@
+#esemenymappa/planemissing.dat
+desc = A Csendes Óceán felett eltűnt egy személyszállító repülőgép, a gép roncsait több ország mentőalakulata keresi. 
+howmany = 3 
+transport = 0.82
+travel  = 0.95
+hotel = 0.98
+#

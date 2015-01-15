@@ -1,0 +1,6 @@
+#esemenymappa/korlátozasokdohany.dat
+desc = Egy európai ország korlátozásokat vezetett be a dohány kiskereskedelemben, a kiskorúak védelmében mától csak külön koncesszióval rendelkező üzletekben lehet dohánytermékekhez jutni.
+howmany =  2
+tobacco = 0.83
+medical = 0.91
+#

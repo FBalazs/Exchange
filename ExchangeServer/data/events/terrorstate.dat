@@ -1,0 +1,8 @@
+#esemenymappa/terrorstate.dat
+desc = Az ISIS iraki terrorszervezet önálló állam létrehozását jelentette be. A hatalmas iraki területeket elfoglaló, az al-Kaidánál is szélsőségesebb szervezet vasárnap este jelentette be, hogy önálló országot hoz létre Iszlám Kalifátus néven.
+howmany = 4 
+transport = 0.95 
+travel  = 0.95
+oil = 1.02
+weapon = 1.10
+#

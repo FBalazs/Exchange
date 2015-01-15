@@ -1,0 +1,7 @@
+#esemenymappa/wikileaks.dat
+desc = Egy volt katonatiszt szivárogtatni kezdett fontos katonai iratokat és nemzetbiztonsági okokból kifolyólag titkosított adatokat osztott meg a médiával, ezzel közvetve több bevetés sikertelenségét okozva.
+howmany = 3
+media  = 1.01
+oil = 0.99
+weapon = 0.75
+#
