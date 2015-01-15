@@ -143,7 +143,23 @@ public class ExchangeServer implements IServerListener, ICmdHandler {
 		System.out.println("Received command! " + cmd.getClass().getName());
 
 		if (cmd instanceof CmdClientInfo) {
-			if (this.model.round == 0 && this.model.getTeamByName(((CmdClientInfo) cmd).name) == null) {
+			if (this.model.round != 0) {
+
+				conn.writeCommand(new CmdServerError(
+						CmdServerError.ERROR_NOT_IN_ZEROTH_ROUND, null));
+				conn.close();
+				this.log(new LogEventConnRefuse(conn.getAddrString(),
+						((CmdClientInfo) cmd).name));
+				
+			} else if (this.model.getTeamByName(((CmdClientInfo) cmd).name) != null) {
+
+				conn.writeCommand(new CmdServerError(
+						CmdServerError.ERROR_NAME_DUPLICATE, null));
+				conn.close();
+				this.log(new LogEventConnRefuse(conn.getAddrString(),
+						((CmdClientInfo) cmd).name));
+				
+			} else {
 				this.model.teams.add(new Team(conn.getAddrString(),
 						((CmdClientInfo) cmd).name));
 				conn.writeCommand(new CmdServerInfo(this.model.startMoney, conn
@@ -151,41 +167,37 @@ public class ExchangeServer implements IServerListener, ICmdHandler {
 				conn.writeCommand(new CmdServerStocks(this.model));
 				this.log(new LogEventConnAccept(conn.getAddrString(),
 						((CmdClientInfo) cmd).name));
-			} else {
-				// TODO send feedback
-				conn.writeCommand(new CmdServerError(
-						CmdServerError.ERROR_CONNECT, null));
-				conn.close();
-				this.log(new LogEventConnRefuse(conn.getAddrString(),
-						((CmdClientInfo) cmd).name));
 			}
 		}
-		
-//		if (cmd instanceof CmdClientInfo) {
-//			CmdClientInfo info = (CmdClientInfo)cmd;
-//			if (this.model.round == 0 && this.model.getTeamByName(info.name) == null) {
-//				this.model.teams.add(new Team(conn.getAddrString(),
-//						info.name));
-//				conn.writeCommand(new CmdServerInfo(this.model.startMoney, conn
-//						.getAddrString()));
-//				conn.writeCommand(new CmdServerStocks(this.model));
-//				this.log(new LogEventConnAccept(conn.getAddrString(),
-//						info.name));
-//			} else if(this.model.round != 0 && this.model.getTeamByName(info.name) != null) { // TODO reconnect properly
-//				this.model.getTeamByName(info.name).id = conn.getAddrString();
-//				conn.writeCommand(new CmdServerInfo(this.model.startMoney, conn
-//						.getAddrString()));
-//				conn.writeCommand(new CmdServerStocks(this.model));
-//				conn.writeCommand(new CmdServerTeams(this.model));
-//			} else {
-//				// TODO send feedback
-//				conn.writeCommand(new CmdServerError(
-//						CmdServerError.ERROR_CONNECT, null));
-//				conn.close();
-//				this.log(new LogEventConnRefuse(conn.getAddrString(),
-//						((CmdClientInfo) cmd).name));
-//			}
-//		}
+
+		// if (cmd instanceof CmdClientInfo) {
+		// CmdClientInfo info = (CmdClientInfo)cmd;
+		// if (this.model.round == 0 && this.model.getTeamByName(info.name) ==
+		// null) {
+		// this.model.teams.add(new Team(conn.getAddrString(),
+		// info.name));
+		// conn.writeCommand(new CmdServerInfo(this.model.startMoney, conn
+		// .getAddrString()));
+		// conn.writeCommand(new CmdServerStocks(this.model));
+		// this.log(new LogEventConnAccept(conn.getAddrString(),
+		// info.name));
+		// } else if(this.model.round != 0 &&
+		// this.model.getTeamByName(info.name) != null) { // TODO reconnect
+		// properly
+		// this.model.getTeamByName(info.name).id = conn.getAddrString();
+		// conn.writeCommand(new CmdServerInfo(this.model.startMoney, conn
+		// .getAddrString()));
+		// conn.writeCommand(new CmdServerStocks(this.model));
+		// conn.writeCommand(new CmdServerTeams(this.model));
+		// } else {
+		// // TODO send feedback
+		// conn.writeCommand(new CmdServerError(
+		// CmdServerError.ERROR_CONNECT, null));
+		// conn.close();
+		// this.log(new LogEventConnRefuse(conn.getAddrString(),
+		// ((CmdClientInfo) cmd).name));
+		// }
+		// }
 
 		if (cmd instanceof CmdClientDisconnect) {
 			this.log(new LogEventDisconnect(conn.getAddrString(), this.model
@@ -243,8 +255,7 @@ public class ExchangeServer implements IServerListener, ICmdHandler {
 						.abs(offer.money * Math.abs(offer.amount));
 
 				this.net.writeCmdTo(new CmdOfferResponse(conn.getAddrString(),
-						offer.stockID, offer.amount, offer.money),
-						offer.teamID);
+						offer.stockID, offer.amount, offer.money), offer.teamID);
 				conn.writeCommand(new CmdOfferResponse(offer.teamID,
 						offer.stockID, -offer.amount, -offer.money));
 			} else {
@@ -263,8 +274,8 @@ public class ExchangeServer implements IServerListener, ICmdHandler {
 	@Override
 	public void onClientDisconnected(TCPServerClient client) {
 		System.out.println("Client disconnected!");
-//		if(this.model.round == 0)
-			this.model.removeTeam(client.getAddrString());
+		// if(this.model.round == 0)
+		this.model.removeTeam(client.getAddrString());
 
 		if (this.display != null)
 			this.display.repaint();
@@ -277,6 +288,6 @@ public class ExchangeServer implements IServerListener, ICmdHandler {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		//this.log(new LogEvent("Server close", "Server closed."));
+		// this.log(new LogEvent("Server close", "Server closed."));
 	}
 }

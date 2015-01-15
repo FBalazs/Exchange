@@ -23,6 +23,7 @@ import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.SeekBar;
+import android.widget.Toast;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 
@@ -99,7 +100,6 @@ public class ActivityZerothRound extends Activity {
 			public void onStocksChanged(Team ownTeam, int position) {
 			}
 
-
 			@Override
 			public void onOfferAccepted(CmdOfferResponse offer) {
 			}
@@ -109,7 +109,7 @@ public class ActivityZerothRound extends Activity {
 			}
 
 		});
-		if(!mClient.isConnected())
+		if (!mClient.isConnected())
 			finish();
 
 		((Button) findViewById(R.id.activity_zeroth_round_done))

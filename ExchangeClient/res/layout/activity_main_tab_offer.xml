@@ -81,7 +81,8 @@
                 android:layout_span="2"
                 android:layout_weight="1"
                 android:ems="10"
-                android:inputType="numberDecimal" >
+                android:inputType="numberDecimal"
+                android:digits="0123456789.," >
 
                 <requestFocus />
             </EditText>

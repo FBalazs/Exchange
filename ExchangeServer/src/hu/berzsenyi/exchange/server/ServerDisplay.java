@@ -8,6 +8,7 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
 import java.awt.event.WindowListener;
 import java.awt.event.WindowStateListener;
+import java.text.DecimalFormat;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
@@ -18,6 +19,8 @@ import javax.swing.JRadioButton;
 public class ServerDisplay extends JFrame implements WindowListener,
 		WindowStateListener, WindowFocusListener, IServerDisplay {
 	private static final long serialVersionUID = 8256191100104297255L;
+	protected static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat(
+			"#0.00");
 
 	public ExchangeServer server;
 

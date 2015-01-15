@@ -18,6 +18,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 public class ActivityConnect extends Activity {
 
@@ -60,7 +61,7 @@ public class ActivityConnect extends Activity {
 
 			@Override
 			public void onConnect(TCPClient client) {
-				ActivityConnect.this.mClient.removeIClientListener(this);
+				// ActivityConnect.this.mClient.removeIClientListener(this);
 				runOnUiThread(new Runnable() {
 
 					@Override
@@ -106,6 +107,38 @@ public class ActivityConnect extends Activity {
 
 			@Override
 			public void onErrorCommand(CmdServerError error) {
+
+				switch (error.errorId) {
+				case CmdServerError.ERROR_NOT_IN_ZEROTH_ROUND:
+					mClient.disconnect();
+					runOnUiThread(new Runnable() {
+						@Override
+						public void run() {
+							Toast.makeText(
+									ActivityConnect.this
+											.getApplicationContext(),
+									R.string.game_has_started,
+									Toast.LENGTH_LONG).show();
+							// ActivityZerothRound.this.finish();
+						}
+					});
+					break;
+				case CmdServerError.ERROR_NAME_DUPLICATE:
+					mClient.disconnect();
+					runOnUiThread(new Runnable() {
+						@Override
+						public void run() {
+							Log.d("Bence", "AAAA");
+							Toast.makeText(
+									ActivityConnect.this
+											.getApplicationContext(),
+									R.string.name_duplicate, Toast.LENGTH_LONG)
+									.show();
+							// ActivityZerothRound.this.finish();
+						}
+					});
+					break;
+				}
 			}
 
 		});

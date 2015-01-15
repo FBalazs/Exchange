@@ -6,10 +6,15 @@ import hu.berzsenyi.exchange.net.TCPClient;
 import hu.berzsenyi.exchange.net.cmd.CmdOffer;
 import hu.berzsenyi.exchange.net.cmd.CmdOfferResponse;
 import hu.berzsenyi.exchange.net.cmd.CmdServerError;
+
 import java.io.IOException;
 import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Formatter;
 import java.util.List;
+import java.util.Locale;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -74,12 +79,20 @@ public class ActivityMain extends Activity implements IClientListener {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+
 		Log.d(this.getClass().getName(), "onCreate()");
 		super.onCreate(savedInstanceState);
 		this.setContentView(R.layout.activity_main);
 
 		mClient = ExchangeClient.getInstance();
 		mOfferFormatter = new OfferFormatter(this, mClient);
+
+		if (!mClient.isConnected()) { // Maybe there was an error message,
+										// indicating the failure of joining the
+										// game
+			this.finish();
+			return;
+		}
 
 		this.tabHost = (TabHost) this.findViewById(R.id.tabHost);
 		this.tabHost.setup();
@@ -162,8 +175,11 @@ public class ActivityMain extends Activity implements IClientListener {
 					public void afterTextChanged(Editable s) {
 						if (ActivityMain.this.tabOffer_radioGroup
 								.getCheckedRadioButtonId() == R.id.tabOffer_radioBuy) {
+							NumberFormat format = NumberFormat
+									.getInstance(Locale.getDefault());
 							try {
-								double price = Double.parseDouble(s.toString());
+								double price = format.parse(s.toString())
+										.doubleValue();
 								int max = (int) (ActivityMain.this.mClient
 										.getOwnTeam().getMoney() / price);
 								if (max == 0) {
@@ -185,7 +201,7 @@ public class ActivityMain extends Activity implements IClientListener {
 									ActivityMain.this.tabOffer_buttonOfferSend
 											.setEnabled(true);
 								}
-							} catch (NumberFormatException e) {
+							} catch (ParseException e) {
 								ActivityMain.this.tabOffer_seekBarAmount
 										.setMax(0);
 								ActivityMain.this.tabOffer_seekBarAmount
@@ -251,32 +267,29 @@ public class ActivityMain extends Activity implements IClientListener {
 
 	@Override
 	public void onBackPressed() {
-		AlertDialog.Builder dialog = new AlertDialog.Builder(this);
-		dialog.setMessage("Biztosan ki szeretnél lépni?"); // TODO res
-		dialog.setPositiveButton("Igen", new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				ActivityMain.super.onBackPressed();
-			}
-		});
-		dialog.setNegativeButton("Nem", new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
+		new AlertDialog.Builder(this)
+				.setTitle(R.string.exit_question)
+				.setMessage(R.string.exit_message)
+				.setPositiveButton(R.string.yes,
+						new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog,
+									int which) {
+								ActivityMain.super.onBackPressed();
+							}
+						})
+				.setNegativeButton(R.string.no,
+						new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog,
+									int which) {
 
-			}
-		});
-		dialog.show();
+							}
+						}).create().show();
 	}
 
 	@Override
 	public void onConnect(TCPClient client) {
-		runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				Toast.makeText(ActivityMain.this, "connect yay!",
-						Toast.LENGTH_LONG).show(); // TODO
-			}
-		});
 	}
 
 	@Override
@@ -284,18 +297,37 @@ public class ActivityMain extends Activity implements IClientListener {
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
+				/*
+				 * Toast.makeText( ActivityMain.this, "you " + (offer.money < 0
+				 * ? "bought " : "sold ") + Math.abs(offer.amount) + " " +
+				 * ActivityMain
+				 * .this.mClient.getModel().stockList[offer.stockID].name + " "
+				 * + (offer.money < 0 ? "from " : "to ") +
+				 * ActivityMain.this.mClient.getModel()
+				 * .getTeamById(offer.teamID).name, Toast.LENGTH_LONG).show();
+				 * // TODO
+				 */
+				Formatter formatter = new Formatter();
 				Toast.makeText(
 						ActivityMain.this,
-						"you "
-								+ (offer.money < 0 ? "bought " : "sold ")
-								+ Math.abs(offer.amount)
-								+ " "
-								+ ActivityMain.this.mClient.getModel().stockList[offer.stockID].name
-								+ " "
-								+ (offer.money < 0 ? "from " : "to ")
-								+ ActivityMain.this.mClient.getModel()
-										.getTeamById(offer.teamID).name,
-						Toast.LENGTH_LONG).show(); // TODO
+						formatter
+								.format(ActivityMain.this
+										.getString(R.string.offer_toast),
+										offer.money < 0 ? ActivityMain.this
+												.getString(R.string.offer_toast_buy1)
+												: ActivityMain.this
+														.getString(R.string.offer_toast_sell1),
+										offer.money < 0 ? ActivityMain.this
+												.getString(R.string.offer_toast_buy2)
+												: ActivityMain.this
+														.getString(R.string.offer_toast_sell2),
+										DECIMAL_FORMAT.format(Math
+												.abs(offer.amount)),
+										ActivityMain.this.mClient.getModel().stockList[offer.stockID].name,
+										ActivityMain.this.mClient.getModel()
+												.getTeamById(offer.teamID).name)
+								.toString(), Toast.LENGTH_LONG).show();
+				formatter.close();
 			}
 		});
 	}
@@ -304,21 +336,13 @@ public class ActivityMain extends Activity implements IClientListener {
 	public void onErrorCommand(CmdServerError error) {
 
 		switch (error.errorId) {
-		case CmdServerError.ERROR_CONNECT:
-			runOnUiThread(new Runnable() {
-				@Override
-				public void run() {
-					Toast.makeText(ActivityMain.this, "error connect",
-							Toast.LENGTH_LONG).show(); // TODO}
-				}
-			});
-			break;
 		case CmdServerError.ERROR_OFFER:
 			runOnUiThread(new Runnable() {
 				@Override
 				public void run() {
-					Toast.makeText(ActivityMain.this, "error offer",
-							Toast.LENGTH_LONG).show(); // TODO
+					Toast.makeText(ActivityMain.this.getApplicationContext(),
+							R.string.not_enough_money_or_stock,
+							Toast.LENGTH_LONG).show();
 				}
 			});
 			break;
@@ -327,23 +351,34 @@ public class ActivityMain extends Activity implements IClientListener {
 	}
 
 	public void onClickButtonOffer() {
-		double price = Double.parseDouble(tabOffer_editTextUnitPrice.getText()
-				.toString());
-		if (price <= 0)
-			new AlertDialog.Builder(this)
-					.setMessage(R.string.price_must_be_positive)
-					.setPositiveButton(R.string.ok, null).create().show();
-		this.mClient
-				.offer(this.mClient.getModel().teams
-						.get(this.tabOffer_spinnerPosition2TeamIndex
-								.get(this.tabOffer_listTeams
-										.getSelectedItemPosition())).id,
-						this.tabOffer_spinnerPosition2StockIndex
-								.get(this.tabOffer_listStocks
-										.getSelectedItemPosition()),
-						tabOffer_seekBarAmount.getProgress() + 1,
-						price,
-						this.tabOffer_radioGroup.getCheckedRadioButtonId() == R.id.tabOffer_radioSell);
+		NumberFormat format = NumberFormat.getInstance(Locale.getDefault());
+		double price;
+		try {
+			price = format.parse(
+					tabOffer_editTextUnitPrice.getText().toString())
+					.doubleValue();
+
+			if (price <= 0)
+				new AlertDialog.Builder(this)
+						.setMessage(R.string.price_must_be_positive)
+						.setPositiveButton(R.string.ok, null).create().show();
+			this.mClient
+					.offer(this.mClient.getModel().teams
+							.get(this.tabOffer_spinnerPosition2TeamIndex
+									.get(this.tabOffer_listTeams
+											.getSelectedItemPosition())).id,
+							this.tabOffer_spinnerPosition2StockIndex
+									.get(this.tabOffer_listStocks
+											.getSelectedItemPosition()),
+							tabOffer_seekBarAmount.getProgress() + 1,
+							price,
+							this.tabOffer_radioGroup.getCheckedRadioButtonId() == R.id.tabOffer_radioSell);
+		} catch (ParseException e) {
+			e.printStackTrace();
+			Toast.makeText(this, R.string.bad_number_format, Toast.LENGTH_SHORT)
+					.show();
+
+		}
 	}
 
 	public void acceptOffer(int pos) {
@@ -480,8 +515,7 @@ public class ActivityMain extends Activity implements IClientListener {
 			}
 			// Set unit price to the stock's value
 			this.tabOffer_editTextUnitPrice
-					.setText(mClient.getModel().stockList[selectedStockIndex].value
-							+ "");
+					.setText(DECIMAL_FORMAT.format(mClient.getModel().stockList[selectedStockIndex].value));
 
 		}
 	}
@@ -543,8 +577,8 @@ public class ActivityMain extends Activity implements IClientListener {
 	public void onRoundCommand(ExchangeClient client) {
 		this.runOnUiThread(new Runnable() {
 			public void run() {
-				Toast.makeText(ActivityMain.this, "next round :)",
-						Toast.LENGTH_LONG).show(); // TODO
+				Toast.makeText(ActivityMain.this, R.string.new_round,
+						Toast.LENGTH_LONG).show();
 				((TextView) ActivityMain.this
 						.findViewById(R.id.tabMain_eventMessage))
 						.setText(ExchangeClient.getInstance().getModel().eventMessage);
@@ -557,8 +591,8 @@ public class ActivityMain extends Activity implements IClientListener {
 	public void onMoneyChanged(final Team ownTeam) {
 		runOnUiThread(new Runnable() {
 			public void run() {
-				((TextView) findViewById(R.id.tabMain_money)).setText(""
-						+ ownTeam.getMoney());
+				((TextView) findViewById(R.id.tabMain_money))
+						.setText(DECIMAL_FORMAT.format(ownTeam.getMoney()));
 			}
 		});
 	}
@@ -569,7 +603,8 @@ public class ActivityMain extends Activity implements IClientListener {
 		runOnUiThread(new Runnable() {
 			public void run() {
 				((TextView) findViewById(R.id.tabMain_valueOfStocks))
-						.setText("" + ownTeam.getStockValue(mClient.getModel()));
+						.setText(DECIMAL_FORMAT.format(ownTeam
+								.getStockValue(mClient.getModel())));
 			}
 		});
 	}
@@ -613,7 +648,7 @@ public class ActivityMain extends Activity implements IClientListener {
 					.setText(stock.name);
 
 			((TextView) out.findViewById(R.id.tabStocks_stockValue))
-					.setText(DECIMAL_FORMAT.format(stock.value) + "");
+					.setText(DECIMAL_FORMAT.format(stock.value));
 
 			((TextView) out.findViewById(R.id.tabStocks_stockAmount))
 					.setText(mClient.getOwnTeam().getStock(position) + "");

@@ -5,8 +5,9 @@ import java.io.DataOutputStream;
 
 public class CmdServerError extends TCPCommand {
 	public static final int ID = 10;
-	public static final int ERROR_CONNECT = 0,
-							ERROR_OFFER = 1;
+	public static final int ERROR_NOT_IN_ZEROTH_ROUND = 0,
+							ERROR_NAME_DUPLICATE = 1,
+							ERROR_OFFER = 2;
 	
 	public int errorId;
 	
