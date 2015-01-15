@@ -566,6 +566,8 @@ public class ActivityMain extends Activity implements IClientListener {
 	public void onOfferIn(ExchangeClient client, CmdOffer offer) {
 		this.runOnUiThread(new Runnable() {
 			public void run() {
+				Toast.makeText(ActivityMain.this, R.string.new_offer,
+						Toast.LENGTH_LONG).show();
 				ActivityMain.this.tabAccept_listOffers
 						.setAdapter(ActivityMain.this.tabAccept_listOffers
 								.getAdapter());

@@ -43,5 +43,6 @@
     <string name="offer_toast_sell2">Fogadó</string>
     <string name="new_round">Új kör!</string>
     <string name="bad_number_format">Nem felismerhető a szám, amit beírtál!</string>
+    <string name="new_offer">Új ajánlat érkezett!</string>
 
 </resources>
