@@ -212,6 +212,25 @@ public class ActivityMain extends Activity implements IClientListener {
 			zerothRoundDone = resultCode == Activity.RESULT_OK;
 		}
 	}
+	
+	@Override
+	public void onBackPressed() {
+		AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+		dialog.setMessage("Biztosan ki szeretnél lépni?"); // TODO res
+		dialog.setPositiveButton("Igen", new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				ActivityMain.super.onBackPressed();
+			}
+		});
+		dialog.setNegativeButton("Nem", new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				
+			}
+		});
+		dialog.show();
+	}
 
 	@Override
 	public void onConnect(TCPClient client) {
