@@ -248,7 +248,7 @@ public class ActivityMain extends Activity implements IClientListener {
 			zerothRoundDone = resultCode == Activity.RESULT_OK;
 		}
 	}
-	
+
 	@Override
 	public void onBackPressed() {
 		AlertDialog.Builder dialog = new AlertDialog.Builder(this);
@@ -262,7 +262,7 @@ public class ActivityMain extends Activity implements IClientListener {
 		dialog.setNegativeButton("Nem", new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				
+
 			}
 		});
 		dialog.show();
