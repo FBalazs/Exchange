@@ -3,6 +3,7 @@ package hu.berzsenyi.exchange.client;
 import hu.berzsenyi.exchange.Team;
 import hu.berzsenyi.exchange.net.IClientConnectionListener;
 import hu.berzsenyi.exchange.net.cmd.CmdOffer;
+import hu.berzsenyi.exchange.net.cmd.TCPCommand;
 
 public interface IClientListener extends IClientConnectionListener {
 
@@ -17,4 +18,6 @@ public interface IClientListener extends IClientConnectionListener {
 	public void onMoneyChanged(Team ownTeam);
 	
 	public void onStocksChanged(Team ownTeam, int position);
+
+	public void onCommand(TCPCommand cmd);
 }

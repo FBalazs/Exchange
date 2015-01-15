@@ -15,6 +15,7 @@ import hu.berzsenyi.exchange.Stock;
 import hu.berzsenyi.exchange.Team;
 import hu.berzsenyi.exchange.net.TCPClient;
 import hu.berzsenyi.exchange.net.cmd.CmdOffer;
+import hu.berzsenyi.exchange.net.cmd.TCPCommand;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 import android.widget.SeekBar;
@@ -94,6 +95,11 @@ public class ActivityZerothRound extends Activity {
 
 			@Override
 			public void onStocksChanged(Team ownTeam, int position) {
+			}
+
+			@Override
+			public void onCommand(TCPCommand cmd) {
+				
 			}
 
 		});

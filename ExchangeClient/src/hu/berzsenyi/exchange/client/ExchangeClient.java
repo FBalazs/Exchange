@@ -171,6 +171,9 @@ public class ExchangeClient implements ICmdHandler, IClientConnectionListener {
 	public void handleCmd(TCPCommand cmd, TCPConnection conn) {
 		Log.d(this.getClass().getName(), "Received command! "
 				+ cmd.getClass().getName());
+		
+		for (IClientListener listener : mListeners)
+			listener.onCommand(cmd);
 
 		if (cmd instanceof CmdServerInfo) {
 			CmdServerInfo info = (CmdServerInfo) cmd;
