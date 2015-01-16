@@ -578,8 +578,14 @@ public class ActivityMain extends Activity implements IClientListener {
 	public void onRoundCommand(ExchangeClient client) {
 		this.runOnUiThread(new Runnable() {
 			public void run() {
-				Toast.makeText(ActivityMain.this, R.string.new_round,
-						Toast.LENGTH_LONG).show();
+//				Toast.makeText(ActivityMain.this, R.string.new_round,
+//						Toast.LENGTH_LONG).show();
+				new AlertDialog.Builder(ActivityMain.this)
+						.setTitle(R.string.new_round)
+						.setMessage(ExchangeClient.getInstance()
+						.getModel().eventMessage)
+						.setNeutralButton("Ok", null)
+						.show();
 				((TextView) ActivityMain.this
 						.findViewById(R.id.tabMain_eventMessage))
 						.setText(ExchangeClient.getInstance().getModel().eventMessage);
