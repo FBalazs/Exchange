@@ -43,7 +43,7 @@
                     layout="@layout/activity_main_tab_offer" />
                 <include
                     android:id="@+id/tabAccept"
-                    layout="@layout/activity_main_tab_accept" />
+                    layout="@layout/activity_main_tab_incoming" />
             </FrameLayout>
         </LinearLayout>
     </TabHost>

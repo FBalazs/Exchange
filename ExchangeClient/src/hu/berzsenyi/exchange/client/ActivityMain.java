@@ -56,7 +56,7 @@ public class ActivityMain extends Activity implements IClientListener {
 			"#0.00");
 
 	private TabHost tabHost;
-	private TabSpec tabMain, tabStocks, tabOffer, tabAccept;
+	private TabSpec tabMain, tabStocks, tabOffer, tabIncoming;
 
 	private ListView tabStocks_listStocks;
 
@@ -109,9 +109,9 @@ public class ActivityMain extends Activity implements IClientListener {
 		this.tabOffer.setContent(R.id.tabOffer);
 		this.tabOffer.setIndicator(this.getString(R.string.offer));
 
-		this.tabAccept = this.tabHost.newTabSpec(TAG_INCOMING);
-		this.tabAccept.setContent(R.id.tabAccept);
-		this.tabAccept.setIndicator(this.getString(R.string.incoming));
+		this.tabIncoming = this.tabHost.newTabSpec(TAG_INCOMING);
+		this.tabIncoming.setContent(R.id.tabAccept);
+		this.tabIncoming.setIndicator(this.getString(R.string.incoming));
 
 		this.tabStocks_listStocks = (ListView) this
 				.findViewById(R.id.tabStocks_listStocks);
@@ -222,8 +222,7 @@ public class ActivityMain extends Activity implements IClientListener {
 
 		this.tabAccept_listOffers = (ListView) this
 				.findViewById(R.id.tabAccept_listOffers);
-		this.tabAccept_listOffers.setAdapter(new ArrayAdapter<CmdOffer>(this,
-				android.R.layout.simple_spinner_item, this.mClient.offersIn));
+		this.tabAccept_listOffers.setAdapter(new OfferAdapter());
 		this.tabAccept_listOffers
 				.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 					@Override
@@ -236,7 +235,7 @@ public class ActivityMain extends Activity implements IClientListener {
 		this.tabHost.addTab(this.tabMain);
 		this.tabHost.addTab(this.tabStocks);
 		this.tabHost.addTab(this.tabOffer);
-		this.tabHost.addTab(this.tabAccept);
+		this.tabHost.addTab(this.tabIncoming);
 
 		// TODO Unregister listener
 		this.mClient.addIClientListener(this);
@@ -646,13 +645,13 @@ public class ActivityMain extends Activity implements IClientListener {
 
 			Stock stock = (Stock) getItem(position);
 
-			((TextView) out.findViewById(R.id.tabStocks_stockName))
+			((TextView) out.findViewById(R.id.tabIncoming_offerName))
 					.setText(stock.name);
 
-			((TextView) out.findViewById(R.id.tabStocks_stockValue))
+			((TextView) out.findViewById(R.id.tabIncoming_offerValue))
 					.setText(DECIMAL_FORMAT.format(stock.value));
 
-			((TextView) out.findViewById(R.id.tabStocks_stockAmount))
+			((TextView) out.findViewById(R.id.tabIncoming_offerAmount))
 					.setText(mClient.getOwnTeam().getStock(position) + "");
 
 			TextView change = (TextView) out
@@ -674,6 +673,46 @@ public class ActivityMain extends Activity implements IClientListener {
 			return out;
 		}
 
+	}
+
+	private class OfferAdapter extends BaseAdapter {
+
+		@Override
+		public int getCount() {
+			return mClient.offersIn.size();
+		}
+
+		@Override
+		public Object getItem(int position) {
+			return mClient.offersIn.get(position);
+		}
+
+		@Override
+		public long getItemId(int position) {
+			return 0;
+		}
+
+		@Override
+		public View getView(int position, View convertView, ViewGroup parent) {
+			View out;
+			if (convertView != null)
+				out = convertView;
+			else {
+				out = getLayoutInflater().inflate(
+						R.layout.activity_main_tab_incoming_list_item, parent,
+						false);
+			}
+			CmdOffer offer = (CmdOffer) getItem(position);
+			((TextView) out.findViewById(R.id.tabIncoming_offerName))
+					.setText(mClient.getModel().stockList[offer.stockID].name);
+			((TextView) out.findViewById(R.id.tabIncoming_offerValue))
+					.setText(DECIMAL_FORMAT.format(offer.money));
+			((TextView) out.findViewById(R.id.tabIncoming_offerAmount))
+					.setText(offer.amount + "");
+			((TextView) out.findViewById(R.id.tabIncoming_offerSender))
+					.setText(mClient.getModel().getTeamById(offer.teamID).name);
+			return out;
+		}
 	}
 
 }
