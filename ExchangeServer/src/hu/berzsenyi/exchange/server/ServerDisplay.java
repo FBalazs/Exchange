@@ -8,8 +8,10 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
 import java.awt.event.WindowListener;
 import java.awt.event.WindowStateListener;
+import java.io.IOException;
 import java.text.DecimalFormat;
 
+import javax.imageio.ImageIO;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -25,36 +27,42 @@ public class ServerDisplay extends JFrame implements WindowListener,
 	public ExchangeServer server;
 
 	public int width = 1280, height = 720;
-	
+
 	public CompStocks compStocks;
 	public CompTeams compTeams;
 	public JButton btnNextRound;
 	public JRadioButton radioStocks, radioTeams;
 	public JLabel labelRound, labelEvent;
-	
+
 	public void radioStocks() {
 		this.compStocks.setVisible(true);
 		this.compTeams.setVisible(false);
 	}
-	
+
 	public void radioTeams() {
 		this.compStocks.setVisible(false);
 		this.compTeams.setVisible(true);
 	}
-	
+
 	@Override
 	public void onRoundBegin(int round) {
-		this.labelRound.setText("Round: "+round);
+		this.labelRound.setText("Round: " + round);
 		this.labelEvent.setText(this.server.model.eventMessage);
 	}
 
 	@Override
 	public void onRoundEnd(int round) {
-		
+
 	}
 
 	public ServerDisplay() {
 		super("Exchange Server");
+		try {
+			this.setIconImage(ImageIO.read(getClass().getResource(
+					"/hu/berzsenyi/exchange/server/res/ic_launcher.png")));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		this.server = new ExchangeServer();
 		this.server.setDisplay(this);
 
@@ -62,14 +70,14 @@ public class ServerDisplay extends JFrame implements WindowListener,
 		this.setLayout(null);
 		this.setLocationRelativeTo(null);
 		this.setBackground(Color.white);
-		
+
 		this.compStocks = new CompStocks(this);
 		this.add(this.compStocks);
-		
+
 		this.compTeams = new CompTeams(this);
 		this.compTeams.setVisible(false);
 		this.add(this.compTeams);
-		
+
 		this.btnNextRound = new JButton("Next Round");
 		this.btnNextRound.addActionListener(new ActionListener() {
 			@Override
@@ -78,7 +86,7 @@ public class ServerDisplay extends JFrame implements WindowListener,
 			}
 		});
 		this.add(this.btnNextRound);
-		
+
 		this.radioStocks = new JRadioButton("Stocks", true);
 		this.radioStocks.addActionListener(new ActionListener() {
 			@Override
@@ -87,9 +95,9 @@ public class ServerDisplay extends JFrame implements WindowListener,
 			}
 		});
 		this.add(this.radioStocks);
-		
+
 		this.radioTeams = new JRadioButton("Teams", false);
-//		this.radioTeams.setEnabled(false);
+		// this.radioTeams.setEnabled(false);
 		this.radioTeams.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -97,17 +105,17 @@ public class ServerDisplay extends JFrame implements WindowListener,
 			}
 		});
 		this.add(this.radioTeams);
-		
+
 		ButtonGroup bg = new ButtonGroup();
 		bg.add(this.radioStocks);
 		bg.add(this.radioTeams);
-		
+
 		this.labelRound = new JLabel("Round: 0");
 		this.add(this.labelRound);
-		
+
 		this.labelEvent = new JLabel("Eventdesc");
 		this.add(this.labelEvent);
-		
+
 		this.onResize();
 
 		this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
@@ -122,13 +130,25 @@ public class ServerDisplay extends JFrame implements WindowListener,
 
 	public void onResize() {
 		int minSize = Math.min(this.width, this.height);
-		this.compStocks.setBounds(minSize/10, minSize/10, this.width-minSize/5, this.height-minSize/3);
+		this.compStocks.setBounds(minSize / 10, minSize / 10, this.width
+				- minSize / 5, this.height - minSize / 3);
 		this.compTeams.setBounds(this.compStocks.getBounds());
-		this.btnNextRound.setBounds(this.compStocks.getX(), this.compStocks.getY()+this.compStocks.getHeight()+minSize/20, minSize / 5, minSize / 15);
-		this.radioStocks.setBounds(this.btnNextRound.getX()+this.btnNextRound.getWidth()+minSize/20, this.btnNextRound.getY(), minSize/5, minSize/50);
-		this.radioTeams.setBounds(this.radioStocks.getX(), this.radioStocks.getY()+this.radioStocks.getHeight(), radioStocks.getWidth(), radioStocks.getHeight());
-		this.labelRound.setBounds(this.radioStocks.getX()+this.radioStocks.getWidth(), this.radioStocks.getY(), minSize, this.radioStocks.getHeight());
-		this.labelEvent.setBounds(this.radioTeams.getX()+this.radioTeams.getWidth(), this.radioTeams.getY(), minSize, this.radioTeams.getHeight());
+		this.btnNextRound.setBounds(this.compStocks.getX(),
+				this.compStocks.getY() + this.compStocks.getHeight() + minSize
+						/ 20, minSize / 5, minSize / 15);
+		this.radioStocks.setBounds(
+				this.btnNextRound.getX() + this.btnNextRound.getWidth()
+						+ minSize / 20, this.btnNextRound.getY(), minSize / 5,
+				minSize / 50);
+		this.radioTeams.setBounds(this.radioStocks.getX(),
+				this.radioStocks.getY() + this.radioStocks.getHeight(),
+				radioStocks.getWidth(), radioStocks.getHeight());
+		this.labelRound.setBounds(
+				this.radioStocks.getX() + this.radioStocks.getWidth(),
+				this.radioStocks.getY(), minSize, this.radioStocks.getHeight());
+		this.labelEvent.setBounds(
+				this.radioTeams.getX() + this.radioTeams.getWidth(),
+				this.radioTeams.getY(), minSize, this.radioTeams.getHeight());
 	}
 
 	@Override

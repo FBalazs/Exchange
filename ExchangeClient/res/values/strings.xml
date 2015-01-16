@@ -28,8 +28,8 @@
     <string name="connecting">Kapcsolódás</string>
     <string name="waiting_for_the_first_round">Várakozás az első körre</string>
     <string name="value_of_stocks">Részvények összértéke:</string>
-    <string name="offer_as_string_buy">A(z) \'%1$s\' csapat eladásra kínált %3$d db \'%2$s\'-részvényt, %4$s egységárért. Megveszed?</string>
-    <string name="offer_as_string_sell">A(z) \'%1$s\' csapat szeretne venni tőled %3$d db \'%2$s\'-részvényt, %4$s egységárért. Elfogadod az ajánlatát?</string>
+    <string name="offer_as_string_buy">A(z) \'%1$s\' csapat szeretne venni tőled %3$d db \'%2$s\'-részvényt, %4$s egységárért. Elfogadod az ajánlatát?</string>
+    <string name="offer_as_string_sell">A(z) \'%1$s\' csapat eladásra kínált %3$d db \'%2$s\'-részvényt, %4$s egységárért. Megveszed?</string>
     <string name="price_must_be_positive">Pozitív árat adj meg!</string>
     <string name="game_has_started">A játék már korábban elkezdődött :(</string>
     <string name="name_duplicate">Már van egy ilyen nevű játékos!</string>
@@ -44,5 +44,7 @@
     <string name="new_round">Új kör!</string>
     <string name="bad_number_format">Nem felismerhető a szám, amit beírtál!</string>
     <string name="new_offer">Új ajánlat érkezett!</string>
+    <string name="stocks_for_sail">Eladó részvény</string>
+    <string name="stocks_for_buying">Vételre kínált részvény</string>
 
 </resources>

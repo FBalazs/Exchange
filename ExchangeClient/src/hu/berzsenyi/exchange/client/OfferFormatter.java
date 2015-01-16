@@ -21,16 +21,18 @@ public class OfferFormatter {
 
 		Formatter formatter = new Formatter();
 		DecimalFormat decimalFormat = new DecimalFormat("#0.00");
-		if (offer.amount < 0)
-			formatter.format(mContext.getString(R.string.offer_as_string_sell),
-					mClient.getModel().getTeamById(offer.teamID).name,
-					mClient.getModel().stockList[offer.stockID].name,
-					-offer.amount, decimalFormat.format(offer.money));
-		else
+		if (offer.amount > 0)
 			formatter.format(mContext.getString(R.string.offer_as_string_buy),
 					mClient.getModel().getTeamById(offer.teamID).name,
 					mClient.getModel().stockList[offer.stockID].name,
-					offer.amount, decimalFormat.format(-offer.money));
+					Math.abs(offer.amount),
+					decimalFormat.format(Math.abs(offer.money)));
+		else
+			formatter.format(mContext.getString(R.string.offer_as_string_sell),
+					mClient.getModel().getTeamById(offer.teamID).name,
+					mClient.getModel().stockList[offer.stockID].name,
+					Math.abs(offer.amount),
+					decimalFormat.format(Math.abs(offer.money)));
 		String out = formatter.toString();
 		formatter.close();
 		return out;

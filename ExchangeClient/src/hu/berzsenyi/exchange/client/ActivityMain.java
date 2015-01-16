@@ -578,14 +578,13 @@ public class ActivityMain extends Activity implements IClientListener {
 	public void onRoundCommand(ExchangeClient client) {
 		this.runOnUiThread(new Runnable() {
 			public void run() {
-//				Toast.makeText(ActivityMain.this, R.string.new_round,
-//						Toast.LENGTH_LONG).show();
+				// Toast.makeText(ActivityMain.this, R.string.new_round,
+				// Toast.LENGTH_LONG).show();
 				new AlertDialog.Builder(ActivityMain.this)
 						.setTitle(R.string.new_round)
-						.setMessage(ExchangeClient.getInstance()
-						.getModel().eventMessage)
-						.setNeutralButton("Ok", null)
-						.show();
+						.setMessage(
+								ExchangeClient.getInstance().getModel().eventMessage)
+						.setNeutralButton("Ok", null).show();
 				((TextView) ActivityMain.this
 						.findViewById(R.id.tabMain_eventMessage))
 						.setText(ExchangeClient.getInstance().getModel().eventMessage);
@@ -709,12 +708,15 @@ public class ActivityMain extends Activity implements IClientListener {
 						false);
 			}
 			CmdOffer offer = (CmdOffer) getItem(position);
+			((TextView) out.findViewById(R.id.tabIncoming_offerType))
+					.setText(offer.amount > 0 ? R.string.stocks_for_buying
+							: R.string.stocks_for_sail);
 			((TextView) out.findViewById(R.id.tabIncoming_offerName))
 					.setText(mClient.getModel().stockList[offer.stockID].name);
 			((TextView) out.findViewById(R.id.tabIncoming_offerValue))
-					.setText(DECIMAL_FORMAT.format(offer.money));
+					.setText(DECIMAL_FORMAT.format(Math.abs(offer.money)));
 			((TextView) out.findViewById(R.id.tabIncoming_offerAmount))
-					.setText(offer.amount + "");
+					.setText(Math.abs(offer.amount) + "");
 			((TextView) out.findViewById(R.id.tabIncoming_offerSender))
 					.setText(mClient.getModel().getTeamById(offer.teamID).name);
 			return out;
