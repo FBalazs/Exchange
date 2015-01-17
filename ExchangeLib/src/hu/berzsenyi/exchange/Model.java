@@ -11,99 +11,108 @@ public class Model {
 	public List<Team> teams = new ArrayList<Team>();
 	public String eventMessage = "2-t fizet 3-at kap akció a Trióban!!!"; // TODO
 	public Event[] eventList;
-	
+
 	/**
 	 * Loads the stocks from the data files.
-	 * @param stockFolder The folder where the files are located.
+	 * 
+	 * @param stockFolder
+	 *            The folder where the files are located.
 	 */
 	public void loadStocks(String stockFolder) {
 		File[] files = new File(stockFolder).listFiles();
 		this.stockList = new Stock[files.length];
-		for(int i = 0; i < files.length; i++) {
+		for (int i = 0; i < files.length; i++) {
 			try {
 				DatParser parser = new DatParser(files[i].getAbsolutePath());
 				parser.parse();
-				this.stockList[i] = new Stock(files[i].getName().substring(0, files[i].getName().lastIndexOf('.')), parser.getValue("name"), Double.parseDouble(parser.getValue("initvalue")));
-			} catch(Exception e) {
+				this.stockList[i] = new Stock(files[i].getName().substring(0,
+						files[i].getName().lastIndexOf('.')),
+						parser.getValue("name"), Double.parseDouble(parser
+								.getValue("initvalue")));
+			} catch (Exception e) {
 				e.printStackTrace();
-				System.err.println("Failed to parse stock: "+files[i].getName());
+				System.err.println("Failed to parse stock: "
+						+ files[i].getName());
 			}
 		}
 	}
-	
+
 	public void loadEvents(String eventFolder) {
 		File[] files = new File(eventFolder).listFiles();
 		this.eventList = new Event[files.length];
-		for(int i = 0; i < files.length; i++) {
+		for (int i = 0; i < files.length; i++) {
 			try {
 				DatParser parser = new DatParser(files[i].getAbsolutePath());
 				parser.parse();
-				this.eventList[i] = new Event(files[i].getName().substring(0, files[i].getName().lastIndexOf('.')), parser.getValue("desc"), Integer.parseInt(parser.getValue("howmany")));
+				this.eventList[i] = new Event(files[i].getName().substring(0,
+						files[i].getName().lastIndexOf('.')),
+						parser.getValue("desc"), Integer.parseInt(parser
+								.getValue("howmany")));
 				this.eventList[i].multipliers = new double[this.stockList.length];
-				for(int s = 0; s < this.stockList.length; s++) {
+				for (int s = 0; s < this.stockList.length; s++) {
 					String var = parser.getValue(this.stockList[s].id);
-					if(var != null)
-						this.eventList[i].multipliers[s] = Double.parseDouble(var);
+					if (var != null)
+						this.eventList[i].multipliers[s] = Double
+								.parseDouble(var);
 					else
 						this.eventList[i].multipliers[s] = 1;
 				}
-			} catch(Exception e) {
+			} catch (Exception e) {
 				e.printStackTrace();
-				System.err.println("Failed to parse event: "+files[i].getName());
+				System.err.println("Failed to parse event: "
+						+ files[i].getName());
 			}
 		}
 	}
-	
-	
+
 	public void nextRound(String eventDesc, double[] multipliers) {
 		this.eventMessage = eventDesc;
-		for(int i=0;i<multipliers.length;i++) {
+		for (int i = 0; i < multipliers.length; i++) {
 			this.stockList[i].value *= multipliers[i];
-			this.stockList[i].change = multipliers[i];			
+			this.stockList[i].change = multipliers[i];
 		}
 	}
-	
+
 	public int getStockCmdLength() {
 		int ret = 0;
 		ret += 4;
-		for(int s = 0; s < this.stockList.length; s++)
+		for (int s = 0; s < this.stockList.length; s++)
 			ret += this.stockList[s].getCmdLength();
 		return ret;
 	}
-	
+
 	public int getTeamCmdLength() {
 		int ret = 0;
 		ret += 4;
-		for(int t = 0; t < this.teams.size(); t++)
+		for (int t = 0; t < this.teams.size(); t++)
 			ret += this.teams.get(t).getCmdLength();
 		return ret;
 	}
-	
+
 	public Team getTeamById(String id) {
-		for(Team team : this.teams)
-			if(team.id.equals(id))
+		for (Team team : this.teams)
+			if (team.id.equals(id))
 				return team;
 		return null;
 	}
-	
+
 	@Deprecated
 	public Team getTeamByName(String name) {
-		for(Team team : this.teams)
-			if(team.name.equals(name))
+		for (Team team : this.teams)
+			if (team.name.equals(name))
 				return team;
 		return null;
 	}
-	
+
 	public void removeTeam(String id) {
-		for(int i = 0; i < this.teams.size(); i++)
-			if(this.teams.get(i).id.equals(id))
+		for (int i = 0; i < this.teams.size(); i++)
+			if (this.teams.get(i).id.equals(id))
 				this.teams.remove(i--);
 	}
-	
-
 
 	/**
 	 * Only in the zeroth round!
+	 * 
 	 * @param amounts
 	 * @return
 	 */

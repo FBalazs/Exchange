@@ -1,8 +1,9 @@
 package hu.berzsenyi.exchange;
 
 import java.io.BufferedReader;
-import java.io.FileReader;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,7 +26,7 @@ public class DatParser {
 	
 	public void parse() {
 		try {
-			BufferedReader br = new BufferedReader(new FileReader(this.path));
+			BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(this.path), "UTF-8"));
 			String line = br.readLine();
 			while (line != null) {
 				if (line.startsWith("//") || line.startsWith("#"))
