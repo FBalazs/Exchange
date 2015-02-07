@@ -6,7 +6,7 @@ import java.util.List;
 
 public class Model {
 	public int round = 0;
-	public double startMoney = 1000;
+	public double startMoney = 10000;
 	public Stock[] stockList;
 	public List<Team> teams = new ArrayList<Team>();
 	public String eventMessage = "2-t fizet 3-at kap akció a Trióban!!!"; // TODO
