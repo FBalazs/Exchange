@@ -3,39 +3,35 @@ package hu.berzsenyi.exchange.net.cmd;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 
-public class CmdOffer extends TCPCommand {
+public class CmdClientOffer extends TCPCommand {
 	public static final int ID = 5;
 
-	public String teamID;
 	public int stockID, amount;
-	public double money;
+	public double price;
 
-	public CmdOffer(int length) {
+	public CmdClientOffer(int length) {
 		super(ID, length);
 	}
 
-	public CmdOffer(String playerID, int stockID, int amount, double money, boolean sell) {
-		super(ID, 4 + stringLength(playerID) + 4 + 4 + 8);
-		this.teamID = playerID;
+	public CmdClientOffer(int stockID, int amount, double price, boolean sell) {
+		super(ID, 4 + 4 + 8);
 		this.stockID = stockID;
-		this.amount = sell ? -amount : amount;
-		this.money = sell ? money : -money;
+		this.amount = amount;
+		this.price = sell ? price : -price;
 	}
 
 	@Override
 	public void read(DataInputStream in) throws Exception {
-		this.teamID = readString(in);
 		this.stockID = in.readInt();
 		this.amount = in.readInt();
-		this.money = in.readDouble();
+		this.price = in.readDouble();
 	}
 
 	@Override
 	public void write(DataOutputStream out) throws Exception {
-		writeString(out, this.teamID);
 		out.writeInt(this.stockID);
 		out.writeInt(this.amount);
-		out.writeDouble(this.money);
+		out.writeDouble(this.price);
 	}
 
 }

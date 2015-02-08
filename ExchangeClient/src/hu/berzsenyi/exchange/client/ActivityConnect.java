@@ -2,8 +2,7 @@ package hu.berzsenyi.exchange.client;
 
 import hu.berzsenyi.exchange.Team;
 import hu.berzsenyi.exchange.net.TCPClient;
-import hu.berzsenyi.exchange.net.cmd.CmdOffer;
-import hu.berzsenyi.exchange.net.cmd.CmdOfferResponse;
+import hu.berzsenyi.exchange.net.cmd.CmdClientOffer;
 import hu.berzsenyi.exchange.net.cmd.CmdServerError;
 
 import java.io.IOException;
@@ -25,7 +24,7 @@ public class ActivityConnect extends Activity {
 	private static final String DEFAULT_NAME = "NickName",
 			DEFAULT_IP = "192.168.0.11", DEFAULT_PORT = "8080";
 
-	private EditText editTextName, editTextIP, editTextPort;
+	private EditText editTextName, editTextPass, editTextIP, editTextPort;
 	private Button btnConnect;
 
 	private ExchangeClient mClient = ExchangeClient.getInstance();
@@ -38,6 +37,7 @@ public class ActivityConnect extends Activity {
 				getString(R.string.connecting), true, false);
 
 		mClient.setName(this.editTextName.getText().toString());
+		mClient.setPassword(this.editTextPass.getText().toString());
 		// TODO Unregister listener
 		mClient.addIClientListener(new IClientListener() {
 
@@ -86,7 +86,7 @@ public class ActivityConnect extends Activity {
 			}
 
 			@Override
-			public void onOfferIn(ExchangeClient client, CmdOffer offer) {
+			public void onOfferIn(ExchangeClient client, CmdClientOffer offer) {
 			}
 
 			@Override
@@ -99,10 +99,6 @@ public class ActivityConnect extends Activity {
 
 			@Override
 			public void onStocksChanged(Team ownTeam, int position) {
-			}
-
-			@Override
-			public void onOfferAccepted(CmdOfferResponse offer) {
 			}
 
 			@Override
@@ -153,6 +149,7 @@ public class ActivityConnect extends Activity {
 		this.setContentView(R.layout.activity_connect);
 
 		this.editTextName = (EditText) this.findViewById(R.id.editTextName);
+		this.editTextPass = (EditText) this.findViewById(R.id.editTextPass);
 		this.editTextIP = (EditText) this.findViewById(R.id.editTextIP);
 		this.editTextPort = (EditText) this.findViewById(R.id.editTextPort);
 

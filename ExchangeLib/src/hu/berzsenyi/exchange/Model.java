@@ -81,14 +81,6 @@ public class Model {
 		return ret;
 	}
 
-	public int getTeamCmdLength() {
-		int ret = 0;
-		ret += 4;
-		for (int t = 0; t < this.teams.size(); t++)
-			ret += this.teams.get(t).getCmdLength();
-		return ret;
-	}
-
 	public Team getTeamById(String id) {
 		for (Team team : this.teams)
 			if (team.id.equals(id))

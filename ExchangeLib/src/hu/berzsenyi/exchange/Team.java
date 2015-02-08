@@ -1,21 +1,15 @@
 package hu.berzsenyi.exchange;
 
-import hu.berzsenyi.exchange.net.cmd.TCPCommand;
-
 public class Team {
-	public String id, name;
+	public String id, name, pass;
 	private double mMoney = 0;
 	private int[] mStocks = null;
 	private OnChangeListener mListener;
 
-	public Team(String id, String name) {
+	public Team(String id, String name, String pass) {
 		this.id = id;
 		this.name = name;
-	}
-
-	public int getCmdLength() {
-		return 4 + TCPCommand.stringLength(this.id) + 4
-				+ TCPCommand.stringLength(this.name);
+		this.pass = pass;
 	}
 
 	public double getMoney() {

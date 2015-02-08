@@ -3,8 +3,7 @@ package hu.berzsenyi.exchange.client;
 import hu.berzsenyi.exchange.Stock;
 import hu.berzsenyi.exchange.Team;
 import hu.berzsenyi.exchange.net.TCPClient;
-import hu.berzsenyi.exchange.net.cmd.CmdOffer;
-import hu.berzsenyi.exchange.net.cmd.CmdOfferResponse;
+import hu.berzsenyi.exchange.net.cmd.CmdClientOffer;
 import hu.berzsenyi.exchange.net.cmd.CmdServerError;
 
 import java.io.IOException;
@@ -83,7 +82,7 @@ public class ActivityZerothRound extends Activity {
 			}
 
 			@Override
-			public void onOfferIn(ExchangeClient client, CmdOffer offer) {
+			public void onOfferIn(ExchangeClient client, CmdClientOffer offer) {
 			}
 
 			@Override
@@ -97,10 +96,6 @@ public class ActivityZerothRound extends Activity {
 
 			@Override
 			public void onStocksChanged(Team ownTeam, int position) {
-			}
-
-			@Override
-			public void onOfferAccepted(CmdOfferResponse offer) {
 			}
 
 			@Override

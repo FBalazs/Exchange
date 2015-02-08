@@ -3,17 +3,17 @@ package hu.berzsenyi.exchange.net.cmd;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 
-public class CmdServerNextRound extends TCPCommand {
+public class CmdServerEvent extends TCPCommand {
 	public static final int ID = 8;
 	
 	public String eventDesc;
 	public double[] multipliers;
 	
-	public CmdServerNextRound(int length) {
+	public CmdServerEvent(int length) {
 		super(ID, length);
 	}
 	
-	public CmdServerNextRound(String eventDesc, double[] multipliers) {
+	public CmdServerEvent(String eventDesc, double[] multipliers) {
 		super(ID, 4+stringLength(eventDesc)+4+8*multipliers.length);
 		this.eventDesc = eventDesc;
 		this.multipliers = multipliers;

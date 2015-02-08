@@ -1,6 +1,6 @@
 package hu.berzsenyi.exchange.client;
 
-import hu.berzsenyi.exchange.net.cmd.CmdOffer;
+import hu.berzsenyi.exchange.net.cmd.CmdClientOffer;
 
 import java.text.DecimalFormat;
 import java.util.Formatter;
@@ -17,7 +17,7 @@ public class OfferFormatter {
 		mClient = client;
 	}
 
-	public String toString(CmdOffer offer) {
+	public String toString(CmdClientOffer offer) {
 
 		Formatter formatter = new Formatter();
 		DecimalFormat decimalFormat = new DecimalFormat("#0.00");

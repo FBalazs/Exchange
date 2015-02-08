@@ -35,20 +35,23 @@ public abstract class TCPConnection {
 					case CmdServerStocks.ID:
 						cmd = new CmdServerStocks(length);
 						break;
-					case CmdServerTeams.ID:
-						cmd = new CmdServerTeams(length);
+					case CmdClientOffer.ID:
+						cmd = new CmdClientOffer(length);
 						break;
-					case CmdOffer.ID:
-						cmd = new CmdOffer(length);
+					case CmdClientOfferDelete.ID:
+						cmd = new CmdClientOfferDelete(length);
 						break;
-					case CmdOfferResponse.ID:
-						cmd = new CmdOfferResponse(length);
+					case CmdServerOfferResponse.ID:
+						cmd = new CmdServerOfferResponse(length);
+						break;
+					case CmdServerTrade.ID:
+						cmd = new CmdServerTrade(length);
 						break;
 					case CmdClientBuy.ID:
 						cmd = new CmdClientBuy(length);
 						break;
-					case CmdServerNextRound.ID:
-						cmd = new CmdServerNextRound(length);
+					case CmdServerEvent.ID:
+						cmd = new CmdServerEvent(length);
 						break;
 					case CmdServerInfo.ID:
 						cmd = new CmdServerInfo(length);

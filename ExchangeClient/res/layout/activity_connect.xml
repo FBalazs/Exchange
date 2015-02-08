@@ -8,25 +8,34 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="hu.berzsenyi.exchange.client.ActivityConnect" >
-	
+    
     <EditText
         android:id="@+id/editTextName"
-        android:inputType="textCapWords"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
         android:ems="10"
-        android:hint="@string/hintName" >
+        android:hint="@string/hintName"
+        android:inputType="textCapWords" >
 
         <requestFocus />
     </EditText>
     
     <EditText
-        android:id="@+id/editTextIP"
+        android:id="@+id/editTextPass"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/editTextName"
+        android:layout_centerHorizontal="true"
+        android:ems="10"
+        android:inputType="textPassword" />
+    
+    <EditText
+        android:id="@+id/editTextIP"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/editTextPass"
         android:layout_centerHorizontal="true"
         android:ems="10"
         android:hint="@string/hintIP"
