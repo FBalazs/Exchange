@@ -11,7 +11,6 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Formatter;
 import java.util.List;
 import java.util.Locale;
 
@@ -59,7 +58,7 @@ public class ActivityMain extends Activity implements IClientListener {
 
 	private ListView tabStocks_listStocks;
 
-	private Spinner tabOffer_listTeams, tabOffer_listStocks;
+	private Spinner tabOffer_listStocks;
 	private Button tabOffer_buttonOfferSend;
 	private SeekBar tabOffer_seekBarAmount;
 	private TextView tabOffer_textAmount;
@@ -72,7 +71,6 @@ public class ActivityMain extends Activity implements IClientListener {
 			tabOffer_spinnerPosition2TeamIndex;
 
 	private ExchangeClient mClient;
-	private OfferFormatter mOfferFormatter;
 
 	private boolean zerothRoundDone = false, zerothRoundStarted = false;
 
@@ -84,7 +82,6 @@ public class ActivityMain extends Activity implements IClientListener {
 		this.setContentView(R.layout.activity_main);
 
 		mClient = ExchangeClient.getInstance();
-		mOfferFormatter = new OfferFormatter(this, mClient);
 
 		if (!mClient.isConnected()) { // Maybe there was an error message,
 										// indicating the failure of joining the
@@ -129,8 +126,6 @@ public class ActivityMain extends Activity implements IClientListener {
 								.setEnabled(true);
 					}
 				});
-		this.tabOffer_listTeams = (Spinner) this
-				.findViewById(R.id.tabOffer_listTeams);
 		this.tabOffer_listStocks = (Spinner) this
 				.findViewById(R.id.tabOffer_listStocks);
 		this.tabOffer_seekBarAmount = (SeekBar) this
@@ -215,7 +210,7 @@ public class ActivityMain extends Activity implements IClientListener {
 				.setOnClickListener(new View.OnClickListener() {
 					@Override
 					public void onClick(View v) {
-						onClickButtonOffer();
+						sendOffer();
 					}
 				});
 
@@ -423,8 +418,10 @@ public class ActivityMain extends Activity implements IClientListener {
 				this.tabOffer_spinnerPosition2TeamIndex.add(t);
 			}
 
-		this.tabOffer_listTeams.setAdapter(new ArrayAdapter<String>(this,
-				android.R.layout.simple_spinner_item, nameList));
+	}
+	
+	private void sendOffer() {
+		// TODO
 	}
 
 	private void refreshStockList() {

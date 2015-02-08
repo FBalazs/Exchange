@@ -27,24 +27,6 @@
                 android:text="@string/textOfferBuy" />
         </RadioGroup>
 
-        <TableRow>
-
-            <TextView
-                android:id="@+id/tabOffer_textViewTeam"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_weight="0"
-                android:text="@string/textTeam" />
-
-            <Spinner
-                android:id="@+id/tabOffer_listTeams"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_span="2"
-                android:layout_weight="1" />
-        </TableRow>
-
         <TableRow android:weightSum="1" >
 
             <TextView

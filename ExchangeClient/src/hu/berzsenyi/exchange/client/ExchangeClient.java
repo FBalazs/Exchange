@@ -1,10 +1,5 @@
 package hu.berzsenyi.exchange.client;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-import android.util.Log;
 import hu.berzsenyi.exchange.Model;
 import hu.berzsenyi.exchange.Team;
 import hu.berzsenyi.exchange.net.IClientConnectionListener;
@@ -15,12 +10,17 @@ import hu.berzsenyi.exchange.net.cmd.CmdClientDisconnect;
 import hu.berzsenyi.exchange.net.cmd.CmdClientInfo;
 import hu.berzsenyi.exchange.net.cmd.CmdClientOffer;
 import hu.berzsenyi.exchange.net.cmd.CmdServerError;
-import hu.berzsenyi.exchange.net.cmd.CmdServerInfo;
 import hu.berzsenyi.exchange.net.cmd.CmdServerEvent;
+import hu.berzsenyi.exchange.net.cmd.CmdServerInfo;
 import hu.berzsenyi.exchange.net.cmd.CmdServerStocks;
-import hu.berzsenyi.exchange.net.cmd.CmdServerTeams;
 import hu.berzsenyi.exchange.net.cmd.ICmdHandler;
 import hu.berzsenyi.exchange.net.cmd.TCPCommand;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import android.util.Log;
 
 /**
  * Singleton class
@@ -179,7 +179,7 @@ public class ExchangeClient implements ICmdHandler, IClientConnectionListener {
 
 		if (cmd instanceof CmdServerInfo) {
 			CmdServerInfo info = (CmdServerInfo) cmd;
-			this.ownTeam = new Team(info.clientID, this.name);
+			this.ownTeam = new Team(info.clientID, this.name, this.password);
 			this.ownTeam.setOnChangeListener(new Team.OnChangeListener() {
 
 				@Override
@@ -206,16 +206,7 @@ public class ExchangeClient implements ICmdHandler, IClientConnectionListener {
 			return;
 		}
 
-		if (cmd instanceof CmdServerTeams) {
-			CmdServerTeams teamInfo = (CmdServerTeams) cmd;
-			this.model.teams = teamInfo.teams;
-			for (int i = 0; i < this.model.teams.size(); i++)
-				if (this.model.teams.get(i).id.equals(this.ownTeam.id))
-					this.model.teams.set(i, this.ownTeam);
-			for (IClientListener listener : mListeners)
-				listener.onTeamsCommand(this);
-			return;
-		}
+	
 
 		if (cmd instanceof CmdClientOffer) {
 			CmdClientOffer offer = (CmdClientOffer) cmd;
