@@ -1,5 +1,7 @@
 package hu.berzsenyi.exchange;
 
+import java.util.List;
+
 import hu.berzsenyi.exchange.net.cmd.TCPCommand;
 
 public class Stock {
@@ -11,6 +13,8 @@ public class Stock {
 	public double change = 1;
 	public double boughtFor;
 	public int boughtAmount;
+	// TODO kupac
+	public List<Offer> buyOffers, saleOffers;
 	
 	public Stock(String id, String name, double value) {
 		this.id = id;
