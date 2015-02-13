@@ -19,7 +19,7 @@ public class Team {
 	public double getStockValue(Model model) {
 		double out = 0.0;
 		for(int i=0;i<mStocks.length;i++)
-			out += mStocks[i] * model.stockList[i].value;
+			out += mStocks[i] * model.stocks[i].value;
 		return out;
 	}
 

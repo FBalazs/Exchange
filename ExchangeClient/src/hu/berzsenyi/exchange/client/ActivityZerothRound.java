@@ -53,7 +53,7 @@ public class ActivityZerothRound extends Activity {
 		colorDefault = money.getTextColors();
 
 		mListView = (ListView) findViewById(R.id.stocks);
-		mAdapter = new StockAdapter(mClient.getModel().stockList);
+		mAdapter = new StockAdapter(mClient.getModel().stocks);
 		mListView.setAdapter(mAdapter);
 
 		// TODO Unregister listener
@@ -78,7 +78,7 @@ public class ActivityZerothRound extends Activity {
 
 			@Override
 			public void onStocksCommand(ExchangeClient client) {
-				mAdapter.updateStocks(client.getModel().stockList);
+				mAdapter.updateStocks(client.getModel().stocks);
 			}
 
 			@Override

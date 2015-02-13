@@ -437,15 +437,15 @@ public class ActivityMain extends Activity implements IClientListener {
 																								// that
 																								// we
 																								// possess
-			for (int i = 0; i < mClient.getModel().stockList.length; i++)
+			for (int i = 0; i < mClient.getModel().stocks.length; i++)
 				if (mClient.getOwnTeam().getStock(i) > 0) {
-					nameList.add(mClient.getModel().stockList[i].name);
+					nameList.add(mClient.getModel().stocks[i].name);
 					tabOffer_spinnerPosition2StockIndex.add(i);
 				}
 		} else {
 			// Show all stocks
-			for (int i = 0; i < mClient.getModel().stockList.length; i++) {
-				nameList.add(mClient.getModel().stockList[i].name);
+			for (int i = 0; i < mClient.getModel().stocks.length; i++) {
+				nameList.add(mClient.getModel().stocks[i].name);
 				tabOffer_spinnerPosition2StockIndex.add(i);
 			}
 			/*
@@ -510,7 +510,7 @@ public class ActivityMain extends Activity implements IClientListener {
 			}
 			// Set unit price to the stock's value
 			this.tabOffer_editTextUnitPrice
-					.setText(DECIMAL_FORMAT.format(mClient.getModel().stockList[selectedStockIndex].value));
+					.setText(DECIMAL_FORMAT.format(mClient.getModel().stocks[selectedStockIndex].value));
 
 		}
 	}
@@ -616,7 +616,7 @@ public class ActivityMain extends Activity implements IClientListener {
 		private Stock[] stocks;
 
 		public StockAdapter() {
-			stocks = mClient.getModel().stockList;
+			stocks = mClient.getModel().stocks;
 		}
 
 		@Override

@@ -15,15 +15,15 @@ public class CompStocks extends DisplayComp {
 		super.paint(g);
 
 		double maxPrice = 0;
-		for (int s = 0; s < this.model.stockList.length; s++)
-			if (maxPrice < this.model.stockList[s].value)
-				maxPrice = this.model.stockList[s].value;
+		for (int s = 0; s < this.model.stocks.length; s++)
+			if (maxPrice < this.model.stocks[s].value)
+				maxPrice = this.model.stocks[s].value;
 		maxPrice *= 1.1;
 
-		for (int s = 0; s < this.model.stockList.length; s++) {
-			int x = this.getWidth() * s / this.model.stockList.length;
-			int w = this.getWidth() / this.model.stockList.length / 2;
-			int h = (int) (this.getHeight() * this.model.stockList[s].value / maxPrice);
+		for (int s = 0; s < this.model.stocks.length; s++) {
+			int x = this.getWidth() * s / this.model.stocks.length;
+			int w = this.getWidth() / this.model.stocks.length / 2;
+			int h = (int) (this.getHeight() * this.model.stocks[s].value / maxPrice);
 
 			g.setColor(new Color(0.5F, 0.75F, 1F));
 			g.fillRect(x, this.getHeight() - h, w, h);
@@ -31,11 +31,11 @@ public class CompStocks extends DisplayComp {
 			g.setColor(Color.black);
 			g.drawRect(x, this.getHeight() - h, w, h);
 
-			drawStringCentered(this.model.stockList[s].name, x + w / 2,
+			drawStringCentered(this.model.stocks[s].name, x + w / 2,
 					this.getHeight() - h - g.getFontMetrics().getHeight(), g);
 			drawStringCentered(
 					ServerDisplay.DECIMAL_FORMAT
-							.format(this.model.stockList[s].value),
+							.format(this.model.stocks[s].value),
 					x + w / 2, this.getHeight() - h, g);
 		}
 

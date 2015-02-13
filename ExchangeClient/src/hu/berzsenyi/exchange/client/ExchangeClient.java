@@ -200,7 +200,7 @@ public class ExchangeClient implements ICmdHandler, IClientConnectionListener {
 
 		if (cmd instanceof CmdServerStocks) {
 			CmdServerStocks stockInfo = (CmdServerStocks) cmd;
-			model.stockList = stockInfo.stockList;
+			model.stocks = stockInfo.stockList;
 			for (IClientListener listener : mListeners)
 				listener.onStocksCommand(this);
 			return;

@@ -17,7 +17,7 @@ public class CmdServerStocks extends TCPCommand {
 	
 	public CmdServerStocks(Model model) {
 		super(ID, model.getStockCmdLength());
-		this.stockList = model.stockList;
+		this.stockList = model.stocks;
 	}
 	
 	@Override
