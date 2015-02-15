@@ -48,13 +48,13 @@ public class ActivityMain extends Activity implements IClientListener {
 
 	protected static final String TAG_OVERVIEW = "overview",
 			TAG_STOCKS = "stocks", TAG_OFFER = "offer",
-			TAG_INCOMING = "incoming";
+			TAG_OUTGOING = "outgoing";
 
 	private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat(
 			"#0.00");
 
 	private TabHost tabHost;
-	private TabSpec tabMain, tabStocks, tabOffer, tabIncoming;
+	private TabSpec tabMain, tabStocks, tabOffer, tabOutgoing;
 
 	private ListView tabStocks_listStocks;
 
@@ -64,8 +64,6 @@ public class ActivityMain extends Activity implements IClientListener {
 	private TextView tabOffer_textAmount;
 	private EditText tabOffer_editTextUnitPrice;
 	private RadioGroup tabOffer_radioGroup;
-
-	private ListView tabAccept_listOffers;
 
 	private List<Integer> tabOffer_spinnerPosition2StockIndex,
 			tabOffer_spinnerPosition2TeamIndex;
@@ -105,9 +103,9 @@ public class ActivityMain extends Activity implements IClientListener {
 		this.tabOffer.setContent(R.id.tabOffer);
 		this.tabOffer.setIndicator(this.getString(R.string.offer));
 
-		this.tabIncoming = this.tabHost.newTabSpec(TAG_INCOMING);
-		this.tabIncoming.setContent(R.id.tabAccept);
-		this.tabIncoming.setIndicator(this.getString(R.string.incoming));
+		this.tabOutgoing = this.tabHost.newTabSpec(TAG_OUTGOING);
+		this.tabOutgoing.setContent(R.id.tabOutgoing);
+		this.tabOutgoing.setIndicator(this.getString(R.string.outgoing));
 
 		this.tabStocks_listStocks = (ListView) this
 				.findViewById(R.id.tabStocks_listStocks);
@@ -214,22 +212,22 @@ public class ActivityMain extends Activity implements IClientListener {
 					}
 				});
 
-//		this.tabAccept_listOffers = (ListView) this
-//				.findViewById(R.id.tabAccept_listOffers);
-//		this.tabAccept_listOffers.setAdapter(new OfferAdapter());
-//		this.tabAccept_listOffers
-//				.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-//					@Override
-//					public void onItemClick(AdapterView<?> parent, View view,
-//							int position, long id) {
-//						onClickOffer(position);
-//					}
-//				});
+		// this.tabAccept_listOffers = (ListView) this
+		// .findViewById(R.id.tabAccept_listOffers);
+		// this.tabAccept_listOffers.setAdapter(new OfferAdapter());
+		// this.tabAccept_listOffers
+		// .setOnItemClickListener(new AdapterView.OnItemClickListener() {
+		// @Override
+		// public void onItemClick(AdapterView<?> parent, View view,
+		// int position, long id) {
+		// onClickOffer(position);
+		// }
+		// });
 
 		this.tabHost.addTab(this.tabMain);
 		this.tabHost.addTab(this.tabStocks);
 		this.tabHost.addTab(this.tabOffer);
-		this.tabHost.addTab(this.tabIncoming);
+		this.tabHost.addTab(this.tabOutgoing);
 
 		// TODO Unregister listener
 		this.mClient.addIClientListener(this);
@@ -285,45 +283,45 @@ public class ActivityMain extends Activity implements IClientListener {
 	public void onConnect(TCPClient client) {
 	}
 
-//	@Override
-//	public void onOfferAccepted(final CmdOfferResponse offer) {
-//		runOnUiThread(new Runnable() {
-//			@Override
-//			public void run() {
-//				/*
-//				 * Toast.makeText( ActivityMain.this, "you " + (offer.money < 0
-//				 * ? "bought " : "sold ") + Math.abs(offer.amount) + " " +
-//				 * ActivityMain
-//				 * .this.mClient.getModel().stockList[offer.stockID].name + " "
-//				 * + (offer.money < 0 ? "from " : "to ") +
-//				 * ActivityMain.this.mClient.getModel()
-//				 * .getTeamById(offer.teamID).name, Toast.LENGTH_LONG).show();
-//				 * // TODO
-//				 */
-//				Formatter formatter = new Formatter();
-//				Toast.makeText(
-//						ActivityMain.this,
-//						formatter
-//								.format(ActivityMain.this
-//										.getString(R.string.offer_toast),
-//										offer.money < 0 ? ActivityMain.this
-//												.getString(R.string.offer_toast_buy1)
-//												: ActivityMain.this
-//														.getString(R.string.offer_toast_sell1),
-//										offer.money < 0 ? ActivityMain.this
-//												.getString(R.string.offer_toast_buy2)
-//												: ActivityMain.this
-//														.getString(R.string.offer_toast_sell2),
-//										DECIMAL_FORMAT.format(Math
-//												.abs(offer.amount)),
-//										ActivityMain.this.mClient.getModel().stockList[offer.stockID].name,
-//										ActivityMain.this.mClient.getModel()
-//												.getTeamById(offer.teamID).name)
-//								.toString(), Toast.LENGTH_LONG).show();
-//				formatter.close();
-//			}
-//		});
-//	}
+	// @Override
+	// public void onOfferAccepted(final CmdOfferResponse offer) {
+	// runOnUiThread(new Runnable() {
+	// @Override
+	// public void run() {
+	// /*
+	// * Toast.makeText( ActivityMain.this, "you " + (offer.money < 0
+	// * ? "bought " : "sold ") + Math.abs(offer.amount) + " " +
+	// * ActivityMain
+	// * .this.mClient.getModel().stockList[offer.stockID].name + " "
+	// * + (offer.money < 0 ? "from " : "to ") +
+	// * ActivityMain.this.mClient.getModel()
+	// * .getTeamById(offer.teamID).name, Toast.LENGTH_LONG).show();
+	// * // TODO
+	// */
+	// Formatter formatter = new Formatter();
+	// Toast.makeText(
+	// ActivityMain.this,
+	// formatter
+	// .format(ActivityMain.this
+	// .getString(R.string.offer_toast),
+	// offer.money < 0 ? ActivityMain.this
+	// .getString(R.string.offer_toast_buy1)
+	// : ActivityMain.this
+	// .getString(R.string.offer_toast_sell1),
+	// offer.money < 0 ? ActivityMain.this
+	// .getString(R.string.offer_toast_buy2)
+	// : ActivityMain.this
+	// .getString(R.string.offer_toast_sell2),
+	// DECIMAL_FORMAT.format(Math
+	// .abs(offer.amount)),
+	// ActivityMain.this.mClient.getModel().stockList[offer.stockID].name,
+	// ActivityMain.this.mClient.getModel()
+	// .getTeamById(offer.teamID).name)
+	// .toString(), Toast.LENGTH_LONG).show();
+	// formatter.close();
+	// }
+	// });
+	// }
 
 	@Override
 	public void onErrorCommand(CmdServerError error) {
@@ -343,72 +341,6 @@ public class ActivityMain extends Activity implements IClientListener {
 		return;
 	}
 
-//	public void onClickButtonOffer() {
-//		NumberFormat format = NumberFormat.getInstance(Locale.getDefault());
-//		double price;
-//		try {
-//			price = format.parse(
-//					tabOffer_editTextUnitPrice.getText().toString())
-//					.doubleValue();
-//
-//			if (price <= 0)
-//				new AlertDialog.Builder(this)
-//						.setMessage(R.string.price_must_be_positive)
-//						.setPositiveButton(R.string.ok, null).create().show();
-//			this.mClient
-//					.offer(this.mClient.getModel().teams
-//							.get(this.tabOffer_spinnerPosition2TeamIndex
-//									.get(this.tabOffer_listTeams
-//											.getSelectedItemPosition())).id,
-//							this.tabOffer_spinnerPosition2StockIndex
-//									.get(this.tabOffer_listStocks
-//											.getSelectedItemPosition()),
-//							tabOffer_seekBarAmount.getProgress() + 1,
-//							price,
-//							this.tabOffer_radioGroup.getCheckedRadioButtonId() == R.id.tabOffer_radioSell);
-//		} catch (ParseException e) {
-//			e.printStackTrace();
-//			Toast.makeText(this, R.string.bad_number_format, Toast.LENGTH_SHORT)
-//					.show();
-//
-//		}
-//	}
-
-//	public void acceptOffer(int pos) {
-//		this.mClient.acceptOffer(pos);
-//		((BaseAdapter) this.tabAccept_listOffers.getAdapter())
-//				.notifyDataSetChanged();
-//		this.tabAccept_listOffers.invalidate();
-//	}
-//
-//	public void denyOffer(int pos) {
-//		this.mClient.denyOffer(pos);
-//		((BaseAdapter) this.tabAccept_listOffers.getAdapter())
-//				.notifyDataSetChanged();
-//		this.tabAccept_listOffers.invalidate();
-//	}
-
-//	public void onClickOffer(final int offer) {
-//		new AlertDialog.Builder(this)
-//				.setMessage(mOfferFormatter.toString(mClient.getOffer(offer)))
-//				.setPositiveButton(R.string.yes,
-//						new DialogInterface.OnClickListener() {
-//							@Override
-//							public void onClick(DialogInterface dialog,
-//									int which) {
-//								acceptOffer(offer);
-//							}
-//						})
-//				.setNegativeButton(R.string.no,
-//						new DialogInterface.OnClickListener() {
-//							@Override
-//							public void onClick(DialogInterface dialog,
-//									int which) {
-//								denyOffer(offer);
-//							}
-//						}).show();
-//	}
-
 	private void refreshTeamList() {
 		this.tabOffer_spinnerPosition2TeamIndex = new ArrayList<Integer>();
 		List<String> nameList = new ArrayList<String>();
@@ -419,7 +351,7 @@ public class ActivityMain extends Activity implements IClientListener {
 			}
 
 	}
-	
+
 	private void sendOffer() {
 		// TODO
 	}
@@ -558,19 +490,6 @@ public class ActivityMain extends Activity implements IClientListener {
 	}
 
 	@Override
-	public void onOfferIn(ExchangeClient client, CmdClientOffer offer) {
-		this.runOnUiThread(new Runnable() {
-			public void run() {
-				Toast.makeText(ActivityMain.this, R.string.new_offer,
-						Toast.LENGTH_LONG).show();
-				ActivityMain.this.tabAccept_listOffers
-						.setAdapter(ActivityMain.this.tabAccept_listOffers
-								.getAdapter());
-			}
-		});
-	}
-
-	@Override
 	public void onRoundCommand(ExchangeClient client) {
 		this.runOnUiThread(new Runnable() {
 			public void run() {
@@ -676,47 +595,32 @@ public class ActivityMain extends Activity implements IClientListener {
 
 	}
 
-//	private class OfferAdapter extends BaseAdapter {
-//
-//		@Override
-//		public int getCount() {
-//			return mClient.offersIn.size();
-//		}
-//
-//		@Override
-//		public Object getItem(int position) {
-//			return mClient.offersIn.get(position);
-//		}
-//
-//		@Override
-//		public long getItemId(int position) {
-//			return 0;
-//		}
-//
-//		@Override
-//		public View getView(int position, View convertView, ViewGroup parent) {
-//			View out;
-//			if (convertView != null)
-//				out = convertView;
-//			else {
-//				out = getLayoutInflater().inflate(
-//						R.layout.activity_main_tab_incoming_list_item, parent,
-//						false);
-//			}
-//			CmdClientOffer offer = (CmdClientOffer) getItem(position);
-//			((TextView) out.findViewById(R.id.tabIncoming_offerType))
-//					.setText(offer.amount > 0 ? R.string.stocks_for_buying
-//							: R.string.stocks_for_sail);
-//			((TextView) out.findViewById(R.id.tabIncoming_offerName))
-//					.setText(mClient.getModel().stockList[offer.stockID].name);
-//			((TextView) out.findViewById(R.id.tabIncoming_offerValue))
-//					.setText(DECIMAL_FORMAT.format(Math.abs(offer.money)));
-//			((TextView) out.findViewById(R.id.tabIncoming_offerAmount))
-//					.setText(Math.abs(offer.amount) + "");
-//			((TextView) out.findViewById(R.id.tabIncoming_offerSender))
-//					.setText(mClient.getModel().getTeamById(offer.teamID).name);
-//			return out;
-//		}
-//	}
+	private class OutgoingAdapter extends BaseAdapter {
+
+		@Override
+		public int getCount() {
+			// TODO Auto-generated method stub
+			return 0;
+		}
+
+		@Override
+		public Object getItem(int position) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public long getItemId(int position) {
+			// TODO Auto-generated method stub
+			return 0;
+		}
+
+		@Override
+		public View getView(int position, View convertView, ViewGroup parent) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+		
+	}
 
 }

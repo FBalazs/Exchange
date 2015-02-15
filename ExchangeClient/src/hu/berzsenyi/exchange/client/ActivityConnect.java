@@ -86,10 +86,6 @@ public class ActivityConnect extends Activity {
 			}
 
 			@Override
-			public void onOfferIn(ExchangeClient client, CmdClientOffer offer) {
-			}
-
-			@Override
 			public void onRoundCommand(ExchangeClient client) {
 			}
 

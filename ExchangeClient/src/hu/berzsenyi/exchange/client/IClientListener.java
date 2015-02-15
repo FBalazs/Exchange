@@ -11,8 +11,6 @@ public interface IClientListener extends IClientConnectionListener {
 	
 	public void onTeamsCommand(ExchangeClient client);
 	
-	public void onOfferIn(ExchangeClient client, CmdClientOffer offer);
-	
 	public void onRoundCommand(ExchangeClient client);
 	
 	public void onMoneyChanged(Team ownTeam);

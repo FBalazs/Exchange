@@ -34,7 +34,6 @@ public class ExchangeClient implements ICmdHandler, IClientConnectionListener {
 	private boolean connected = false;
 	private String name, password;
 	private Model model;
-	public List<CmdClientOffer> offersIn;
 	private List<IClientListener> mListeners;
 	private Team ownTeam;
 
@@ -46,7 +45,6 @@ public class ExchangeClient implements ICmdHandler, IClientConnectionListener {
 		client = null;
 		name = password = null;
 		model = new Model();
-		offersIn = new ArrayList<CmdClientOffer>();
 		mListeners = new ArrayList<IClientListener>();
 		ownTeam = null;
 	}
@@ -100,10 +98,6 @@ public class ExchangeClient implements ICmdHandler, IClientConnectionListener {
 		return model;
 	}
 
-	public CmdClientOffer getOffer(int index) {
-		return offersIn.get(index);
-	}
-
 	public Team getOwnTeam() {
 		return ownTeam;
 	}
@@ -122,10 +116,6 @@ public class ExchangeClient implements ICmdHandler, IClientConnectionListener {
 //				offer.amount, offer.money));
 //		offersIn.remove(index);
 //	}
-
-	public void denyOffer(int index) {
-		offersIn.remove(index);
-	}
 
 	public boolean doBuy(int[] amounts) {
 		if (getModel().round != 0)
@@ -208,17 +198,8 @@ public class ExchangeClient implements ICmdHandler, IClientConnectionListener {
 
 	
 
-		if (cmd instanceof CmdClientOffer) {
-			CmdClientOffer offer = (CmdClientOffer) cmd;
-			this.offersIn.add(offer);
-			for (IClientListener listener : mListeners)
-				listener.onOfferIn(this, offer);
-			return;
-		}
-
 		if (cmd instanceof CmdServerEvent) {
 			CmdServerEvent cmdNextRound = (CmdServerEvent)cmd;
-			this.offersIn.clear();
 			this.model.round++;
 			this.model.nextRound(cmdNextRound.eventDesc, cmdNextRound.multipliers);
 			for (IClientListener listener : mListeners)

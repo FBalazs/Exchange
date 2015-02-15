@@ -42,8 +42,8 @@
                     android:id="@+id/tabOffer"
                     layout="@layout/activity_main_tab_offer" />
                 <include
-                    android:id="@+id/tabAccept"
-                    layout="@layout/activity_main_tab_incoming" />
+                    android:id="@+id/tabOutgoing"
+                    layout="@layout/activity_main_tab_outgoing" />
             </FrameLayout>
         </LinearLayout>
     </TabHost>
