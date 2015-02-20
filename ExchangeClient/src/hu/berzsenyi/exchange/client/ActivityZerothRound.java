@@ -3,7 +3,6 @@ package hu.berzsenyi.exchange.client;
 import hu.berzsenyi.exchange.Stock;
 import hu.berzsenyi.exchange.Team;
 import hu.berzsenyi.exchange.net.TCPClient;
-import hu.berzsenyi.exchange.net.cmd.CmdClientOffer;
 import hu.berzsenyi.exchange.net.cmd.CmdServerError;
 
 import java.io.IOException;
@@ -191,7 +190,7 @@ public class ActivityZerothRound extends Activity {
 						boolean fromUser) {
 					if (!fromUser)
 						return;
-					((TextView) out.findViewById(R.id.stock_amount_label))
+					((TextView) out.findViewById(R.id.stock_amount_value))
 							.setText(progress + "");
 					mAmounts[position] = progress;
 
@@ -206,7 +205,7 @@ public class ActivityZerothRound extends Activity {
 				}
 			});
 
-			((TextView) out.findViewById(R.id.stock_amount_label))
+			((TextView) out.findViewById(R.id.stock_amount_value))
 					.setText(amount.getProgress() + "");
 
 			return out;
