@@ -2,7 +2,6 @@ package hu.berzsenyi.exchange.client;
 
 import hu.berzsenyi.exchange.Team;
 import hu.berzsenyi.exchange.net.TCPClient;
-import hu.berzsenyi.exchange.net.cmd.CmdClientOffer;
 import hu.berzsenyi.exchange.net.cmd.CmdServerError;
 
 import java.io.IOException;
@@ -36,14 +35,14 @@ public class ActivityConnect extends Activity {
 		mDialog = ProgressDialog.show(this, null,
 				getString(R.string.connecting), true, false);
 
-		mClient.setName(this.editTextName.getText().toString());
-		mClient.setPassword(this.editTextPass.getText().toString());
+		mClient.setName(editTextName.getText().toString());
+		mClient.setPassword(editTextPass.getText().toString());
 		// TODO Unregister listener
 		mClient.addIClientListener(new IClientListener() {
 
 			@Override
 			public void onConnectionFail(TCPClient client, IOException exception) {
-				ActivityConnect.this.mClient.removeIClientListener(this);
+				mClient.removeIClientListener(this);
 				runOnUiThread(new Runnable() {
 
 					@Override
@@ -120,7 +119,6 @@ public class ActivityConnect extends Activity {
 					runOnUiThread(new Runnable() {
 						@Override
 						public void run() {
-							Log.d("Bence", "AAAA");
 							Toast.makeText(
 									ActivityConnect.this
 											.getApplicationContext(),
@@ -133,9 +131,13 @@ public class ActivityConnect extends Activity {
 				}
 			}
 
+			@Override
+			public void onOutgoingOffersChanged() {
+			}
+
 		});
-		mClient.connect(this.editTextIP.getText().toString(),
-				Integer.parseInt(this.editTextPort.getText().toString()));
+		mClient.connect(editTextIP.getText().toString(),
+				Integer.parseInt(editTextPort.getText().toString()));
 	}
 
 	@Override
@@ -144,17 +146,17 @@ public class ActivityConnect extends Activity {
 		super.onCreate(savedInstance);
 		this.setContentView(R.layout.activity_connect);
 
-		this.editTextName = (EditText) this.findViewById(R.id.editTextName);
-		this.editTextPass = (EditText) this.findViewById(R.id.editTextPass);
-		this.editTextIP = (EditText) this.findViewById(R.id.editTextIP);
-		this.editTextPort = (EditText) this.findViewById(R.id.editTextPort);
+		editTextName = (EditText) findViewById(R.id.editTextName);
+		editTextPass = (EditText) findViewById(R.id.editTextPass);
+		editTextIP = (EditText) findViewById(R.id.editTextIP);
+		editTextPort = (EditText) findViewById(R.id.editTextPort);
 
-		this.editTextName.setText(DEFAULT_NAME);
-		this.editTextIP.setText(DEFAULT_IP);
-		this.editTextPort.setText(DEFAULT_PORT);
+		editTextName.setText(DEFAULT_NAME);
+		editTextIP.setText(DEFAULT_IP);
+		editTextPort.setText(DEFAULT_PORT);
 
-		this.btnConnect = (Button) this.findViewById(R.id.buttonConnect);
-		this.btnConnect.setOnClickListener(new View.OnClickListener() {
+		btnConnect = (Button) findViewById(R.id.buttonConnect);
+		btnConnect.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				onClickConnect();

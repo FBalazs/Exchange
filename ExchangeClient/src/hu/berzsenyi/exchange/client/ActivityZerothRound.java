@@ -6,6 +6,7 @@ import hu.berzsenyi.exchange.net.TCPClient;
 import hu.berzsenyi.exchange.net.cmd.CmdServerError;
 
 import java.io.IOException;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -101,6 +102,11 @@ public class ActivityZerothRound extends Activity {
 			public void onErrorCommand(CmdServerError error) {
 			}
 
+			@Override
+			public void onOutgoingOffersChanged() {
+
+			}
+
 		});
 		if (!mClient.isConnected())
 			finish();
@@ -126,7 +132,7 @@ public class ActivityZerothRound extends Activity {
 	private void onDoneButtonClick() {
 		if (!checkEditTexts())
 			return;
-		if (mClient.doBuy(this.mAmounts)) { // OK
+		if (mClient.doBuy(mAmounts)) { // OK
 			setResult(Activity.RESULT_OK);
 			// ((Button)
 			// findViewById(R.id.activity_zeroth_round_done)).setEnabled(false);
@@ -169,8 +175,8 @@ public class ActivityZerothRound extends Activity {
 	private class StockAdapter extends BaseAdapter {
 
 		public StockAdapter(Stock[] stocks) {
-			ActivityZerothRound.this.mStocks = stocks == null ? new Stock[0]
-					: stocks; // stocks can be null!
+			mStocks = stocks == null ? new Stock[0] : stocks; // stocks can be
+																// null!
 			mAmounts = new int[mStocks.length];
 			mEditTextValues = new int[mStocks.length];
 			mMaxes = new int[mStocks.length];
@@ -205,7 +211,8 @@ public class ActivityZerothRound extends Activity {
 			Stock stock = (Stock) getItem(position);
 			((TextView) out.findViewById(R.id.stock_name)).setText(stock.name);
 			((TextView) out.findViewById(R.id.stock_value))
-					.setText(getString(R.string.unit_price) + ActivityMain.DECIMAL_FORMAT.format(stock.value));
+					.setText(getString(R.string.unit_price)
+							+ ActivityMain.DECIMAL_FORMAT.format(stock.value));
 
 			// Android may call SeekBar.setProgress(SeekBar.getMax()) on amount,
 			// causing mAmounts to be modified. So first save mAmounts[position]
@@ -278,9 +285,9 @@ public class ActivityZerothRound extends Activity {
 		}
 
 		public void updateStocks(Stock[] stocks) {
-			ActivityZerothRound.this.mStocks = stocks == null ? new Stock[0]
-					: stocks; // stocks can be null!
-			mAmounts = new int[ActivityZerothRound.this.mStocks.length];
+			mStocks = stocks == null ? new Stock[0] : stocks; // stocks can be
+																// null!
+			mAmounts = new int[mStocks.length];
 			runOnUiThread(new Runnable() {
 				@Override
 				public void run() {

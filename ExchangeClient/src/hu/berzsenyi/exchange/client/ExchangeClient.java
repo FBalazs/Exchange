@@ -30,23 +30,24 @@ public class ExchangeClient implements ICmdHandler, IClientConnectionListener {
 
 	private static final ExchangeClient INSTANCE = new ExchangeClient();
 
-	private TCPClient client;
-	private boolean connected = false;
-	private String name, password;
-	private Model model;
+	private TCPClient mClient;
+	private boolean mConnected = false;
+	private String mName, mPassword;
+	private Model mModel;
 	private List<IClientListener> mListeners;
-	private Team ownTeam;
+	private Team mOwnTeam;
+	private ArrayList<CmdClientOffer> mOutgoingOffers = new ArrayList<CmdClientOffer>();
 
 	private ExchangeClient() {
 		init();
 	}
 
 	private void init() {
-		client = null;
-		name = password = null;
-		model = new Model();
+		mClient = null;
+		mName = mPassword = null;
+		mModel = new Model();
 		mListeners = new ArrayList<IClientListener>();
-		ownTeam = null;
+		mOwnTeam = null;
 	}
 
 	public static ExchangeClient getInstance() {
@@ -64,17 +65,17 @@ public class ExchangeClient implements ICmdHandler, IClientConnectionListener {
 	}
 
 	public void disconnect() {
-		if (client != null) {
-			client.writeCommand(new CmdClientDisconnect());
-			if (client != null) {
-				client.close();
-				client = null;
+		if (mClient != null) {
+			mClient.writeCommand(new CmdClientDisconnect());
+			if (mClient != null) {
+				mClient.close();
+				mClient = null;
 			}
 		}
 	}
 
 	public String getName() {
-		return name;
+		return mName;
 	}
 
 	/**
@@ -87,23 +88,23 @@ public class ExchangeClient implements ICmdHandler, IClientConnectionListener {
 		if (isConnected())
 			throw new IllegalStateException(
 					"Name can be only set when ExchangeClient is disconnected");
-		this.name = name;
+		mName = name;
 	}
 
 	public void setPassword(String password) {
-		this.password = password;
+		mPassword = password;
 	}
 
 	public Model getModel() {
-		return model;
+		return mModel;
 	}
 
 	public Team getOwnTeam() {
-		return ownTeam;
+		return mOwnTeam;
 	}
 
 	public boolean isConnected() {
-		return connected;
+		return mConnected;
 	}
 
 	public boolean doBuy(int[] amounts) {
@@ -115,14 +116,23 @@ public class ExchangeClient implements ICmdHandler, IClientConnectionListener {
 		if (calculated < 0)
 			return false;
 
-		ownTeam.setStocks(amounts);
-		ownTeam.setMoney(calculated);
-		client.writeCommand(new CmdClientBuy(amounts));
+		mOwnTeam.setStocks(amounts);
+		mOwnTeam.setMoney(calculated);
+		mClient.writeCommand(new CmdClientBuy(amounts));
 		return true;
 	}
 
 	public void sendOffer(int stockID, int amount, double price, boolean sell) {
-		client.writeCommand(new CmdClientOffer(stockID, amount, price, sell));
+		CmdClientOffer offer = new CmdClientOffer(stockID, amount, price, sell);
+		mClient.writeCommand(offer);
+		mOutgoingOffers.add(offer);
+		for(IClientListener listener : mListeners)
+			listener.onOutgoingOffersChanged();
+	}
+
+	public CmdClientOffer[] getOutgoingOffers() {
+		return mOutgoingOffers.toArray(new CmdClientOffer[mOutgoingOffers
+		                                                  .size()]);
 	}
 
 	public void addIClientListener(IClientListener listener) {
@@ -135,14 +145,14 @@ public class ExchangeClient implements ICmdHandler, IClientConnectionListener {
 
 	@Override
 	public void onConnect(TCPClient client) {
-		connected = true;
+		mConnected = true;
 		for (IClientListener listener : mListeners)
 			listener.onConnect(client);
 	}
 
 	@Override
 	public void onClose(TCPClient client) {
-		connected = false;
+		mConnected = false;
 		for (IClientListener listener : mListeners)
 			listener.onClose(client);
 		init();
@@ -161,8 +171,8 @@ public class ExchangeClient implements ICmdHandler, IClientConnectionListener {
 
 		if (cmd instanceof CmdServerInfo) {
 			CmdServerInfo info = (CmdServerInfo) cmd;
-			this.ownTeam = new Team(info.clientID, this.name, this.password);
-			this.ownTeam.setOnChangeListener(new Team.OnChangeListener() {
+			mOwnTeam = new Team(info.clientID, mName, mPassword);
+			mOwnTeam.setOnChangeListener(new Team.OnChangeListener() {
 
 				@Override
 				public void onStocksChanged(Team team, int position) {
@@ -176,13 +186,13 @@ public class ExchangeClient implements ICmdHandler, IClientConnectionListener {
 						listener.onMoneyChanged(team);
 				}
 			});
-			this.ownTeam.setMoney(this.model.startMoney = info.startMoney);
+			mOwnTeam.setMoney(mModel.startMoney = info.startMoney);
 			return;
 		}
 
 		if (cmd instanceof CmdServerStocks) {
 			CmdServerStocks stockInfo = (CmdServerStocks) cmd;
-			model.stocks = stockInfo.stockList;
+			mModel.stocks = stockInfo.stockList;
 			for (IClientListener listener : mListeners)
 				listener.onStocksCommand(this);
 			return;
@@ -190,9 +200,8 @@ public class ExchangeClient implements ICmdHandler, IClientConnectionListener {
 
 		if (cmd instanceof CmdServerEvent) {
 			CmdServerEvent cmdNextRound = (CmdServerEvent) cmd;
-			this.model.round++;
-			this.model.nextRound(cmdNextRound.eventDesc,
-					cmdNextRound.multipliers);
+			mModel.round++;
+			mModel.nextRound(cmdNextRound.eventDesc, cmdNextRound.multipliers);
 			for (IClientListener listener : mListeners)
 				listener.onRoundCommand(this);
 			return;
@@ -235,14 +244,14 @@ public class ExchangeClient implements ICmdHandler, IClientConnectionListener {
 		public void run() {
 			Log.d(this.getClass().getName(), "run()");
 			try {
-				client = new TCPClient(ip, port, ExchangeClient.this,
+				mClient = new TCPClient(ip, port, ExchangeClient.this,
 						ExchangeClient.this);
 				Log.d(this.getClass().getName(), "success");
 			} catch (IOException e) {
 				e.printStackTrace();
 				return;
 			}
-			client.writeCommand(new CmdClientInfo(name, password));
+			mClient.writeCommand(new CmdClientInfo(mName, mPassword));
 		}
 	}
 

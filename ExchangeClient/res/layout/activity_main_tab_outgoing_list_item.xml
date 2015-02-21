@@ -14,15 +14,13 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
-        android:text="Eladásra"
         android:textStyle="bold" />
 
     <TextView
         android:id="@+id/tabOutgoing_stock"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/tabOutgoing_type"
-        android:text="Apple Inc" />
+        android:layout_below="@id/tabOutgoing_type" />
 
     <TextView
         android:id="@+id/tabOutgoing_amount"
@@ -30,8 +28,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:layout_below="@id/tabOutgoing_stock"
-        android:text="+20" />
+        android:layout_below="@id/tabOutgoing_stock" />
 
     <TextView
         android:id="@+id/tabOutgoing_unitPrice"
@@ -39,7 +36,6 @@
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:layout_below="@id/tabOutgoing_amount"
-        android:text="120.21" />
+        android:layout_below="@id/tabOutgoing_amount" />
 
 </RelativeLayout>
