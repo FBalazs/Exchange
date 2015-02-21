@@ -34,7 +34,6 @@
     <string name="not_enough_money_or_stock">Nincs elég pénz vagy részvény a csere végrehajtásához</string>
     <string name="exit_question">Biztosan kilépsz?</string>
     <string name="exit_message">Később nem tudsz visszajönni!</string>
-    <string name="offer_toast">%1$s %3$s db \'%4$s\' részvényt. %2$s csapat: %5$s</string>
     <string name="offer_toast_buy1">Megvettél</string>
     <string name="offer_toast_buy2">Küldő</string>
     <string name="offer_toast_sell1">Eladtál</string>
@@ -42,7 +41,9 @@
     <string name="new_round">Új kör!</string>
     <string name="bad_number_format">Nem felismerhető a szám, amit beírtál!</string>
     <string name="new_offer">Új ajánlat érkezett!</string>
-    <string name="stocks_for_sail">Eladó részvény</string>
+    <string name="stocks_for_sale">Eladó részvény</string>
     <string name="stocks_for_buying">Vételre kínált részvény</string>
+    <string name="zeroth_round_bad_number_format">Hibás számformátum ennél a részvénynél: \'%s\'</string>
+    <string name="zeroth_round_cannot_buy_as_many_stocks">Maximum %1$d részvényt tudsz venni ebből: \'%2$s\'</string>
 
 </resources>

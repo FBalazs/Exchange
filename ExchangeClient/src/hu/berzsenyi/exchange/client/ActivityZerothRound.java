@@ -6,19 +6,21 @@ import hu.berzsenyi.exchange.net.TCPClient;
 import hu.berzsenyi.exchange.net.cmd.CmdServerError;
 
 import java.io.IOException;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
@@ -33,7 +35,9 @@ public class ActivityZerothRound extends Activity {
 	private ProgressDialog mProgressDialog;
 
 	private int[] mAmounts;
+	private int[] mEditTextValues;
 	private Stock[] mStocks;
+	private int[] mMaxes;
 
 	private int COLOR_ILLEGAL = Color.RED;
 	private ColorStateList colorDefault;
@@ -120,6 +124,8 @@ public class ActivityZerothRound extends Activity {
 	}
 
 	private void onDoneButtonClick() {
+		if (!checkEditTexts())
+			return;
 		if (mClient.doBuy(this.mAmounts)) { // OK
 			setResult(Activity.RESULT_OK);
 			// ((Button)
@@ -134,12 +140,41 @@ public class ActivityZerothRound extends Activity {
 		}
 	}
 
+	private boolean checkEditTexts() {
+		for (int i = 0; i < mAmounts.length; i++) {
+			if (mAmounts[i] != mEditTextValues[i]) {
+				AlertDialog.Builder builder = new AlertDialog.Builder(this);
+				builder.setPositiveButton(R.string.ok, null);
+				if (mEditTextValues[i] == -1) {
+					builder.setMessage(String.format(
+							getString(R.string.zeroth_round_bad_number_format),
+							mStocks[i].name).toString());
+				} else {
+					builder.setMessage(String
+							.format(getString(R.string.zeroth_round_cannot_buy_as_many_stocks),
+									mMaxes[i], mStocks[i].name).toString());
+				}
+				builder.create().show();
+				return false;
+			}
+		}
+		return true;
+	}
+
+	private void calculateMaxes() {
+		for (int i = 0; i < mStocks.length; i++)
+			mMaxes[i] = (int) (mClient.getModel().startMoney / mStocks[i].value);
+	}
+
 	private class StockAdapter extends BaseAdapter {
 
 		public StockAdapter(Stock[] stocks) {
 			ActivityZerothRound.this.mStocks = stocks == null ? new Stock[0]
 					: stocks; // stocks can be null!
-			mAmounts = new int[ActivityZerothRound.this.mStocks.length];
+			mAmounts = new int[mStocks.length];
+			mEditTextValues = new int[mStocks.length];
+			mMaxes = new int[mStocks.length];
+			calculateMaxes();
 		}
 
 		@Override
@@ -171,10 +206,15 @@ public class ActivityZerothRound extends Activity {
 			((TextView) out.findViewById(R.id.stock_name)).setText(stock.name);
 			((TextView) out.findViewById(R.id.stock_value))
 					.setText(getString(R.string.unit_price) + stock.value);
-			SeekBar amount = (SeekBar) out
+
+			// Android may call SeekBar.setProgress(SeekBar.getMax()) on amount,
+			// causing mAmounts to be modified. So first save mAmounts[position]
+			// and then load it back, using setProgress(currentAmount)
+			int currentAmount = mAmounts[position];
+
+			final SeekBar amount = (SeekBar) out
 					.findViewById(R.id.stock_amount_seekbar);
-			amount.setMax((int) (mClient.getModel().startMoney / stock.value));
-			amount.setProgress(mAmounts[position]);
+			amount.setMax(mMaxes[position]);
 			amount.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
 
 				@Override
@@ -188,10 +228,10 @@ public class ActivityZerothRound extends Activity {
 				@Override
 				public void onProgressChanged(SeekBar seekBar, int progress,
 						boolean fromUser) {
-					if (!fromUser)
-						return;
-					((TextView) out.findViewById(R.id.stock_amount_value))
-							.setText(progress + "");
+					if (fromUser) {
+						((TextView) out.findViewById(R.id.stock_amount_value))
+								.setText(progress + "");
+					}
 					mAmounts[position] = progress;
 
 					double currentMoney = mClient.getModel()
@@ -204,9 +244,35 @@ public class ActivityZerothRound extends Activity {
 					tv.setText(currentMoney + "");
 				}
 			});
+			amount.setProgress(currentAmount);
 
-			((TextView) out.findViewById(R.id.stock_amount_value))
-					.setText(amount.getProgress() + "");
+			EditText value = ((EditText) out
+					.findViewById(R.id.stock_amount_value));
+			value.setText(amount.getProgress() + "");
+			value.addTextChangedListener(new TextWatcher() {
+
+				@Override
+				public void onTextChanged(CharSequence s, int start,
+						int before, int count) {
+					try {
+						int value = Integer.parseInt(s.toString());
+						amount.setProgress(value);
+						mEditTextValues[position] = value;
+					} catch (NumberFormatException e) {
+						amount.setProgress(0);
+						mEditTextValues[position] = -1;
+					}
+				}
+
+				@Override
+				public void beforeTextChanged(CharSequence s, int start,
+						int count, int after) {
+				}
+
+				@Override
+				public void afterTextChanged(Editable s) {
+				}
+			});
 
 			return out;
 		}
