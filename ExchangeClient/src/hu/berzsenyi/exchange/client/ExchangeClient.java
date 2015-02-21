@@ -66,7 +66,7 @@ public class ExchangeClient implements ICmdHandler, IClientConnectionListener {
 	public void disconnect() {
 		if (client != null) {
 			client.writeCommand(new CmdClientDisconnect());
-			if(client != null) {
+			if (client != null) {
 				client.close();
 				client = null;
 			}
@@ -89,7 +89,7 @@ public class ExchangeClient implements ICmdHandler, IClientConnectionListener {
 					"Name can be only set when ExchangeClient is disconnected");
 		this.name = name;
 	}
-	
+
 	public void setPassword(String password) {
 		this.password = password;
 	}
@@ -106,17 +106,6 @@ public class ExchangeClient implements ICmdHandler, IClientConnectionListener {
 		return connected;
 	}
 
-//	public void offer(String teamID, int stockID, int amount, double money, boolean sell) {
-//		client.writeCommand(new CmdClientOffer(teamID, stockID, amount, money, sell));
-//	}
-//
-//	public void acceptOffer(int index) {
-//		CmdClientOffer offer = offersIn.get(index);
-//		client.writeCommand(new CmdOfferResponse(offer.teamID, offer.stockID,
-//				offer.amount, offer.money));
-//		offersIn.remove(index);
-//	}
-
 	public boolean doBuy(int[] amounts) {
 		if (getModel().round != 0)
 			throw new IllegalStateException(
@@ -130,6 +119,10 @@ public class ExchangeClient implements ICmdHandler, IClientConnectionListener {
 		ownTeam.setMoney(calculated);
 		client.writeCommand(new CmdClientBuy(amounts));
 		return true;
+	}
+
+	public void sendOffer(int stockID, int amount, double price, boolean sell) {
+		client.writeCommand(new CmdClientOffer(stockID, amount, price, sell));
 	}
 
 	public void addIClientListener(IClientListener listener) {
@@ -165,7 +158,6 @@ public class ExchangeClient implements ICmdHandler, IClientConnectionListener {
 	public void handleCmd(TCPCommand cmd, TCPConnection conn) {
 		Log.d(this.getClass().getName(), "Received command! "
 				+ cmd.getClass().getName());
-		
 
 		if (cmd instanceof CmdServerInfo) {
 			CmdServerInfo info = (CmdServerInfo) cmd;
@@ -196,34 +188,34 @@ public class ExchangeClient implements ICmdHandler, IClientConnectionListener {
 			return;
 		}
 
-	
-
 		if (cmd instanceof CmdServerEvent) {
-			CmdServerEvent cmdNextRound = (CmdServerEvent)cmd;
+			CmdServerEvent cmdNextRound = (CmdServerEvent) cmd;
 			this.model.round++;
-			this.model.nextRound(cmdNextRound.eventDesc, cmdNextRound.multipliers);
+			this.model.nextRound(cmdNextRound.eventDesc,
+					cmdNextRound.multipliers);
 			for (IClientListener listener : mListeners)
 				listener.onRoundCommand(this);
 			return;
 		}
 
-//		if (cmd instanceof CmdOfferResponse) {
-//			// TODO UGLY!
-//			CmdOfferResponse offer = (CmdOfferResponse) cmd;
-//			this.ownTeam.setMoney(this.ownTeam.getMoney() + offer.money*Math.abs(offer.amount));
-//			this.ownTeam.setStock(offer.stockID,
-//					this.ownTeam.getStock(offer.stockID) + offer.amount);
-//			for (IClientListener listener : mListeners) {
-//				listener.onMoneyChanged(this.ownTeam);
-//				listener.onStocksChanged(this.ownTeam, offer.stockID);
-//				listener.onOfferAccepted(offer);
-//			}
-//			return;
-//		}
-		
-		if(cmd instanceof CmdServerError) {
+		// if (cmd instanceof CmdOfferResponse) {
+		// // TODO UGLY!
+		// CmdOfferResponse offer = (CmdOfferResponse) cmd;
+		// this.ownTeam.setMoney(this.ownTeam.getMoney() +
+		// offer.money*Math.abs(offer.amount));
+		// this.ownTeam.setStock(offer.stockID,
+		// this.ownTeam.getStock(offer.stockID) + offer.amount);
+		// for (IClientListener listener : mListeners) {
+		// listener.onMoneyChanged(this.ownTeam);
+		// listener.onStocksChanged(this.ownTeam, offer.stockID);
+		// listener.onOfferAccepted(offer);
+		// }
+		// return;
+		// }
+
+		if (cmd instanceof CmdServerError) {
 			CmdServerError error = (CmdServerError) cmd;
-			for(IClientListener listener : mListeners)
+			for (IClientListener listener : mListeners)
 				listener.onErrorCommand(error);
 		}
 	}

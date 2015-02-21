@@ -45,5 +45,6 @@
     <string name="stocks_for_buying">Vételre kínált részvény</string>
     <string name="zeroth_round_bad_number_format">Hibás számformátum ennél a részvénynél: \'%s\'</string>
     <string name="zeroth_round_cannot_buy_as_many_stocks">Maximum %1$d részvényt tudsz venni ebből: \'%2$s\'</string>
+    <string name="tabOffer_bad_number_format">Egy számot adj meg egységárként!</string>
 
 </resources>

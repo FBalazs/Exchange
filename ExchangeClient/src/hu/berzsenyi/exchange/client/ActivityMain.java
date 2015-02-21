@@ -3,7 +3,6 @@ package hu.berzsenyi.exchange.client;
 import hu.berzsenyi.exchange.Stock;
 import hu.berzsenyi.exchange.Team;
 import hu.berzsenyi.exchange.net.TCPClient;
-import hu.berzsenyi.exchange.net.cmd.CmdClientOffer;
 import hu.berzsenyi.exchange.net.cmd.CmdServerError;
 
 import java.io.IOException;
@@ -50,7 +49,7 @@ public class ActivityMain extends Activity implements IClientListener {
 			TAG_STOCKS = "stocks", TAG_OFFER = "offer",
 			TAG_OUTGOING = "outgoing";
 
-	private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat(
+	protected static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat(
 			"#0.00");
 
 	private TabHost tabHost;
@@ -283,46 +282,6 @@ public class ActivityMain extends Activity implements IClientListener {
 	public void onConnect(TCPClient client) {
 	}
 
-	// @Override
-	// public void onOfferAccepted(final CmdOfferResponse offer) {
-	// runOnUiThread(new Runnable() {
-	// @Override
-	// public void run() {
-	// /*
-	// * Toast.makeText( ActivityMain.this, "you " + (offer.money < 0
-	// * ? "bought " : "sold ") + Math.abs(offer.amount) + " " +
-	// * ActivityMain
-	// * .this.mClient.getModel().stockList[offer.stockID].name + " "
-	// * + (offer.money < 0 ? "from " : "to ") +
-	// * ActivityMain.this.mClient.getModel()
-	// * .getTeamById(offer.teamID).name, Toast.LENGTH_LONG).show();
-	// * // TODO
-	// */
-	// Formatter formatter = new Formatter();
-	// Toast.makeText(
-	// ActivityMain.this,
-	// formatter
-	// .format(ActivityMain.this
-	// .getString(R.string.offer_toast),
-	// offer.money < 0 ? ActivityMain.this
-	// .getString(R.string.offer_toast_buy1)
-	// : ActivityMain.this
-	// .getString(R.string.offer_toast_sell1),
-	// offer.money < 0 ? ActivityMain.this
-	// .getString(R.string.offer_toast_buy2)
-	// : ActivityMain.this
-	// .getString(R.string.offer_toast_sell2),
-	// DECIMAL_FORMAT.format(Math
-	// .abs(offer.amount)),
-	// ActivityMain.this.mClient.getModel().stockList[offer.stockID].name,
-	// ActivityMain.this.mClient.getModel()
-	// .getTeamById(offer.teamID).name)
-	// .toString(), Toast.LENGTH_LONG).show();
-	// formatter.close();
-	// }
-	// });
-	// }
-
 	@Override
 	public void onErrorCommand(CmdServerError error) {
 
@@ -353,7 +312,25 @@ public class ActivityMain extends Activity implements IClientListener {
 	}
 
 	private void sendOffer() {
-		// TODO
+
+		try {
+			double price = NumberFormat.getInstance()
+					.parse(tabOffer_editTextUnitPrice.getText().toString())
+					.doubleValue();
+
+			mClient.sendOffer(
+					tabOffer_spinnerPosition2StockIndex.get(tabOffer_listStocks
+							.getSelectedItemPosition()),
+					tabOffer_seekBarAmount.getProgress(),
+					price,
+					tabOffer_radioGroup.getCheckedRadioButtonId() == R.id.tabOffer_radioSell);
+		} catch (ParseException e) {
+			new AlertDialog.Builder(this)
+					.setMessage(R.string.tabOffer_bad_number_format)
+				.setPositiveButton(R.string.ok,null)
+				.create().show();
+		}
+
 	}
 
 	private void refreshStockList() {
@@ -620,7 +597,7 @@ public class ActivityMain extends Activity implements IClientListener {
 			// TODO Auto-generated method stub
 			return null;
 		}
-		
+
 	}
 
 }
