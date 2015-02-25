@@ -48,5 +48,7 @@
     <string name="tabOffer_bad_number_format">Egy számot adj meg egységárként!</string>
     <string name="tabOffer_for_sale">Eladó</string>
     <string name="tabOffer_to_buy">Vétel</string>
+    <string name="title_activity_card_view">CardView</string>
+    <string name="hello_world">Hello world!</string>
 
 </resources>
