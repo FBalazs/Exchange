@@ -3,19 +3,26 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    app:elevation="10dp" >
-    
+    android:layout_gravity="top"
+    android:layout_marginBottom="@dimen/activity_vertical_margin"
+    android:layout_marginLeft="@dimen/activity_horizontal_margin"
+    android:layout_marginRight="@dimen/activity_horizontal_margin"
+    android:layout_marginTop="@dimen/activity_vertical_margin"
+    app:cardCornerRadius="@dimen/cardView_corner_radius"
+    app:cardElevation="@dimen/cardView_elevation" >
+
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        
-        <TextView 
+        android:layout_height="wrap_content"
+        android:paddingBottom="@dimen/cardView_padding_vertical"
+        android:paddingLeft="@dimen/cardView_padding_horizontal"
+        android:paddingRight="@dimen/cardView_padding_horizontal"
+        android:paddingTop="@dimen/cardView_padding_vertical" >
+
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Részvény név"/>
-        
+            android:text="Részvény név" />
     </RelativeLayout>
-    
 
 </android.support.v7.widget.CardView>

@@ -4,5 +4,9 @@
     <color name="stock_change_increase">#093</color>
     <color name="stock_change_stagnation">#FA3</color>
     <color name="stock_change_decrease">#F00</color>
+    <color name="windowBackground">#DDEBFF</color>
+    <color name="textColor">#000</color>
+    <color name="colorPrimary">#6293D7</color>
+    <color name="textColorPrimary">#BEF0E6</color>
 
 </resources>
