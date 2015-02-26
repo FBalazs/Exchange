@@ -1,6 +1,6 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- Android 2.3 and higher -->
+    <!-- Android 2.3 and above -->
     <style name="AppBaseTheme" parent="@style/Theme.AppCompat.Light">
         <item name="actionBarStyle">@style/ActionBarStyle</item>
     </style>
@@ -16,7 +16,7 @@
         <item name="background">@color/colorPrimary</item>
         <item name="titleTextStyle">@style/ActionBarTitleStyle</item>
     </style>
-    
+
     <style name="ActionBarTitleStyle" parent="@style/TextAppearance.AppCompat.Widget.ActionBar.Title">
         <item name="android:textColor">@color/textColorPrimary</item>
     </style>
