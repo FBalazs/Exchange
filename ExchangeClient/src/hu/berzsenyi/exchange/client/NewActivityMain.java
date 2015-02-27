@@ -1,4 +1,4 @@
-package hu.berzsenyi.exchange.client.debug;
+package hu.berzsenyi.exchange.client;
 
 import hu.berzsenyi.exchange.Stock;
 import hu.berzsenyi.exchange.client.R;
@@ -6,6 +6,10 @@ import hu.berzsenyi.exchange.client.R;
 import java.text.DecimalFormat;
 import java.util.Formatter;
 
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -22,7 +26,10 @@ import android.widget.TextView;
 
 import com.example.android.common.view.SlidingTabLayout;
 
-public class CardView extends ActionBarActivity {
+public class NewActivityMain extends ActionBarActivity {
+
+	protected static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat(
+			"#0.00");
 
 	private static final int[] LABEL_IDS = { R.string.main_tab_label_newsfeed,
 			R.string.main_tab_label_stocks, R.string.main_tab_label_exchange,
@@ -30,13 +37,15 @@ public class CardView extends ActionBarActivity {
 	private static final int POSITION_NEWS_FEED = 0, POSITION_STOCKS = 1,
 			POSITION_EXCHANGE = 2, POSITION_STATS = 3;
 
-	protected static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat(
-			"#0.00");
+	private ExchangeClient mClient;
+	private boolean zerothRoundDone = false, zerothRoundStarted = false;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_debug);
+		setContentView(R.layout.activity_main);
+
+		mClient = ExchangeClient.getInstance();
 
 		ActionBar actionBar = getSupportActionBar();
 		actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME
@@ -48,12 +57,56 @@ public class CardView extends ActionBarActivity {
 		viewPager.setAdapter(new MainPagerAdapter());
 
 		SlidingTabLayout slidingTabLayout = (SlidingTabLayout) findViewById(R.id.slidingTabLayout);
-		slidingTabLayout.setCustomTabView(R.layout.activity_main_tab,
+		slidingTabLayout.setCustomTabView(R.layout.activity_main_tab_label,
 				R.id.tab_label);
 		slidingTabLayout.setViewPager(viewPager);
 		slidingTabLayout.setSelectedIndicatorColors(getResources().getColor(
 				R.color.tabIndicator));
 
+	}
+
+	@Override
+	protected void onStart() {
+		super.onStart();
+		if (zerothRoundStarted && !zerothRoundDone) { // ActivityZerothRound was
+			// cancelled
+			finish();
+		} else if (!zerothRoundStarted) {
+			startActivityForResult(new Intent(this, ActivityZerothRound.class),
+					ActivityZerothRound.REQUEST_CODE);
+			zerothRoundStarted = true;
+		}
+	}
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		if (requestCode == ActivityZerothRound.REQUEST_CODE) {
+			zerothRoundDone = resultCode == Activity.RESULT_OK;
+		}
+	}
+
+	@Override
+	public void onBackPressed() {
+		new AlertDialog.Builder(this)
+				.setTitle(R.string.exit_question)
+				.setMessage(R.string.exit_message)
+				.setPositiveButton(R.string.yes,
+						new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog,
+									int which) {
+								NewActivityMain.super.onBackPressed();
+							}
+						})
+				.setNegativeButton(R.string.no,
+						new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog,
+									int which) {
+
+							}
+						}).create().show();
 	}
 
 	private class MainPagerAdapter extends PagerAdapter {
@@ -87,8 +140,8 @@ public class CardView extends ActionBarActivity {
 				stockList.setAdapter(new StockAdapter());
 				break;
 			default:
-				view = getLayoutInflater().inflate(
-						R.layout.activity_debug_hello, container, false);
+				view = getLayoutInflater().inflate(R.layout.eraseme, container,
+						false);
 			}
 
 			container.addView(view);
@@ -97,7 +150,7 @@ public class CardView extends ActionBarActivity {
 
 		@Override
 		public void destroyItem(ViewGroup container, int position, Object object) {
-			container.removeView((View) container);
+			container.removeView((View) object);
 		}
 	}
 
@@ -106,12 +159,7 @@ public class CardView extends ActionBarActivity {
 		private Stock[] stocks;
 
 		public StockAdapter() {
-			// stocks = mClient.getModel().stocks;
-			stocks = new Stock[] { new Stock("a", "HTC", 20.121301),
-					new Stock("b", "Lengyelvíz", 210.3),
-					new Stock("cd", "Bögre", 10.0) };
-			stocks[0].change = 1.2874;
-			stocks[1].change = 0.23432;
+			stocks = mClient.getModel().stocks;
 		}
 
 		@Override
@@ -148,7 +196,7 @@ public class CardView extends ActionBarActivity {
 				if (convertView != null)
 					return convertView;
 				else {
-					view = new View(CardView.this);
+					view = new View(NewActivityMain.this);
 					view.setLayoutParams(new ListView.LayoutParams(
 							ViewGroup.LayoutParams.MATCH_PARENT, getResources()
 									.getDimensionPixelSize(
@@ -204,7 +252,8 @@ public class CardView extends ActionBarActivity {
 			formatter = new Formatter();
 			((TextView) view.findViewById(R.id.main_tab_stocks_stock_possessed))
 					.setText(formatter.format(
-							getString(R.string.main_tab_stocks_possessed), -1)
+							getString(R.string.main_tab_stocks_possessed),
+							mClient.getOwnTeam().getStock(position - 1))
 							.toString());
 			formatter.close();
 
