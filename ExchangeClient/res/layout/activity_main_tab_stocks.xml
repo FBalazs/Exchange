@@ -1,15 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ListView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/main_tab_stocks_list"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
-    
-    <ListView
-        android:id="@+id/tabStocks_listStocks"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true" >
-    </ListView>
+    android:layout_height="wrap_content"
+    android:divider="@null"
+    android:dividerHeight="0dp"
+    android:listSelector="@android:color/transparent" >
 
-</RelativeLayout>
+</ListView>

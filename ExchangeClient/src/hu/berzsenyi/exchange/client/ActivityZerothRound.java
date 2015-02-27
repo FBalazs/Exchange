@@ -210,7 +210,7 @@ public class ActivityZerothRound extends Activity {
 
 			Stock stock = (Stock) getItem(position);
 			((TextView) out.findViewById(R.id.stock_name)).setText(stock.name);
-			((TextView) out.findViewById(R.id.stock_value))
+			((TextView) out.findViewById(R.id.main_tab_stocks_stock_value))
 					.setText(getString(R.string.unit_price)
 							+ ActivityMain.DECIMAL_FORMAT.format(stock.value));
 

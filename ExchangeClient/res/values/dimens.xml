@@ -8,9 +8,9 @@
     <dimen name="cardView_padding_horizontal">16dp</dimen>
     <dimen name="cardView_padding_vertical">16dp</dimen>
     <dimen name="cardView_margin_horizontal">16dp</dimen>
-    <dimen name="cardView_margin_vertical">8dp</dimen>
+    <dimen name="cardView_margin_vertical">4dp</dimen>
     <dimen name="cardView_corner_radius">3dp</dimen>
-    <dimen name="cardView_elevation">6dp</dimen>
+    <dimen name="cardView_elevation">3dp</dimen>
     <dimen name="space_margin">5sp</dimen>
 
 </resources>

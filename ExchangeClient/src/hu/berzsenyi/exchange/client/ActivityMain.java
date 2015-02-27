@@ -109,7 +109,7 @@ public class ActivityMain extends Activity implements IClientListener {
 		tabOutgoing.setContent(R.id.tabOutgoing);
 		tabOutgoing.setIndicator(this.getString(R.string.outgoing));
 
-		tabStocks_listStocks = (ListView) findViewById(R.id.tabStocks_listStocks);
+		tabStocks_listStocks = (ListView) findViewById(R.id.main_tab_stocks_list);
 
 		tabOffer_radioGroup = (RadioGroup) findViewById(R.id.tabOffer_radioGroup);
 		tabOffer_radioGroup

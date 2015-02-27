@@ -48,10 +48,15 @@
     <string name="tabOffer_bad_number_format">Egy számot adj meg egységárként!</string>
     <string name="tabOffer_for_sale">Eladó</string>
     <string name="tabOffer_to_buy">Vétel</string>
-    <!-- New tabs -->
-    <string name="tab_label_newsfeed">Hírfolyam</string>
-    <string name="tab_label_stocks">Részvények</string>
-    <string name="tab_label_exchange">Kereskedelem</string>
-    <string name="tab_label_stats">Statisztika</string>
+    <!-- ActivityMain tabs -->
+    <string name="main_tab_label_newsfeed">Hírfolyam</string>
+    <string name="main_tab_label_stocks">Részvények</string>
+    <string name="main_tab_label_exchange">Kereskedelem</string>
+    <string name="main_tab_label_stats">Statisztika</string>
+    <!-- ActivityMain Stocks tab -->
+    <string name="main_tab_stocks_currency_start">Árfolyam: %s$ (</string>
+    <string name="main_tab_stocks_currency_end">)</string>
+    <string name="main_tab_stocks_circulated">Forgalomban: %s db</string>
+    <string name="main_tab_stocks_possessed">Saját részvényeim: %s db</string>
 
 </resources>
