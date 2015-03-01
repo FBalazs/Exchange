@@ -141,7 +141,7 @@ public class ExchangeServer implements IServerListener, ICmdHandler {
 
 		if (cmd instanceof CmdClientInfo) {
 			CmdClientInfo info = (CmdClientInfo) cmd;
-			Team team = this.model.getTeamById(info.name);
+			Team team = this.model.getTeamByName(info.name);
 			if (team == null) {
 				this.model.teams.add(new Team(conn.getAddrString(), info.name,
 						info.password));
@@ -149,6 +149,7 @@ public class ExchangeServer implements IServerListener, ICmdHandler {
 						.getAddrString()));
 				conn.writeCommand(new CmdServerStocks(this.model));
 			} else if (team.pass.equals(info.password)) {
+				team.id = conn.getAddrString();
 				conn.writeCommand(new CmdServerInfo(this.model.startMoney, conn
 						.getAddrString()));
 				conn.writeCommand(new CmdServerStocks(this.model));
@@ -161,7 +162,7 @@ public class ExchangeServer implements IServerListener, ICmdHandler {
 		if (cmd instanceof CmdClientDisconnect) {
 			this.log(new LogEventDisconnect(conn.getAddrString(), this.model
 					.getTeamById(conn.getAddrString()).name));
-			this.model.removeTeam(conn.getAddrString());
+			//this.model.removeTeam(conn.getAddrString());
 			conn.close();
 		}
 

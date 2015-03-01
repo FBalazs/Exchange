@@ -151,7 +151,6 @@ public class Model {
 		return null;
 	}
 
-	@Deprecated
 	public Team getTeamByName(String name) {
 		for (Team team : this.teams)
 			if (team.name.equals(name))
