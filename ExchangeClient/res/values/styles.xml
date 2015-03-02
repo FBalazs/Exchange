@@ -8,8 +8,10 @@
     <!-- Not API specific -->
     <style name="AppTheme" parent="AppBaseTheme">
         <item name="android:windowBackground">@color/windowBackground</item>
-        <item name="android:textColor">@color/textColor</item>
         <item name="android:windowContentOverlay">@null</item>
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="android:textColorPrimary">@color/textColorPrimary</item>
     </style>
 
     <style name="ActionBarStyle" parent="@style/Widget.AppCompat.ActionBar">
@@ -19,7 +21,7 @@
     </style>
 
     <style name="ActionBarTitleStyle" parent="@style/TextAppearance.AppCompat.Widget.ActionBar.Title">
-        <item name="android:textColor">@color/textColorPrimary</item>
+        <item name="android:textColor">@color/actionBarTitle</item>
     </style>
 
     <style name="emphasized" parent="@android:style/TextAppearance.Medium"></style>

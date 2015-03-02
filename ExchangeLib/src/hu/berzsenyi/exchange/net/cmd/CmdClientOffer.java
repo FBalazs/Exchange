@@ -7,7 +7,9 @@ public class CmdClientOffer extends TCPCommand {
 	public static final int ID = 5;
 
 	public int stockID, amount;
-	public double price;
+	public double price; // TODO Should be positive, and there should be a
+							// boolean indicating whether is it a sell or buy
+							// type offer
 
 	public CmdClientOffer(int length) {
 		super(ID, length);

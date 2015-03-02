@@ -24,26 +24,27 @@
             android:paddingRight="@dimen/cardView_padding_horizontal"
             android:paddingTop="@dimen/cardView_padding_vertical" >
 
-            <TextView
-                android:id="@+id/main_tab_stocks_card_name"
-                style="@style/emphasized"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+        	<TextView
+        	    android:id="@+id/main_tab_exchange_card_type"
+        	    style="@style/emphasized"
+        	    android:layout_width="match_parent"
+        	    android:layout_height="wrap_content" />
+        	
+        	<TextView
+        	    android:id="@+id/main_tab_exchange_card_name"
+        	    android:layout_width="match_parent"
+        	    android:layout_height="wrap_content" />
 
-            <TextView
-                android:id="@+id/main_tab_stocks_card_value"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+        	<TextView
+        	    android:id="@+id/main_tab_exchange_card_price"
+        	    android:layout_width="match_parent"
+        	    android:layout_height="wrap_content" />
 
-            <TextView
-                android:id="@+id/main_tab_stocks_card_circulated"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+        	<TextView
+        	    android:id="@+id/main_tab_exchange_card_amount"
+        	    android:layout_width="match_parent"
+        	    android:layout_height="wrap_content" />
 
-            <TextView
-                android:id="@+id/main_tab_stocks_card_possessed"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
         </LinearLayout>
     </android.support.v7.widget.CardView>
 

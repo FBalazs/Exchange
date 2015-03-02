@@ -2,6 +2,7 @@ package hu.berzsenyi.exchange.client;
 
 import hu.berzsenyi.exchange.Stock;
 import hu.berzsenyi.exchange.client.R;
+import hu.berzsenyi.exchange.net.cmd.CmdClientOffer;
 
 import java.text.DecimalFormat;
 import java.util.Formatter;
@@ -139,6 +140,13 @@ public class NewActivityMain extends ActionBarActivity {
 						.findViewById(R.id.main_tab_stocks_list);
 				stockList.setAdapter(new StockAdapter());
 				break;
+			case POSITION_EXCHANGE:
+				view = getLayoutInflater().inflate(
+						R.layout.activity_main_tab_exchange, container, false);
+				
+				ListView offerList = (ListView) view.findViewById(R.id.main_tab_exchange_list);
+				offerList.setAdapter(new OutgoingOfferAdapter());
+				break;
 			default:
 				view = getLayoutInflater().inflate(R.layout.eraseme, container,
 						false);
@@ -159,7 +167,16 @@ public class NewActivityMain extends ActionBarActivity {
 		private Stock[] stocks;
 
 		public StockAdapter() {
+			init();
+		}
+
+		private void init() {
 			stocks = mClient.getModel().stocks;
+		}
+
+		public void refreshStocks() {
+			init();
+			notifyDataSetChanged();
 		}
 
 		@Override
@@ -238,19 +255,18 @@ public class NewActivityMain extends ActionBarActivity {
 					start.length(), start.length() + middle.length(),
 					Spannable.SPAN_EXCLUSIVE_INCLUSIVE);
 
-			((TextView) view.findViewById(R.id.main_tab_stocks_stock_name))
+			((TextView) view.findViewById(R.id.main_tab_stocks_card_name))
 					.setText(stock.name);
-			((TextView) view.findViewById(R.id.main_tab_stocks_stock_value))
+			((TextView) view.findViewById(R.id.main_tab_stocks_card_value))
 					.setText(spannable);
 			formatter = new Formatter();
-			((TextView) view
-					.findViewById(R.id.main_tab_stocks_stock_circulated))
+			((TextView) view.findViewById(R.id.main_tab_stocks_card_circulated))
 					.setText(formatter.format(
 							getString(R.string.main_tab_stocks_circulated), -1)
 							.toString());
 			formatter.close();
 			formatter = new Formatter();
-			((TextView) view.findViewById(R.id.main_tab_stocks_stock_possessed))
+			((TextView) view.findViewById(R.id.main_tab_stocks_card_possessed))
 					.setText(formatter.format(
 							getString(R.string.main_tab_stocks_possessed),
 							mClient.getOwnTeam().getStock(position - 1))
@@ -260,4 +276,80 @@ public class NewActivityMain extends ActionBarActivity {
 			return view;
 		}
 	}
+
+	private class OutgoingOfferAdapter extends BaseAdapter {
+
+		private CmdClientOffer[] mOffers;
+
+		public OutgoingOfferAdapter() {
+			init();
+		}
+
+		private void init() {
+			mOffers = mClient.getOutgoingOffers();
+		}
+
+		public void refreshOffers() {
+			init();
+			notifyDataSetChanged();
+		}
+
+		@Override
+		public int getCount() {
+			return mOffers.length;
+		}
+
+		@Override
+		public Object getItem(int position) {
+			return mOffers[position];
+		}
+
+		@Override
+		public long getItemId(int position) {
+			return 0;
+		}
+
+		@Override
+		public View getView(int position, View convertView, ViewGroup parent) {
+			View view;
+			if (convertView != null)
+				view = convertView;
+			else
+				view = getLayoutInflater()
+						.inflate(R.layout.activity_main_tab_exchange_card,
+								parent, false);
+			CmdClientOffer offer = (CmdClientOffer) getItem(position);
+			boolean sell = offer.price > 0;
+
+			((TextView) view.findViewById(R.id.main_tab_exchange_card_type))
+					.setText(sell ? R.string.main_tab_exchange_offer_type_sell
+							: R.string.main_tab_exchange_offer_type_buy);
+
+			Formatter formatter = new Formatter();
+			((TextView) view.findViewById(R.id.main_tab_exchange_card_name))
+					.setText(formatter
+							.format(getString(R.string.main_tab_exchange_offer_stock_name),
+									mClient.getModel().stocks[offer.stockID])
+							.toString());
+			formatter.close();
+
+			formatter = new Formatter();
+			((TextView) view.findViewById(R.id.main_tab_exchange_card_price))
+					.setText(formatter.format(
+							getString(R.string.main_tab_exchange_offer_price),
+							DECIMAL_FORMAT.format(Math.abs(offer.price)))
+							.toString());
+			formatter.close();
+
+			formatter = new Formatter();
+			((TextView) view.findViewById(R.id.main_tab_exchange_card_amount))
+					.setText(formatter.format(
+							getString(R.string.main_tab_exchange_offer_amount),
+							offer.amount).toString());
+			formatter.close();
+
+			return view;
+		}
+	}
+
 }

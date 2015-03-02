@@ -58,5 +58,16 @@
     <string name="main_tab_stocks_currency_end">)</string>
     <string name="main_tab_stocks_circulated">Forgalomban: %s db</string>
     <string name="main_tab_stocks_possessed">Saját részvényeim: %s db</string>
+    <!--  ActivityMain Exchange tab -->
+    <string name="main_tab_exchange_offer_type_sell">Eladok</string>
+    <string name="main_tab_exchange_offer_type_buy">Veszek</string>
+    <string name="main_tab_exchange_offer_stock_name">Részvény: %s</string>
+    <string name="main_tab_exchange_offer_price">Ár: %s$</string>
+    <string name="main_tab_exchange_offer_amount">Mennyiség: %d db</string>
+    <!-- ActivityMain Exchange tab new offer -->
+    <string name="main_tab_exchange_new_offer_stock_name">Részvény:</string>
+    <string name="main_tab_exchange_new_offer_price">Ár:</string>
+    <string name="main_tab_exchange_new_offer_amount">Mennyiség:</string>
+    <string name="main_tab_exchange_new_offer_send">Küldés</string>
 
 </resources>
