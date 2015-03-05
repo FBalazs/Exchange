@@ -56,10 +56,6 @@ public class ActivityZerothRound extends Activity {
 		money.setText(NewActivityMain.DECIMAL_FORMAT.format(mClient.getModel().startMoney));
 		colorDefault = money.getTextColors();
 
-		mListView = (ListView) findViewById(R.id.stocks);
-		mAdapter = new StockAdapter(mClient.getModel().stocks);
-		mListView.setAdapter(mAdapter);
-
 		// TODO Unregister listener
 		mClient.addIClientListener(new IClientListener() {
 
@@ -110,6 +106,10 @@ public class ActivityZerothRound extends Activity {
 		});
 		if (!mClient.isConnected())
 			finish();
+
+		mListView = (ListView) findViewById(R.id.stocks);
+		mAdapter = new StockAdapter(mClient.getModel().stocks);
+		mListView.setAdapter(mAdapter);
 
 		((Button) findViewById(R.id.activity_zeroth_round_done))
 				.setOnClickListener(new OnClickListener() {

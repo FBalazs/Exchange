@@ -1,10 +1,15 @@
 package hu.berzsenyi.exchange.client;
 
 import hu.berzsenyi.exchange.Stock;
+import hu.berzsenyi.exchange.Team;
 import hu.berzsenyi.exchange.client.R;
+import hu.berzsenyi.exchange.net.TCPClient;
 import hu.berzsenyi.exchange.net.cmd.CmdClientOffer;
+import hu.berzsenyi.exchange.net.cmd.CmdServerError;
 
+import java.io.IOException;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.Formatter;
 
 import android.app.Activity;
@@ -21,8 +26,13 @@ import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.example.android.common.view.SlidingTabLayout;
@@ -35,8 +45,11 @@ public class NewActivityMain extends ActionBarActivity {
 	private static final int[] LABEL_IDS = { R.string.main_tab_label_newsfeed,
 			R.string.main_tab_label_stocks, R.string.main_tab_label_exchange,
 			R.string.main_tab_label_stats };
-	private static final int POSITION_NEWS_FEED = 0, POSITION_STOCKS = 1,
-			POSITION_EXCHANGE = 2, POSITION_STATS = 3;
+	private static final int POSITION_TAB_NEWS_FEED = 0,
+			POSITION_TAB_STOCKS = 1, POSITION_TAB_EXCHANGE = 2,
+			POSITION_TAB_STATS = 3;
+	private static final int POSITION_OFFER_TYPE_BUY = 0,
+			POSITION_OFFER_TYPE_SELL = 1;
 
 	private ExchangeClient mClient;
 	private boolean zerothRoundDone = false, zerothRoundStarted = false;
@@ -132,7 +145,7 @@ public class NewActivityMain extends ActionBarActivity {
 			View view;
 
 			switch (position) {
-			case POSITION_STOCKS:
+			case POSITION_TAB_STOCKS:
 				view = getLayoutInflater().inflate(
 						R.layout.activity_main_tab_stocks, container, false);
 
@@ -140,12 +153,61 @@ public class NewActivityMain extends ActionBarActivity {
 						.findViewById(R.id.main_tab_stocks_list);
 				stockList.setAdapter(new StockAdapter());
 				break;
-			case POSITION_EXCHANGE:
+			case POSITION_TAB_EXCHANGE:
 				view = getLayoutInflater().inflate(
 						R.layout.activity_main_tab_exchange, container, false);
-				
-				ListView offerList = (ListView) view.findViewById(R.id.main_tab_exchange_list);
+
+				ListView offerList = (ListView) view
+						.findViewById(R.id.main_tab_exchange_list);
 				offerList.setAdapter(new OutgoingOfferAdapter());
+
+				// The View objects
+				final Spinner stocks = (Spinner) view
+						.findViewById(R.id.main_tab_exchange_new_offer_stock);
+				Spinner type = (Spinner) view
+						.findViewById(R.id.main_tab_exchange_new_offer_type);
+				final TextView price = (TextView) view
+						.findViewById(R.id.main_tab_exchange_new_offer_price);
+				final TextView amount = (TextView) view
+						.findViewById(R.id.main_tab_exchange_new_offer_amount);
+
+				// Type Spinner
+				type.setAdapter(new ArrayAdapter<String>(NewActivityMain.this,
+						android.R.layout.simple_spinner_dropdown_item,
+						android.R.id.text1, getResources().getStringArray(
+								R.array.main_tab_exchange_new_offer_type)));
+				type.setOnItemSelectedListener(new OnItemSelectedListener() {
+
+					@Override
+					public void onItemSelected(AdapterView<?> parent,
+							View view, int position, long id) {
+
+						((NewOfferStockAdapter) stocks.getAdapter())
+								.setSell(position == POSITION_OFFER_TYPE_SELL);
+					}
+
+					@Override
+					public void onNothingSelected(AdapterView<?> parent) {
+					}
+				});
+
+				// Stocks Spinner
+				stocks.setAdapter(new NewOfferStockAdapter(false));
+				stocks.setOnItemSelectedListener(new OnItemSelectedListener() {
+
+					@Override
+					public void onItemSelected(AdapterView<?> parent,
+							View view, int position, long id) {
+						price.setText(DECIMAL_FORMAT.format(((Stock) parent
+								.getAdapter().getItem(position)).value));
+						amount.setText(1 + "");
+					}
+
+					@Override
+					public void onNothingSelected(AdapterView<?> parent) {
+					}
+				});
+
 				break;
 			default:
 				view = getLayoutInflater().inflate(R.layout.eraseme, container,
@@ -164,31 +226,74 @@ public class NewActivityMain extends ActionBarActivity {
 
 	private class StockAdapter extends BaseAdapter {
 
-		private Stock[] stocks;
+		private IClientListener mListener = new IClientListener() {
+
+			@Override
+			public void onConnectionFail(TCPClient client, IOException exception) {
+			}
+
+			@Override
+			public void onConnect(TCPClient client) {
+			}
+
+			@Override
+			public void onClose(TCPClient client) {
+				mClient.removeIClientListener(this);
+			}
+
+			@Override
+			public void onTeamsCommand(ExchangeClient client) {
+			}
+
+			@Override
+			public void onStocksCommand(ExchangeClient client) {
+				runOnUiThread(new Runnable() {
+					public void run() {
+						notifyDataSetChanged();
+					}
+				});
+			}
+
+			@Override
+			public void onStocksChanged(Team ownTeam, int position) {
+				runOnUiThread(new Runnable() {
+					public void run() {
+						notifyDataSetChanged();
+					}
+				});
+			}
+
+			@Override
+			public void onRoundCommand(ExchangeClient client) {
+			}
+
+			@Override
+			public void onOutgoingOffersChanged() {
+			}
+
+			@Override
+			public void onMoneyChanged(Team ownTeam) {
+			}
+
+			@Override
+			public void onErrorCommand(CmdServerError error) {
+			}
+		};
 
 		public StockAdapter() {
-			init();
-		}
-
-		private void init() {
-			stocks = mClient.getModel().stocks;
-		}
-
-		public void refreshStocks() {
-			init();
-			notifyDataSetChanged();
+			mClient.addIClientListener(mListener);
 		}
 
 		@Override
 		public int getCount() {
-			return stocks.length + 2;
+			return mClient.getModel().stocks.length + 2;
 		}
 
 		@Override
 		public Object getItem(int position) {
 			if (position == 0 || position == getCount() - 1)
 				return null;
-			return stocks[position - 1];
+			return mClient.getModel().stocks[position - 1];
 		}
 
 		@Override
@@ -350,6 +455,70 @@ public class NewActivityMain extends ActionBarActivity {
 
 			return view;
 		}
+	}
+
+	private class NewOfferStockAdapter extends BaseAdapter {
+
+		private static final int LAYOUT_ID = android.R.layout.simple_spinner_dropdown_item;
+		private static final int TEXT_VIEW_ID = android.R.id.text1;
+
+		private boolean mSell;
+		private int[] mPossessedStocks; // The ids of possessed stocks
+
+		public NewOfferStockAdapter(boolean sell) {
+			setSell(sell);
+		}
+
+		public void setSell(boolean sell) {
+			mSell = sell;
+			notifyDataSetChanged();
+		}
+
+		@Override
+		public void notifyDataSetChanged() {
+			ArrayList<Integer> possessedStocksList = new ArrayList<Integer>();
+			Team ownTeam = mClient.getOwnTeam();
+			int length = mClient.getModel().stocks.length;
+			for (int i = 0; i < length; i++)
+				if (ownTeam.getStock(i) > 0)
+					possessedStocksList.add(Integer.valueOf(i));
+
+			mPossessedStocks = new int[possessedStocksList.size()];
+			for (int i = 0; i < possessedStocksList.size(); i++)
+				mPossessedStocks[i] = possessedStocksList.get(i);
+
+			super.notifyDataSetChanged();
+		}
+
+		@Override
+		public int getCount() {
+			return mSell ? mPossessedStocks.length
+					: mClient.getModel().stocks.length;
+		}
+
+		@Override
+		public Object getItem(int position) {
+			return mClient.getModel().stocks[(int) getItemId(position)];
+		}
+
+		@Override
+		public long getItemId(int position) {
+			return mSell ? mPossessedStocks[position] : position;
+		}
+
+		@Override
+		public View getView(int position, View convertView, ViewGroup parent) {
+			View view;
+			if (convertView != null) {
+				view = convertView;
+			} else {
+				view = getLayoutInflater().inflate(LAYOUT_ID, parent, false);
+			}
+			((TextView) view.findViewById(TEXT_VIEW_ID))
+					.setText(((Stock) getItem(position)).name);
+			return view;
+		}
+
 	}
 
 }
