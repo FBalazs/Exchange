@@ -9,6 +9,8 @@ import hu.berzsenyi.exchange.net.cmd.CmdServerError;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Formatter;
 
@@ -25,12 +27,14 @@ import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -52,7 +56,10 @@ public class NewActivityMain extends ActionBarActivity {
 			POSITION_OFFER_TYPE_SELL = 1;
 
 	private ExchangeClient mClient;
-	private boolean zerothRoundDone = false, zerothRoundStarted = false;
+	private boolean mZerothRoundDone = false, mZerothRoundStarted = false;
+	private OutgoingOfferAdapter mOutgoingOfferAdapter;
+	private NewOfferStockAdapter mNewOfferStockAdapter;
+	private StockAdapter mStockAdapter;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -60,6 +67,67 @@ public class NewActivityMain extends ActionBarActivity {
 		setContentView(R.layout.activity_main);
 
 		mClient = ExchangeClient.getInstance();
+		mClient.addIClientListener(new IClientListener() {
+			
+			@Override
+			public void onConnectionFail(TCPClient client, IOException exception) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void onConnect(TCPClient client) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void onClose(TCPClient client) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void onTeamsCommand(ExchangeClient client) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void onStocksCommand(ExchangeClient client) {
+				mStockAdapter.notifyDataSetChanged();
+				mNewOfferStockAdapter.notifyDataSetChanged();
+			}
+			
+			@Override
+			public void onStocksChanged(Team ownTeam, int position) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void onRoundCommand(ExchangeClient client) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void onOutgoingOffersChanged() {
+				mOutgoingOfferAdapter.notifyDataSetChanged();
+			}
+			
+			@Override
+			public void onMoneyChanged(Team ownTeam) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void onErrorCommand(CmdServerError error) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
 
 		ActionBar actionBar = getSupportActionBar();
 		actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME
@@ -82,13 +150,14 @@ public class NewActivityMain extends ActionBarActivity {
 	@Override
 	protected void onStart() {
 		super.onStart();
-		if (zerothRoundStarted && !zerothRoundDone) { // ActivityZerothRound was
+		if (mZerothRoundStarted && !mZerothRoundDone) { // ActivityZerothRound
+														// was
 			// cancelled
 			finish();
-		} else if (!zerothRoundStarted) {
+		} else if (!mZerothRoundStarted) {
 			startActivityForResult(new Intent(this, ActivityZerothRound.class),
 					ActivityZerothRound.REQUEST_CODE);
-			zerothRoundStarted = true;
+			mZerothRoundStarted = true;
 		}
 	}
 
@@ -96,7 +165,7 @@ public class NewActivityMain extends ActionBarActivity {
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
 		if (requestCode == ActivityZerothRound.REQUEST_CODE) {
-			zerothRoundDone = resultCode == Activity.RESULT_OK;
+			mZerothRoundDone = resultCode == Activity.RESULT_OK;
 		}
 	}
 
@@ -151,7 +220,8 @@ public class NewActivityMain extends ActionBarActivity {
 
 				ListView stockList = (ListView) view
 						.findViewById(R.id.main_tab_stocks_list);
-				stockList.setAdapter(new StockAdapter());
+				mStockAdapter = new StockAdapter();
+				stockList.setAdapter(mStockAdapter);
 				break;
 			case POSITION_TAB_EXCHANGE:
 				view = getLayoutInflater().inflate(
@@ -159,17 +229,21 @@ public class NewActivityMain extends ActionBarActivity {
 
 				ListView offerList = (ListView) view
 						.findViewById(R.id.main_tab_exchange_list);
-				offerList.setAdapter(new OutgoingOfferAdapter());
+				mOutgoingOfferAdapter = new OutgoingOfferAdapter();
+				offerList.setAdapter(mOutgoingOfferAdapter);
 
+				// ================== New offer ===================
 				// The View objects
 				final Spinner stocks = (Spinner) view
 						.findViewById(R.id.main_tab_exchange_new_offer_stock);
-				Spinner type = (Spinner) view
+				final Spinner type = (Spinner) view
 						.findViewById(R.id.main_tab_exchange_new_offer_type);
 				final TextView price = (TextView) view
 						.findViewById(R.id.main_tab_exchange_new_offer_price);
 				final TextView amount = (TextView) view
 						.findViewById(R.id.main_tab_exchange_new_offer_amount);
+				Button sendButton = (Button) view
+						.findViewById(R.id.main_tab_exchange_new_offer_send);
 
 				// Type Spinner
 				type.setAdapter(new ArrayAdapter<String>(NewActivityMain.this,
@@ -192,7 +266,8 @@ public class NewActivityMain extends ActionBarActivity {
 				});
 
 				// Stocks Spinner
-				stocks.setAdapter(new NewOfferStockAdapter(false));
+				mNewOfferStockAdapter = new NewOfferStockAdapter(false);
+				stocks.setAdapter(mNewOfferStockAdapter);
 				stocks.setOnItemSelectedListener(new OnItemSelectedListener() {
 
 					@Override
@@ -205,6 +280,28 @@ public class NewActivityMain extends ActionBarActivity {
 
 					@Override
 					public void onNothingSelected(AdapterView<?> parent) {
+					}
+				});
+
+				// Send Button
+				sendButton.setOnClickListener(new OnClickListener() {
+
+					@Override
+					public void onClick(View v) {
+						try {
+							mClient.sendOffer(
+									(int) stocks.getSelectedItemId(),
+									Integer.parseInt(amount.getText()
+											.toString()),
+									NumberFormat.getInstance()
+											.parse(price.getText().toString())
+											.doubleValue(),
+									type.getSelectedItemPosition() == POSITION_OFFER_TYPE_SELL);
+						} catch (NumberFormatException e) {
+							e.printStackTrace();
+						} catch (ParseException e) {
+							e.printStackTrace();
+						}
 					}
 				});
 
@@ -225,64 +322,6 @@ public class NewActivityMain extends ActionBarActivity {
 	}
 
 	private class StockAdapter extends BaseAdapter {
-
-		private IClientListener mListener = new IClientListener() {
-
-			@Override
-			public void onConnectionFail(TCPClient client, IOException exception) {
-			}
-
-			@Override
-			public void onConnect(TCPClient client) {
-			}
-
-			@Override
-			public void onClose(TCPClient client) {
-				mClient.removeIClientListener(this);
-			}
-
-			@Override
-			public void onTeamsCommand(ExchangeClient client) {
-			}
-
-			@Override
-			public void onStocksCommand(ExchangeClient client) {
-				runOnUiThread(new Runnable() {
-					public void run() {
-						notifyDataSetChanged();
-					}
-				});
-			}
-
-			@Override
-			public void onStocksChanged(Team ownTeam, int position) {
-				runOnUiThread(new Runnable() {
-					public void run() {
-						notifyDataSetChanged();
-					}
-				});
-			}
-
-			@Override
-			public void onRoundCommand(ExchangeClient client) {
-			}
-
-			@Override
-			public void onOutgoingOffersChanged() {
-			}
-
-			@Override
-			public void onMoneyChanged(Team ownTeam) {
-			}
-
-			@Override
-			public void onErrorCommand(CmdServerError error) {
-			}
-		};
-
-		public StockAdapter() {
-			mClient.addIClientListener(mListener);
-		}
 
 		@Override
 		public int getCount() {
@@ -394,9 +433,10 @@ public class NewActivityMain extends ActionBarActivity {
 			mOffers = mClient.getOutgoingOffers();
 		}
 
-		public void refreshOffers() {
+		@Override
+		public void notifyDataSetChanged() {
 			init();
-			notifyDataSetChanged();
+			super.notifyDataSetChanged();
 		}
 
 		@Override

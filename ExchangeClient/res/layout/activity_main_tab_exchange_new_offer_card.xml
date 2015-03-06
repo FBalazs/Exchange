@@ -83,6 +83,7 @@
             </LinearLayout>
             
             <Button
+                android:id="@+id/main_tab_exchange_new_offer_send"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
