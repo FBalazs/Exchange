@@ -6,19 +6,20 @@ import hu.berzsenyi.exchange.net.cmd.CmdServerError;
 
 import java.io.IOException;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-public class ActivityConnect extends Activity {
+public class ActivityConnect extends ActionBarActivity {
 
 	private static final String DEFAULT_NAME = "NickName",
 			DEFAULT_IP = "192.168.0.11", DEFAULT_PORT = "8080";
@@ -145,6 +146,13 @@ public class ActivityConnect extends Activity {
 		Log.d(this.getClass().getName(), "onCreate()");
 		super.onCreate(savedInstance);
 		this.setContentView(R.layout.activity_connect);
+
+		ActionBar actionBar = getSupportActionBar();
+		actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME
+				| ActionBar.DISPLAY_SHOW_TITLE);
+		actionBar.setIcon(R.drawable.ic_launcher);
+		actionBar.setElevation(getResources().getDimension(
+				R.dimen.actionBar_elevation));
 
 		editTextName = (EditText) findViewById(R.id.editTextName);
 		editTextPass = (EditText) findViewById(R.id.editTextPass);

@@ -5,18 +5,18 @@ import hu.berzsenyi.exchange.Team;
 import hu.berzsenyi.exchange.net.TCPClient;
 import hu.berzsenyi.exchange.net.cmd.CmdClientOffer;
 import hu.berzsenyi.exchange.net.cmd.CmdServerError;
-
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Formatter;
-
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -37,7 +37,6 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
-
 import com.example.android.common.view.SlidingTabLayout;
 
 public class NewActivityMain extends ActionBarActivity {
@@ -100,8 +99,7 @@ public class NewActivityMain extends ActionBarActivity {
 
 			@Override
 			public void onStocksChanged(Team ownTeam, int position) {
-				// TODO Auto-generated method stub
-
+				mStockAdapter.notifyDataSetChanged();
 			}
 
 			@Override
@@ -143,7 +141,15 @@ public class NewActivityMain extends ActionBarActivity {
 		slidingTabLayout.setViewPager(viewPager);
 		slidingTabLayout.setSelectedIndicatorColors(getResources().getColor(
 				R.color.tabIndicator));
+		setElevation(slidingTabLayout,
+				getResources().getDimension(R.dimen.actionBar_elevation));
 
+	}
+
+	@TargetApi(Build.VERSION_CODES.LOLLIPOP)
+	private static void setElevation(View view, float elevation) {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+			view.setElevation(elevation);
 	}
 
 	@Override

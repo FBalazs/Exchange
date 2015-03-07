@@ -13,6 +13,8 @@ import android.app.ProgressDialog;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -27,7 +29,7 @@ import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 
-public class ActivityZerothRound extends Activity {
+public class ActivityZerothRound extends ActionBarActivity {
 
 	protected final static int REQUEST_CODE = 1;
 	private ExchangeClient mClient = ExchangeClient.getInstance();
@@ -47,6 +49,13 @@ public class ActivityZerothRound extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		Log.d(getClass().getName(), "onCreate() started");
+
+		ActionBar actionBar = getSupportActionBar();
+		actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME
+				| ActionBar.DISPLAY_SHOW_TITLE);
+		actionBar.setIcon(R.drawable.ic_launcher);
+		actionBar.setElevation(getResources().getDimension(
+				R.dimen.actionBar_elevation));
 
 		setResult(Activity.RESULT_CANCELED);
 
