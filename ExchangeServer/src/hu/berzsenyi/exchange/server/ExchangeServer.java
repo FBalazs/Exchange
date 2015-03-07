@@ -1,5 +1,6 @@
 package hu.berzsenyi.exchange.server;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -31,7 +32,7 @@ public class ExchangeServer implements IServerListener, ICmdHandler {
 	
 	public boolean running;
 	public TCPServer net;
-	public Model model;
+	public ServerModel model;
 
 	public double[] ceventMult = null;
 	// private List<LogEvent> log;
@@ -67,9 +68,9 @@ public class ExchangeServer implements IServerListener, ICmdHandler {
 		}
 
 
-		this.model = new Model();
+		this.model = new ServerModel();
 		this.model.loadStocks("data/stocks");
-		this.model.loadEvents("data/events");
+		this.model.loadEvents(new File("data/events/events.xml"));
 		
 		this.shuffledEvents = new int[this.model.events.length];
 		for(int i=0;i<this.shuffledEvents.length;i++)
@@ -113,9 +114,9 @@ public class ExchangeServer implements IServerListener, ICmdHandler {
 		} else {
 			Arrays.fill(multipliers, 1.0d);
 		}
-		this.ceventMult = this.model.events[eventNum].multipliers;
+		this.ceventMult = this.model.events[eventNum].getMultipliers();
 
-		this.model.nextRound(this.model.events[eventNum].desc, multipliers);
+		this.model.nextRound(this.model.events[eventNum].getDescription(), multipliers);
 		this.net.writeCmdToAll(new CmdServerEvent(this.model.eventMessage,
 				multipliers));
 

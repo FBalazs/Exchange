@@ -39,33 +39,6 @@ public class Model {
 		}
 	}
 
-	public void loadEvents(String eventFolder) {
-		File[] files = new File(eventFolder).listFiles();
-		this.events = new Event[files.length];
-		for (int i = 0; i < files.length; i++) {
-			try {
-				DatParser parser = new DatParser(files[i].getAbsolutePath());
-				parser.parse();
-				this.events[i] = new Event(files[i].getName().substring(0,
-						files[i].getName().lastIndexOf('.')),
-						parser.getValue("desc"), Integer.parseInt(parser
-								.getValue("howmany")));
-				this.events[i].multipliers = new double[this.stocks.length];
-				for (int s = 0; s < this.stocks.length; s++) {
-					String var = parser.getValue(this.stocks[s].id);
-					if (var != null)
-						this.events[i].multipliers[s] = Double
-								.parseDouble(var);
-					else
-						this.events[i].multipliers[s] = 1;
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-				System.err.println("Failed to parse event: "
-						+ files[i].getName());
-			}
-		}
-	}
 	
 	public void incomingOffer(String clientID, int stockID, int amount, double money) {
 		if(money < 0) { // buy offer
