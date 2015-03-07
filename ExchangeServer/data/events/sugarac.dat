@@ -1,7 +1,0 @@
-#esemenymappa/sugarac.dat
-desc = A Sony kutatói olyan glükózalapú akkumulátort fejlesztettek ki, ami sokkal tovább bírja, mint a jelenleg elterjedt lítium-ion akkumulátorok. A most kifejlesztett akkumulátor körülbelül 596 Ah-t termel kilogrammonként, nagyjából tízszer annyit, mint egy lítium-ion akkumulátor.
-howmany = 3 
-tech = 1.05 
-contech  = 0.95
-oil = 0.95
-#

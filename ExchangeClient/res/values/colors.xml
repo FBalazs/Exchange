@@ -4,13 +4,12 @@
     <color name="stock_change_increase">#093</color>
     <color name="stock_change_stagnation">#FA3</color>
     <color name="stock_change_decrease">#F00</color>
-    <color name="windowBackground">#DDEBFF</color>
-    <color name="colorPrimary">#6293D7</color>
-    <color name="colorPrimaryDark">#3E5D87</color>
+    <color name="windowBackground">#FCEED5</color>
+    <color name="colorPrimary">#3E5D87</color>
+    <color name="colorPrimaryDark">#425466</color>
     <color name="textColorPrimary">#000</color>
     <color name="actionBarTitle">#BEF0E6</color>
-    <color name="tabBackground">#6293D7</color>
-    <color name="tabIndicator">#E3ECF8</color>
-    <color name="tabText">#273B56</color>
+    <color name="tabIndicator">#D5E8FC</color>
+    <color name="tabText">#7190B0</color>
 
 </resources>

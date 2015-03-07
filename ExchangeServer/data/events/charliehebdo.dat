@@ -1,9 +1,0 @@
-#esemenymappa/charliehebdo.dat
-desc = Egy szatirikus karikatúrákat közlő hetilapot egy nyugati fővárosban fegyveres támadás ért, mert azt vallási fundamentalisták egy szűk csoportja vallására sértőnek találta. Az ország lakossága egy emberként állt ki a sajtószabadság mellett, a világ vezető politikusai elítélték a cselekményt.
-howmany = 5 
-transport = 0.98 
-travel  = 0.98
-oil = 1.02
-weapon = 1.01
-media = 1.06
-#

@@ -1,6 +1,0 @@
-#esemenymappa/birdflu.dat
-desc = Egyre több ember kerül madárinfluenza miatti szövődményekkel kórházba, az Egészségügyi Világszervezet (WHO) adata szerint a H5N1 vírus által okozott megbetegedések száma meredek emelkedésnek indult világszerte. Több kormány fontolgatja az ideiglenes be- és kiutazási tilalmak bevezetését, a fertőzés terjdésének megállítására.
-howmany = 2 
-medical = 1.16 
-travel  = 0.93
-#

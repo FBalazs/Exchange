@@ -1,7 +1,0 @@
-#esemenymappa/kergemarha.dat
-desc = Kergemarha kór pusztít a marhák között, pánikszerű hangulat alakult ki, mert a legnagyobb gyorséttermi láncok és feldolgozóüzemek állat állománya is érintett lehet.
-howmany = 3
-food = 0.90
-retail = 0.92
-medical = 1.08
-#

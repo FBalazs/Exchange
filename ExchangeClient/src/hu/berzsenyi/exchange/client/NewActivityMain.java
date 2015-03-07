@@ -93,13 +93,16 @@ public class NewActivityMain extends ActionBarActivity {
 
 			@Override
 			public void onStocksCommand(ExchangeClient client) {
-				mStockAdapter.notifyDataSetChanged();
-				mNewOfferStockAdapter.notifyDataSetChanged();
+				if (mStockAdapter != null)
+					mStockAdapter.notifyDataSetChanged();
+				if (mNewOfferStockAdapter != null)
+					mNewOfferStockAdapter.notifyDataSetChanged();
 			}
 
 			@Override
 			public void onStocksChanged(Team ownTeam, int position) {
-				mStockAdapter.notifyDataSetChanged();
+				if (mStockAdapter != null)
+					mStockAdapter.notifyDataSetChanged();
 			}
 
 			@Override

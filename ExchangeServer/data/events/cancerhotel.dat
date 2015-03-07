@@ -1,7 +1,0 @@
-#esemenymappa/cancerhotel.dat
-desc = Egy múlthéten megjelent oknyomozó riport szerint a világon szinte az összes nagy szálloda hálózat vásárolt abból a könnyűszerkezeti elemből, amelyről kiderült, hogy rákkeltő lehet.
-howmany = 3
-hotel = 0.91
-travel = 0.97
-medical =1.01
-#

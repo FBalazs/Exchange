@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<EventQueues versionCode="1">
+
+	<!-- No need for id, you can identify them by their order -->
+
+	<EventQueue>
+
+		<Event description="Esemény1"
+		    multipliers="food:1.1;medical:0.98;">
+
+			<Event description="Esemény2"
+			    multipliers="hotel:0.4;">
+
+				<Event description="Esemény3.1"
+				    multipliers="media:1.20002;contech:3.01;"
+					probability="2">
+
+					<Event description="Esemény4.1" />
+				</Event>
+
+				<Event description="Esemény3.2"
+				    multipliers="media:0.9;"
+					probability="5">
+
+					<!-- probability is 1 by default -->
+
+					<Event description="Esemény4.2"
+					    multipliers="oil:2;" />
+
+					<Event description="Esemény4.3"
+					    multipliers="oil:1.01;"
+						probability="3" />
+				</Event>
+			</Event>
+		</Event>
+	</EventQueue>
+	<EventQueue>
+		<Event description="Alternatív esemény1" />
+	</EventQueue>
+	<EventQueue>
+		<Event description="Alternatív esemény2" />
+	</EventQueue>
+	<EventQueue>
+		<Event description="Alternatív esemény3" />
+	</EventQueue>
+</EventQueues>
