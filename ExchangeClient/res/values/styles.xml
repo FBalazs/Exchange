@@ -1,20 +1,29 @@
-<resources>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!--
-        Base application theme, dependent on API level. This theme is replaced
-        by AppBaseTheme from res/values-vXX/styles.xml on newer devices.
-    -->
-    <style name="AppBaseTheme" parent="android:Theme.Light">
-        <!--
-            Theme customizations available in newer API levels can go in
-            res/values-vXX/styles.xml, while customizations related to
-            backward-compatibility can go here.
-        -->
+    <!-- Android 2.3 and above -->
+    <style name="AppBaseTheme" parent="@style/Theme.AppCompat.Light">
+        <item name="actionBarStyle">@style/ActionBarStyle</item>
     </style>
 
-    <!-- Application theme. -->
+    <!-- Not API specific -->
     <style name="AppTheme" parent="AppBaseTheme">
-        <!-- All customizations that are NOT specific to a particular API-level can go here. -->
+        <item name="android:windowBackground">@color/windowBackground</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="android:textColorPrimary">@color/textColorPrimary</item>
     </style>
+
+    <style name="ActionBarStyle" parent="@style/Widget.AppCompat.ActionBar">
+        <item name="android:background">@color/colorPrimary</item>
+        <item name="background">@color/colorPrimary</item>
+        <item name="titleTextStyle">@style/ActionBarTitleStyle</item>
+    </style>
+
+    <style name="ActionBarTitleStyle" parent="@style/TextAppearance.AppCompat.Widget.ActionBar.Title">
+        <item name="android:textColor">@color/actionBarTitle</item>
+    </style>
+
+    <style name="emphasized" parent="@android:style/TextAppearance.Medium"></style>
 
 </resources>

@@ -67,7 +67,7 @@ public class ActivityConnect extends Activity {
 					public void run() {
 						mDialog.dismiss();
 						startActivity(new Intent(ActivityConnect.this,
-								ActivityMain.class));
+								NewActivityMain.class));
 					}
 				});
 			}

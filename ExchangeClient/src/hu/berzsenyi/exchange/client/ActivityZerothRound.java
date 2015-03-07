@@ -53,12 +53,8 @@ public class ActivityZerothRound extends Activity {
 		setContentView(R.layout.activity_zeroth_round);
 
 		TextView money = ((TextView) findViewById(R.id.money));
-		money.setText(ActivityMain.DECIMAL_FORMAT.format(mClient.getModel().startMoney));
+		money.setText(NewActivityMain.DECIMAL_FORMAT.format(mClient.getModel().startMoney));
 		colorDefault = money.getTextColors();
-
-		mListView = (ListView) findViewById(R.id.stocks);
-		mAdapter = new StockAdapter(mClient.getModel().stocks);
-		mListView.setAdapter(mAdapter);
 
 		// TODO Unregister listener
 		mClient.addIClientListener(new IClientListener() {
@@ -110,6 +106,10 @@ public class ActivityZerothRound extends Activity {
 		});
 		if (!mClient.isConnected())
 			finish();
+
+		mListView = (ListView) findViewById(R.id.stocks);
+		mAdapter = new StockAdapter(mClient.getModel().stocks);
+		mListView.setAdapter(mAdapter);
 
 		((Button) findViewById(R.id.activity_zeroth_round_done))
 				.setOnClickListener(new OnClickListener() {
@@ -210,9 +210,9 @@ public class ActivityZerothRound extends Activity {
 
 			Stock stock = (Stock) getItem(position);
 			((TextView) out.findViewById(R.id.stock_name)).setText(stock.name);
-			((TextView) out.findViewById(R.id.stock_value))
+			((TextView) out.findViewById(R.id.main_tab_stocks_card_value))
 					.setText(getString(R.string.unit_price)
-							+ ActivityMain.DECIMAL_FORMAT.format(stock.value));
+							+ NewActivityMain.DECIMAL_FORMAT.format(stock.value));
 
 			// Android may call SeekBar.setProgress(SeekBar.getMax()) on amount,
 			// causing mAmounts to be modified. So first save mAmounts[position]
@@ -248,7 +248,7 @@ public class ActivityZerothRound extends Activity {
 						tv.setTextColor(COLOR_ILLEGAL);
 					else
 						tv.setTextColor(colorDefault);
-					tv.setText(ActivityMain.DECIMAL_FORMAT.format(currentMoney));
+					tv.setText(NewActivityMain.DECIMAL_FORMAT.format(currentMoney));
 				}
 			});
 			amount.setProgress(currentAmount);

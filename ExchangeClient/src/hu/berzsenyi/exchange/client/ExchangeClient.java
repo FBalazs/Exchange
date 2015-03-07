@@ -9,6 +9,7 @@ import hu.berzsenyi.exchange.net.cmd.CmdClientBuy;
 import hu.berzsenyi.exchange.net.cmd.CmdClientDisconnect;
 import hu.berzsenyi.exchange.net.cmd.CmdClientInfo;
 import hu.berzsenyi.exchange.net.cmd.CmdClientOffer;
+import hu.berzsenyi.exchange.net.cmd.CmdClientOfferDelete;
 import hu.berzsenyi.exchange.net.cmd.CmdServerError;
 import hu.berzsenyi.exchange.net.cmd.CmdServerEvent;
 import hu.berzsenyi.exchange.net.cmd.CmdServerInfo;
@@ -126,13 +127,24 @@ public class ExchangeClient implements ICmdHandler, IClientConnectionListener {
 		CmdClientOffer offer = new CmdClientOffer(stockID, amount, price, sell);
 		mClient.writeCommand(offer);
 		mOutgoingOffers.add(offer);
-		for(IClientListener listener : mListeners)
+		for (IClientListener listener : mListeners)
 			listener.onOutgoingOffersChanged();
+	}
+
+	public boolean deleteOffer(CmdClientOffer offer) {
+		if (!mOutgoingOffers.remove(offer))
+			return false;
+		CmdClientOfferDelete cmd = new CmdClientOfferDelete(offer.stockID,
+				offer.amount, Math.abs(offer.price), offer.price > 0);
+		mClient.writeCommand(cmd);
+		for (IClientListener listener : mListeners)
+			listener.onOutgoingOffersChanged();
+		return true;
 	}
 
 	public CmdClientOffer[] getOutgoingOffers() {
 		return mOutgoingOffers.toArray(new CmdClientOffer[mOutgoingOffers
-		                                                  .size()]);
+				.size()]);
 	}
 
 	public void addIClientListener(IClientListener listener) {
