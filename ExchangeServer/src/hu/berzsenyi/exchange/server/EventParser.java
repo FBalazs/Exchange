@@ -2,7 +2,6 @@ package hu.berzsenyi.exchange.server;
 
 import java.io.IOException;
 import java.io.Reader;
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
@@ -13,7 +12,6 @@ import org.xmlpull.v1.XmlPullParserFactory;
 
 import hu.berzsenyi.exchange.Event;
 import hu.berzsenyi.exchange.Model;
-import hu.berzsenyi.exchange.Stock;
 
 public class EventParser {
 
@@ -106,10 +104,13 @@ public class EventParser {
 				}
 				break;
 			case XmlPullParser.END_TAG:
-				if (parser.getName() == TAG_EVENT)
-					stack.pop();
-				else if (parser.getName() == TAG_EVENT_QUEUE)
-					out.add(stack.peek().create());
+				if (parser.getName().equals(TAG_EVENT)) {
+					if (stack.size() > 1)
+						stack.pop();
+					else
+						out.add(stack.pop().create());
+				} else if (parser.getName().equals(TAG_EVENT_QUEUE))
+					inEventQueue = false;
 				break;
 			}
 			eventType = parser.next();
@@ -120,22 +121,6 @@ public class EventParser {
 
 	public static boolean isVersionSupported(int versionCode) {
 		return versionCode == 1;
-	}
-
-	public static void main(String[] args) {
-		Model model = new Model();
-		model.stocks = new Stock[] { new Stock("food", "Kaja", 120.0),
-				new Stock("oil", "Olaj", 90.21),
-				new Stock("media", "Média", 12.0) };
-		try {
-			Event[] events = parseEvents(
-					model,
-					new StringReader(
-							"<?xml version=\"1.0\" encoding=\"utf-8\"?><EventQueues versionCode=\"1\" >    <!-- No need for id, you can identify them by their order -->    <EventQueue>        <Event            description=\"Esemény1\"            multipliers=\"food:1.1;medical:0.98;\" >            <Event                description=\"Esemény2\"                multipliers=\"hotel:0.4;\" >                <Event                    description=\"Esemény3.1\"                    multipliers=\"media:1.20002;contech:3.01;\"                    probability=\"2\" >                    <Event description=\"Esemény4.1\" />                    <Event                        description=\"Esemény3.2\"                        multipliers=\"media:0.9;\"                        probability=\"5\" >                        <!-- probability is 1 by default -->                        <Event                            description=\"Esemény4.2\"                            multipliers=\"oil:2;\" />                        <Event                            description=\"Esemény4.3\"                            multipliers=\"oil:1.01;\"                            probability=\"3\" />                    </Event>                </Event>            </Event>        </Event>    </EventQueue>"));
-			System.out.println("Hello");
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 	}
 
 }
