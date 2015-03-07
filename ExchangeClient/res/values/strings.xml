@@ -64,6 +64,7 @@
     <string name="main_tab_exchange_offer_stock_name">Részvény: %s</string>
     <string name="main_tab_exchange_offer_price">Ár: %s$</string>
     <string name="main_tab_exchange_offer_amount">Mennyiség: %d db</string>
+    <string name="main_tab_exchange_cancel_offer">Visszavonod az ajánlatot?</string>
     <!-- ActivityMain Exchange tab new offer -->
     <string name="main_tab_exchange_new_offer_stock_name">Részvény:</string>
     <string name="main_tab_exchange_new_offer_price">Ár:</string>
