@@ -16,7 +16,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name=".ActivityConnect"
+            android:name="old.hu.berzsenyi.exchange.client.ActivityConnect"
             android:configChanges="orientation|screenSize"
             android:label="@string/app_name" >
             <intent-filter>
@@ -26,11 +26,11 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ActivityZerothRound"
+            android:name="old.hu.berzsenyi.exchange.client.ActivityZerothRound"
             android:configChanges="orientation|screenSize"
             android:label="@string/app_name" />
         <activity
-            android:name=".NewActivityMain"
+            android:name="old.hu.berzsenyi.exchange.client.NewActivityMain"
             android:configChanges="orientation|screenSize"
             android:label="@string/app_name" />
     </application>
