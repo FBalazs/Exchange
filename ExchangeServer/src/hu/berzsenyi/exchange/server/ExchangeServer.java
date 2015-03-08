@@ -1,15 +1,6 @@
 package hu.berzsenyi.exchange.server;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.Random;
-
-import hu.berzsenyi.exchange.Model;
+import hu.berzsenyi.exchange.SingleEvent;
 import hu.berzsenyi.exchange.Team;
 import hu.berzsenyi.exchange.log.LogEvent;
 import hu.berzsenyi.exchange.log.LogEventConnAttempt;
@@ -27,6 +18,15 @@ import hu.berzsenyi.exchange.net.cmd.CmdServerInfo;
 import hu.berzsenyi.exchange.net.cmd.CmdServerStocks;
 import hu.berzsenyi.exchange.net.cmd.ICmdHandler;
 import hu.berzsenyi.exchange.net.cmd.TCPCommand;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.Random;
 
 public class ExchangeServer implements IServerListener, ICmdHandler {
 	
@@ -116,9 +116,9 @@ public class ExchangeServer implements IServerListener, ICmdHandler {
 		}
 		this.ceventMult = this.model.events[eventNum].getMultipliers();
 
-		this.model.nextRound(this.model.events[eventNum].getDescription(), multipliers);
-		this.net.writeCmdToAll(new CmdServerEvent(this.model.eventMessage,
-				multipliers));
+		this.model.nextRound(multipliers);
+		this.net.writeCmdToAll(new CmdServerEvent(new SingleEvent[0],
+				multipliers)); // TODO
 
 		this.log(new LogEvent("Round start", "Round " + this.model.round
 				+ " started."));
@@ -156,7 +156,7 @@ public class ExchangeServer implements IServerListener, ICmdHandler {
 				conn.writeCommand(new CmdServerStocks(this.model));
 			} else {
 				conn.writeCommand(new CmdServerError(
-						CmdServerError.ERROR_NAME_DUPLICATE, null));
+						CmdServerError.ERROR_NAME_DUPLICATE));
 			}
 		}
 

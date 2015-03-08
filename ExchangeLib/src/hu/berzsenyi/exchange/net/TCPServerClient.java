@@ -2,8 +2,8 @@ package hu.berzsenyi.exchange.net;
 
 import hu.berzsenyi.exchange.net.cmd.ICmdHandler;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.Socket;
 
 public class TCPServerClient extends TCPConnection {
@@ -13,8 +13,10 @@ public class TCPServerClient extends TCPConnection {
 		super(cmdHandler);
 		try {
 			this.socket = socket;
-			this.din = new DataInputStream(this.socket.getInputStream());
-			this.dout = new DataOutputStream(this.socket.getOutputStream());
+			// The order is important! Deadlock!
+			this.oout = new ObjectOutputStream(this.socket.getOutputStream());
+			this.oout.flush();
+			this.oin = new ObjectInputStream(this.socket.getInputStream());
 			onConnect();
 		} catch (Exception e) {
 			e.printStackTrace();

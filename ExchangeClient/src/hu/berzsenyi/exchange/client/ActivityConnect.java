@@ -1,5 +1,6 @@
 package hu.berzsenyi.exchange.client;
 
+import hu.berzsenyi.exchange.SingleEvent;
 import hu.berzsenyi.exchange.Team;
 import hu.berzsenyi.exchange.net.TCPClient;
 import hu.berzsenyi.exchange.net.cmd.CmdServerError;
@@ -86,7 +87,7 @@ public class ActivityConnect extends ActionBarActivity {
 			}
 
 			@Override
-			public void onRoundCommand(ExchangeClient client) {
+			public void onNewEvents(SingleEvent[] events) {
 			}
 
 			@Override

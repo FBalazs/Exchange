@@ -212,27 +212,14 @@ public class ExchangeClient implements ICmdHandler, IClientConnectionListener {
 
 		if (cmd instanceof CmdServerEvent) {
 			CmdServerEvent cmdNextRound = (CmdServerEvent) cmd;
+			
 			mModel.round++;
-			mModel.nextRound(cmdNextRound.eventDesc, cmdNextRound.multipliers);
+			mModel.nextRound(cmdNextRound.multipliers);
 			for (IClientListener listener : mListeners)
-				listener.onRoundCommand(this);
+				listener.onNewEvents(cmdNextRound.newEvents);
 			return;
 		}
 
-		// if (cmd instanceof CmdOfferResponse) {
-		// // TODO UGLY!
-		// CmdOfferResponse offer = (CmdOfferResponse) cmd;
-		// this.ownTeam.setMoney(this.ownTeam.getMoney() +
-		// offer.money*Math.abs(offer.amount));
-		// this.ownTeam.setStock(offer.stockID,
-		// this.ownTeam.getStock(offer.stockID) + offer.amount);
-		// for (IClientListener listener : mListeners) {
-		// listener.onMoneyChanged(this.ownTeam);
-		// listener.onStocksChanged(this.ownTeam, offer.stockID);
-		// listener.onOfferAccepted(offer);
-		// }
-		// return;
-		// }
 
 		if (cmd instanceof CmdServerError) {
 			CmdServerError error = (CmdServerError) cmd;

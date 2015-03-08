@@ -1,10 +1,10 @@
 package hu.berzsenyi.exchange;
 
+import java.io.Serializable;
 import java.util.List;
 
-import hu.berzsenyi.exchange.net.cmd.TCPCommand;
-
-public class Stock {
+public class Stock implements Serializable {
+	private static final long serialVersionUID = -7698800698738451407L;
 	public String id, name;
 	public double value;
 	/**
@@ -15,14 +15,11 @@ public class Stock {
 	public int boughtAmount;
 	// TODO kupac
 	public List<Offer> buyOffers, saleOffers;
-	
+
 	public Stock(String id, String name, double value) {
 		this.id = id;
 		this.name = name;
 		this.value = value;
 	}
-	
-	public int getCmdLength() {
-		return 8+4+TCPCommand.stringLength(this.id)+4+TCPCommand.stringLength(this.name);
-	}
+
 }

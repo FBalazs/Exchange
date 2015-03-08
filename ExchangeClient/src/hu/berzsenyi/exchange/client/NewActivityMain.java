@@ -1,16 +1,20 @@
 package hu.berzsenyi.exchange.client;
 
+import hu.berzsenyi.exchange.EventQueue;
+import hu.berzsenyi.exchange.SingleEvent;
 import hu.berzsenyi.exchange.Stock;
 import hu.berzsenyi.exchange.Team;
 import hu.berzsenyi.exchange.net.TCPClient;
 import hu.berzsenyi.exchange.net.cmd.CmdClientOffer;
 import hu.berzsenyi.exchange.net.cmd.CmdServerError;
+
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Formatter;
+
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -37,6 +41,7 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
+
 import com.example.android.common.view.SlidingTabLayout;
 
 public class NewActivityMain extends ActionBarActivity {
@@ -58,76 +63,88 @@ public class NewActivityMain extends ActionBarActivity {
 	private OutgoingOfferAdapter mOutgoingOfferAdapter;
 	private NewOfferStockAdapter mNewOfferStockAdapter;
 	private StockAdapter mStockAdapter;
+	private IClientListener mListener = new IClientListener() {
+
+		@Override
+		public void onConnectionFail(TCPClient client, IOException exception) {
+			// TODO Auto-generated method stub
+
+		}
+
+		@Override
+		public void onConnect(TCPClient client) {
+			// TODO Auto-generated method stub
+
+		}
+
+		@Override
+		public void onClose(TCPClient client) {
+			runOnUiThread(new Runnable() {
+				public void run() {
+					new AlertDialog.Builder(NewActivityMain.this)
+							.setMessage(R.string.connection_lost)
+							.setPositiveButton(R.string.ok,
+									new DialogInterface.OnClickListener() {
+
+										@Override
+										public void onClick(
+												DialogInterface dialog,
+												int which) {
+											finish();
+										}
+									}).create().show();
+				}
+			});
+		}
+
+		@Override
+		public void onTeamsCommand(ExchangeClient client) {
+			// TODO Auto-generated method stub
+
+		}
+
+		@Override
+		public void onStocksCommand(ExchangeClient client) {
+			if (mStockAdapter != null)
+				mStockAdapter.notifyDataSetChanged();
+			if (mNewOfferStockAdapter != null)
+				mNewOfferStockAdapter.notifyDataSetChanged();
+		}
+
+		@Override
+		public void onStocksChanged(Team ownTeam, int position) {
+			if (mStockAdapter != null)
+				mStockAdapter.notifyDataSetChanged();
+		}
+
+		@Override
+		public void onNewEvents(SingleEvent[] event) {
+			// TODO Auto-generated method stub
+
+		}
+
+		@Override
+		public void onOutgoingOffersChanged() {
+			mOutgoingOfferAdapter.notifyDataSetChanged();
+		}
+
+		@Override
+		public void onMoneyChanged(Team ownTeam) {
+			// TODO Auto-generated method stub
+
+		}
+
+		@Override
+		public void onErrorCommand(CmdServerError error) {
+			// TODO Auto-generated method stub
+
+		}
+	};
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-
-		mClient = ExchangeClient.getInstance();
-		mClient.addIClientListener(new IClientListener() {
-
-			@Override
-			public void onConnectionFail(TCPClient client, IOException exception) {
-				// TODO Auto-generated method stub
-
-			}
-
-			@Override
-			public void onConnect(TCPClient client) {
-				// TODO Auto-generated method stub
-
-			}
-
-			@Override
-			public void onClose(TCPClient client) {
-				// TODO Auto-generated method stub
-
-			}
-
-			@Override
-			public void onTeamsCommand(ExchangeClient client) {
-				// TODO Auto-generated method stub
-
-			}
-
-			@Override
-			public void onStocksCommand(ExchangeClient client) {
-				if (mStockAdapter != null)
-					mStockAdapter.notifyDataSetChanged();
-				if (mNewOfferStockAdapter != null)
-					mNewOfferStockAdapter.notifyDataSetChanged();
-			}
-
-			@Override
-			public void onStocksChanged(Team ownTeam, int position) {
-				if (mStockAdapter != null)
-					mStockAdapter.notifyDataSetChanged();
-			}
-
-			@Override
-			public void onRoundCommand(ExchangeClient client) {
-				// TODO Auto-generated method stub
-
-			}
-
-			@Override
-			public void onOutgoingOffersChanged() {
-				mOutgoingOfferAdapter.notifyDataSetChanged();
-			}
-
-			@Override
-			public void onMoneyChanged(Team ownTeam) {
-				// TODO Auto-generated method stub
-
-			}
-
-			@Override
-			public void onErrorCommand(CmdServerError error) {
-				// TODO Auto-generated method stub
-
-			}
-		});
 
 		ActionBar actionBar = getSupportActionBar();
 		actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME
@@ -149,6 +166,12 @@ public class NewActivityMain extends ActionBarActivity {
 
 	}
 
+	@Override
+	protected void onDestroy() {
+		mClient.removeIClientListener(mListener);
+		super.onDestroy();
+	}
+
 	@TargetApi(Build.VERSION_CODES.LOLLIPOP)
 	private static void setElevation(View view, float elevation) {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
@@ -159,13 +182,17 @@ public class NewActivityMain extends ActionBarActivity {
 	protected void onStart() {
 		super.onStart();
 		if (mZerothRoundStarted && !mZerothRoundDone) { // ActivityZerothRound
-														// was
-			// cancelled
+														// was cancelled
 			finish();
 		} else if (!mZerothRoundStarted) {
 			startActivityForResult(new Intent(this, ActivityZerothRound.class),
 					ActivityZerothRound.REQUEST_CODE);
 			mZerothRoundStarted = true;
+		} else { // Now NewActivityMain is really shown
+
+			mClient = ExchangeClient.getInstance();
+
+			mClient.addIClientListener(mListener);
 		}
 	}
 

@@ -9,8 +9,7 @@ public class Model {
 	public double startMoney = 10000;
 	public Stock[] stocks;
 	public List<Team> teams = new ArrayList<Team>();
-	public String eventMessage = "2-t fizet 3-at kap akció a Trióban!!!"; // TODO
-	public Event[] events;
+	public EventQueue[] events;
 
 	/**
 	 * Loads the stocks from the data files.
@@ -149,20 +148,11 @@ public class Model {
 		}
 	}
 
-	public void nextRound(String eventDesc, double[] multipliers) {
-		this.eventMessage = eventDesc;
+	public void nextRound(double[] multipliers) {
 		for (int i = 0; i < multipliers.length; i++) {
 			this.stocks[i].value *= multipliers[i];
 			this.stocks[i].change = multipliers[i];
 		}
-	}
-
-	public int getStockCmdLength() {
-		int ret = 0;
-		ret += 4;
-		for (int s = 0; s < this.stocks.length; s++)
-			ret += this.stocks[s].getCmdLength();
-		return ret;
 	}
 
 	public Team getTeamById(String id) {

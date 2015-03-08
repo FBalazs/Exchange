@@ -1,5 +1,6 @@
 package hu.berzsenyi.exchange.client;
 
+import hu.berzsenyi.exchange.SingleEvent;
 import hu.berzsenyi.exchange.Team;
 import hu.berzsenyi.exchange.net.IClientConnectionListener;
 import hu.berzsenyi.exchange.net.cmd.CmdServerError;
@@ -10,7 +11,7 @@ public interface IClientListener extends IClientConnectionListener {
 
 	public void onTeamsCommand(ExchangeClient client);
 
-	public void onRoundCommand(ExchangeClient client);
+	public void onNewEvents(SingleEvent[] event);
 
 	public void onMoneyChanged(Team ownTeam);
 

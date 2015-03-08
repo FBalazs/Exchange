@@ -1,37 +1,15 @@
 package hu.berzsenyi.exchange.net.cmd;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
+import hu.berzsenyi.exchange.SingleEvent;
 
 public class CmdServerEvent extends TCPCommand {
-	public static final int ID = 8;
-	
-	public String eventDesc;
+
+	private static final long serialVersionUID = 4667891564777437407L;
 	public double[] multipliers;
-	
-	public CmdServerEvent(int length) {
-		super(ID, length);
-	}
-	
-	public CmdServerEvent(String eventDesc, double[] multipliers) {
-		super(ID, 4+stringLength(eventDesc)+4+8*multipliers.length);
-		this.eventDesc = eventDesc;
+	public SingleEvent[] newEvents;
+
+	public CmdServerEvent(SingleEvent[] events, double[] multipliers) {
+		this.newEvents = new SingleEvent[0];
 		this.multipliers = multipliers;
-	}
-	
-	@Override
-	public void read(DataInputStream in) throws Exception {
-		this.eventDesc = readString(in);
-		this.multipliers = new double[in.readInt()];
-		for(int i = 0; i < this.multipliers.length; i++)
-			this.multipliers[i] = in.readDouble();
-	}
-	
-	@Override
-	public void write(DataOutputStream out) throws Exception {
-		writeString(out, this.eventDesc);
-		out.writeInt(this.multipliers.length);
-		for(int i = 0; i < this.multipliers.length; i++)
-			out.writeDouble(this.multipliers[i]);
 	}
 }

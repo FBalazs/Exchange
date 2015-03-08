@@ -47,7 +47,8 @@ public class ServerDisplay extends JFrame implements WindowListener,
 	@Override
 	public void onRoundBegin(int round) {
 		this.labelRound.setText("Round: " + round);
-		this.labelEvent.setText(this.server.model.eventMessage);
+		// this.labelEvent.setText(this.server.model.eventMessage);
+		// TODO
 	}
 
 	@Override

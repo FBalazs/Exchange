@@ -4,9 +4,10 @@ import hu.berzsenyi.exchange.net.cmd.*;
 
 import java.io.*;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 
 public abstract class TCPConnection {
-	
+
 	private class TCPReceiveThread extends Thread {
 
 		public TCPReceiveThread() {
@@ -16,56 +17,15 @@ public abstract class TCPConnection {
 		@Override
 		public void run() {
 			System.out.println("TCPReceiveThread started");
-			while(TCPConnection.this.open) {
+			while (TCPConnection.this.open) {
 				try {
-					while(TCPConnection.this.open && TCPConnection.this.din.available() < 4+4);
-					int id = TCPConnection.this.din.readInt();
-					int length = TCPConnection.this.din.readInt();
-//					System.out.println("start receiving command id="+id+" length="+length);
-					while(TCPConnection.this.din.available() < length);
-//					System.out.println("start reading command");
-					TCPCommand cmd = null;
-					switch(id) {
-					case CmdClientInfo.ID:
-						cmd = new CmdClientInfo(length);
-						break;
-					case CmdClientDisconnect.ID:
-						cmd = new CmdClientDisconnect(length);
-						break;
-					case CmdServerStocks.ID:
-						cmd = new CmdServerStocks(length);
-						break;
-					case CmdClientOffer.ID:
-						cmd = new CmdClientOffer(length);
-						break;
-					case CmdClientOfferDelete.ID:
-						cmd = new CmdClientOfferDelete(length);
-						break;
-					case CmdServerOfferResponse.ID:
-						cmd = new CmdServerOfferResponse(length);
-						break;
-					case CmdServerTrade.ID:
-						cmd = new CmdServerTrade(length);
-						break;
-					case CmdClientBuy.ID:
-						cmd = new CmdClientBuy(length);
-						break;
-					case CmdServerEvent.ID:
-						cmd = new CmdServerEvent(length);
-						break;
-					case CmdServerInfo.ID:
-						cmd = new CmdServerInfo(length);
-						break;
-					case CmdServerError.ID:
-						cmd = new CmdServerError(length);
-						break;
-					}
-					if(cmd != null)
-						cmd.read(TCPConnection.this.din);
-					
+					TCPCommand cmd = (TCPCommand) oin.readObject();
+
 					cmdHandler.handleCmd(cmd, TCPConnection.this);
-//					System.out.println("A command has arrived");
-				} catch(Exception e) {
+					// System.out.println("A command has arrived");
+				} catch (EOFException e) { // Nothing special
+				} catch (SocketTimeoutException e) {
+				} catch (Exception e) {
 					e.printStackTrace();
 					TCPConnection.this.close();
 				}
@@ -73,61 +33,58 @@ public abstract class TCPConnection {
 			System.out.println("TCPReceiveThread stopped");
 		}
 	}
-	
-	
+
 	public Socket socket;
 	public boolean open = false;
-	public DataInputStream din;
-	public DataOutputStream dout;
+	protected ObjectInputStream oin;
+	protected ObjectOutputStream oout;
 	public ICmdHandler cmdHandler;
-	
+
 	public TCPConnection(ICmdHandler cmdHandler) {
 		this.cmdHandler = cmdHandler;
 	}
-	
+
 	public String getAddrString() {
-		return this.socket.getInetAddress().toString()+":"+this.socket.getPort();
+		return this.socket.getInetAddress().toString() + ":"
+				+ this.socket.getPort();
 	}
-	
+
 	public void writeCommand(TCPCommand cmd) {
 		try {
-			this.dout.writeInt(cmd.id);
-			this.dout.writeInt(cmd.length);
-			cmd.write(this.dout);
-			this.dout.flush();
-		} catch(Exception e) {
+			this.oout.writeObject(cmd);
+			this.oout.flush();
+		} catch (Exception e) {
 			e.printStackTrace();
 			this.close();
 		}
 	}
-	
+
 	protected void onConnect() {
 		System.out.println("TCPConnection.onConnect()");
 		this.open = true;
 		new TCPReceiveThread().start();
 	}
-	
-	
+
 	public void close() {
-		if(!this.open)
+		if (!this.open)
 			return;
 		this.open = false;
 		try {
-			if(this.din != null)
-				this.din.close();
-		} catch(Exception e) {
+			if (this.oin != null)
+				this.oin.close();
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		try {
-			if(this.dout != null)
-				this.dout.close();
-		} catch(Exception e) {
+			if (this.oout != null)
+				this.oout.close();
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		try {
-			if(this.socket != null)
+			if (this.socket != null)
 				this.socket.close();
-		} catch(Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}

@@ -2,8 +2,8 @@ package hu.berzsenyi.exchange.net;
 
 import hu.berzsenyi.exchange.net.cmd.ICmdHandler;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.io.IOException;
@@ -18,8 +18,11 @@ public class TCPClient extends TCPConnection {
 			this.socket = new Socket();
 			this.socket.setSoTimeout(2000);
 			this.socket.connect(new InetSocketAddress(host, port),2000);
-			this.din = new DataInputStream(this.socket.getInputStream());
-			this.dout = new DataOutputStream(this.socket.getOutputStream());
+			// The order is important! Deadlock!
+			this.oin = new ObjectInputStream(this.socket.getInputStream());
+			this.oout = new ObjectOutputStream(this.socket.getOutputStream());
+			this.oout.flush();
+			oout.flush();
 			onConnect();
 		} catch (IOException e) {
 			if(this.listener != null)

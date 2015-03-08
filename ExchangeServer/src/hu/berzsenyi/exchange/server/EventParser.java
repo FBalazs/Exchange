@@ -10,7 +10,7 @@ import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
 
-import hu.berzsenyi.exchange.Event;
+import hu.berzsenyi.exchange.EventQueue;
 import hu.berzsenyi.exchange.Model;
 
 public class EventParser {
@@ -28,7 +28,7 @@ public class EventParser {
 			EVENT_QUEUE_TAG_EXPECTED = "EventQueue tag expected at ",
 			UNSUPPORTED_VERSION = "Unsupported version";
 
-	public static Event[] parseEvents(Model model, Reader in)
+	public static EventQueue[] parseEvents(Model model, Reader in)
 			throws XmlPullParserException, IOException {
 		XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
 		XmlPullParser parser = factory.newPullParser();
@@ -37,8 +37,8 @@ public class EventParser {
 		int eventType = parser.getEventType();
 		boolean firstTagFound = false, inEventQueue = false;
 		int versionCode = -1;
-		List<Event> out = new ArrayList<Event>();
-		Stack<Event.Builder> stack = new Stack<Event.Builder>();
+		List<EventQueue> out = new ArrayList<EventQueue>();
+		Stack<EventQueue.Builder> stack = new Stack<EventQueue.Builder>();
 
 		while (eventType != XmlPullParser.END_DOCUMENT) {
 			switch (eventType) {
@@ -52,7 +52,7 @@ public class EventParser {
 									EVENT_TAG_EXPECTED + parser.getLineNumber()
 											+ ":" + parser.getColumnNumber());
 						// tag name is now bound to be Event
-						Event.Builder builder = new Event.Builder(model);
+						EventQueue.Builder builder = new EventQueue.Builder(model);
 						int attributeCount = parser.getAttributeCount();
 						for (int i = 0; i < attributeCount; i++) {
 							String attributeName = parser.getAttributeName(i), attributeValue = parser
@@ -116,7 +116,7 @@ public class EventParser {
 			eventType = parser.next();
 		}
 
-		return out.toArray(new Event[out.size()]);
+		return out.toArray(new EventQueue[out.size()]);
 	}
 
 	public static boolean isVersionSupported(int versionCode) {
