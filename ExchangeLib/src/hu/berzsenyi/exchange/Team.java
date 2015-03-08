@@ -1,56 +1,70 @@
 package hu.berzsenyi.exchange;
 
 public class Team {
-	private final String name, password;
-	private String netId;
-	private double money;
-	private int[] stocks;
-	
-	public Team(String name, String password, String netId) {
+	public String id, name, pass;
+	private double mMoney = 0;
+	private int[] mStocks = null;
+	private OnChangeListener mListener;
+
+	public Team(String id, String name, String pass) {
+		this.id = id;
 		this.name = name;
-		this.password = password;
-		this.netId = netId;
-		money = 0;
-		stocks = null;
+		this.pass = pass;
 	}
-	
-	public String getName() {
-		return name;
-	}
-	
-	public String getPassword() {
-		return password;
-	}
-	
-	public String getNetId() {
-		return netId;
-	}
-	
-	public void setNetId(String id) {
-		netId = id;
-	}
-	
+
 	public double getMoney() {
-		return money;
+		return mMoney;
 	}
 	
+	public double getStockValue(Model model) {
+		double out = 0.0;
+		for(int i=0;i<mStocks.length;i++)
+			out += mStocks[i] * model.stocks[i].value;
+		return out;
+	}
+
 	public void setMoney(double money) {
-		this.money = money;
+		mMoney = money;
+		if (mListener != null)
+			mListener.onMoneyChanged(this);
 	}
-	
-	public int[] getStocks() {
-		return stocks;
+
+	// /**
+	// * Should not be edited!!! Avoid using {@code {@link #getStocks()}[i] =
+	// * ...}!
+	// *
+	// * @return
+	// */
+	// public int[] getStocks() {
+	// return mStocks;
+	// }
+
+	public int getStock(int index) {
+		return mStocks[index];
 	}
-	
+
+	public void setStock(int index, int newAmount) {
+		mStocks[index] = newAmount;
+		if (mListener != null)
+			mListener.onStocksChanged(this, index);
+	}
+
 	public void setStocks(int[] stocks) {
-		this.stocks = stocks;
+		mStocks = stocks.clone();
+		if (mListener != null)
+			for (int i = 0; i < stocks.length; i++)
+				mListener.onStocksChanged(this, i);
 	}
-	
-	public int getStock(int stockId) {
-		return stocks[stockId];
+
+	public void setOnChangeListener(OnChangeListener listener) {
+		mListener = listener;
 	}
-	
-	public void setStock(int stockId, int amount) {
-		stocks[stockId] = amount;
+
+	public static interface OnChangeListener {
+
+		public void onMoneyChanged(Team team);
+
+		public void onStocksChanged(Team team, int position);
+
 	}
 }
