@@ -1,6 +1,7 @@
 package hu.berzsenyi.exchange.client;
 
 import hu.berzsenyi.exchange.Model;
+import hu.berzsenyi.exchange.SingleEvent;
 import hu.berzsenyi.exchange.Team;
 import hu.berzsenyi.exchange.net.IClientConnectionListener;
 import hu.berzsenyi.exchange.net.TCPClient;
@@ -38,6 +39,7 @@ public class ExchangeClient implements ICmdHandler, IClientConnectionListener {
 	private List<IClientListener> mListeners;
 	private Team mOwnTeam;
 	private ArrayList<CmdClientOffer> mOutgoingOffers = new ArrayList<CmdClientOffer>();
+	private SingleEvent[] mEvents;
 
 	private ExchangeClient() {
 		init();
@@ -141,6 +143,10 @@ public class ExchangeClient implements ICmdHandler, IClientConnectionListener {
 			listener.onOutgoingOffersChanged();
 		return true;
 	}
+	
+	public SingleEvent[] getEvents() {
+		return mEvents.clone();
+	}
 
 	public CmdClientOffer[] getOutgoingOffers() {
 		return mOutgoingOffers.toArray(new CmdClientOffer[mOutgoingOffers
@@ -213,10 +219,11 @@ public class ExchangeClient implements ICmdHandler, IClientConnectionListener {
 		if (cmd instanceof CmdServerEvent) {
 			CmdServerEvent cmdNextRound = (CmdServerEvent) cmd;
 			
+			mEvents = cmdNextRound.newEvents;
 			mModel.round++;
 			mModel.nextRound(cmdNextRound.multipliers);
 			for (IClientListener listener : mListeners)
-				listener.onNewEvents(cmdNextRound.newEvents);
+				listener.onNewEvents(mEvents);
 			return;
 		}
 

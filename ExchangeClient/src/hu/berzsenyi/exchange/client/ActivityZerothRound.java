@@ -199,7 +199,7 @@ public class ActivityZerothRound extends ActionBarActivity {
 		}
 
 		@Override
-		public Object getItem(int position) {
+		public Stock getItem(int position) {
 			return mStocks[position];
 		}
 
@@ -218,7 +218,7 @@ public class ActivityZerothRound extends ActionBarActivity {
 			} else
 				out = convertView;
 
-			Stock stock = (Stock) getItem(position);
+			Stock stock = getItem(position);
 			((TextView) out.findViewById(R.id.stock_name)).setText(stock.name);
 			((TextView) out.findViewById(R.id.main_tab_stocks_card_value))
 					.setText(getString(R.string.unit_price)

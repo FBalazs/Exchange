@@ -1,6 +1,5 @@
 package hu.berzsenyi.exchange.client;
 
-import hu.berzsenyi.exchange.EventQueue;
 import hu.berzsenyi.exchange.SingleEvent;
 import hu.berzsenyi.exchange.Stock;
 import hu.berzsenyi.exchange.Team;
@@ -55,11 +54,12 @@ public class NewActivityMain extends ActionBarActivity {
 	private static final int POSITION_TAB_NEWS_FEED = 0,
 			POSITION_TAB_STOCKS = 1, POSITION_TAB_EXCHANGE = 2,
 			POSITION_TAB_STATS = 3;
-	private static final int POSITION_OFFER_TYPE_BUY = 0,
-			POSITION_OFFER_TYPE_SELL = 1;
+	private static final int POSITION_OFFER_TYPE_SELL = 1;
+	// POSITION_OFFER_TYPE_BUY = 0,
 
 	private ExchangeClient mClient;
 	private boolean mZerothRoundDone = false, mZerothRoundStarted = false;
+	private NewsAdapter mNewsAdapter;
 	private OutgoingOfferAdapter mOutgoingOfferAdapter;
 	private NewOfferStockAdapter mNewOfferStockAdapter;
 	private StockAdapter mStockAdapter;
@@ -67,14 +67,10 @@ public class NewActivityMain extends ActionBarActivity {
 
 		@Override
 		public void onConnectionFail(TCPClient client, IOException exception) {
-			// TODO Auto-generated method stub
-
 		}
 
 		@Override
 		public void onConnect(TCPClient client) {
-			// TODO Auto-generated method stub
-
 		}
 
 		@Override
@@ -119,8 +115,8 @@ public class NewActivityMain extends ActionBarActivity {
 
 		@Override
 		public void onNewEvents(SingleEvent[] event) {
-			// TODO Auto-generated method stub
-
+			if (mNewsAdapter != null)
+				mNewsAdapter.notifyDataSetChanged();
 		}
 
 		@Override
@@ -249,6 +245,14 @@ public class NewActivityMain extends ActionBarActivity {
 			View view;
 
 			switch (position) {
+			case POSITION_TAB_NEWS_FEED:
+				view = getLayoutInflater().inflate(
+						R.layout.activity_main_tab_news, container, false);
+				ListView newsList = (ListView) view
+						.findViewById(R.id.main_tab_news_list);
+				mNewsAdapter = new NewsAdapter();
+				newsList.setAdapter(mNewsAdapter);
+				break;
 			case POSITION_TAB_STOCKS:
 				view = getLayoutInflater().inflate(
 						R.layout.activity_main_tab_stocks, container, false);
@@ -314,7 +318,7 @@ public class NewActivityMain extends ActionBarActivity {
 		}
 
 		@Override
-		public Object getItem(int position) {
+		public Stock getItem(int position) {
 			if (position == 0 || position == getCount() - 1)
 				return null;
 			return mClient.getModel().stocks[position - 1];
@@ -357,7 +361,7 @@ public class NewActivityMain extends ActionBarActivity {
 			else
 				view = convertView;
 
-			Stock stock = (Stock) getItem(position);
+			Stock stock = getItem(position);
 
 			Formatter formatter = new Formatter();
 			DecimalFormat df = new DecimalFormat("+#0.00;-#");
@@ -440,7 +444,7 @@ public class NewActivityMain extends ActionBarActivity {
 		}
 
 		@Override
-		public Object getItem(int position) {
+		public CmdClientOffer getItem(int position) {
 			if (position == 0)
 				return null;
 			return mOffers[position - 1];
@@ -585,6 +589,57 @@ public class NewActivityMain extends ActionBarActivity {
 		}
 	}
 
+	private class NewsAdapter extends BaseAdapter {
+
+		private String[] mNews;
+
+		public NewsAdapter() {
+			init();
+		}
+
+		@Override
+		public void notifyDataSetChanged() {
+			init();
+			super.notifyDataSetChanged();
+		}
+
+		private void init() {
+			SingleEvent[] events = mClient.getEvents();
+			mNews = new String[events.length];
+			for (int i = 0; i < events.length; i++)
+				mNews[i] = events[i].getDescription();
+		}
+
+		@Override
+		public int getCount() {
+			return mNews.length;
+		}
+
+		@Override
+		public String getItem(int pos) {
+			return mNews[pos];
+		}
+
+		@Override
+		public long getItemId(int pos) {
+			return 0;
+		}
+
+		@Override
+		public View getView(int position, View convertView, ViewGroup parent) {
+			View view;
+			if (convertView != null)
+				view = convertView;
+			else
+				view = getLayoutInflater().inflate(
+						R.layout.activity_main_tab_news_card, parent, false);
+			((TextView) view.findViewById(R.id.main_tab_news_card_text))
+					.setText(getItem(position));
+			return view;
+		}
+
+	}
+
 	private class NewOfferStockAdapter extends BaseAdapter {
 
 		private static final int LAYOUT_ID = android.R.layout.simple_spinner_dropdown_item;
@@ -625,7 +680,7 @@ public class NewActivityMain extends ActionBarActivity {
 		}
 
 		@Override
-		public Object getItem(int position) {
+		public Stock getItem(int position) {
 			return mClient.getModel().stocks[(int) getItemId(position)];
 		}
 
@@ -643,7 +698,7 @@ public class NewActivityMain extends ActionBarActivity {
 				view = getLayoutInflater().inflate(LAYOUT_ID, parent, false);
 			}
 			((TextView) view.findViewById(TEXT_VIEW_ID))
-					.setText(((Stock) getItem(position)).name);
+					.setText(getItem(position).name);
 			return view;
 		}
 
