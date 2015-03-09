@@ -2,6 +2,7 @@ package hu.berzsenyi.exchange.server;
 
 import hu.berzsenyi.exchange.Offer;
 import hu.berzsenyi.exchange.SingleEvent;
+import hu.berzsenyi.exchange.Stock.IOfferCallback;
 import hu.berzsenyi.exchange.Team;
 import hu.berzsenyi.exchange.log.LogEvent;
 import hu.berzsenyi.exchange.log.LogEventConnAttempt;
@@ -22,7 +23,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.Random;
 
-public class ExchangeServer implements IServerListener, ICmdHandler {
+public class ExchangeServer implements IServerListener, ICmdHandler, IOfferCallback {
 	
 	public boolean running;
 	public TCPServer net;
@@ -162,7 +163,7 @@ public class ExchangeServer implements IServerListener, ICmdHandler {
 		} else if(o instanceof MsgOffer) {
 			MsgOffer msg = (MsgOffer)o;
 			Team team = this.model.getTeamById(conn.getAddrString());
-			
+			this.model.stocks[msg.stockId].addOffer(team.name, msg.stockId, msg.stockAmount, msg.price, msg.sell, this);
 		} else if(o instanceof MsgOfferDelete) {
 			MsgOfferDelete msg = (MsgOfferDelete)o;
 			Team team = this.model.getTeamById(conn.getAddrString());
@@ -189,6 +190,27 @@ public class ExchangeServer implements IServerListener, ICmdHandler {
 
 		if (this.display != null)
 			this.display.repaint();
+	}
+	
+	@Override
+	public void onOffersPaired(int stockId, Offer offerBuy, Offer offerSell) {
+		Team teamBuy = this.model.getTeamByName(offerBuy.clientName);
+		Team teamSell = this.model.getTeamByName(offerSell.clientName);
+		int amount = Math.min(offerBuy.amount, offerSell.amount);
+		double price = (offerBuy.money+offerSell.money)/2;
+		this.model.stocks[stockId].boughtAmount += amount;
+		this.model.stocks[stockId].boughtFor += amount*price;
+		offerBuy.amount -= amount;
+		offerSell.amount -= amount;
+		teamBuy.setMoney(teamBuy.getMoney()-price*amount);
+		teamSell.setMoney(teamSell.getMoney()+price*amount);
+		teamBuy.setStock(stockId, teamBuy.getStock(stockId)+amount);
+		teamSell.setStock(stockId, teamSell.getStock(stockId)-amount);
+		// TODO send info to clients
+		if(offerBuy.amount != 0)
+			this.model.stocks[stockId].addOffer(offerBuy.clientName, stockId, offerBuy.amount, offerBuy.money, false, this);
+		if(offerSell.amount != 0)
+			this.model.stocks[stockId].addOffer(offerSell.clientName, stockId, offerSell.amount, offerSell.money, true, this);
 	}
 
 	@Override

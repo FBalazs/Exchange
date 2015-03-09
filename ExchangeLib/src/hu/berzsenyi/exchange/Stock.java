@@ -29,6 +29,24 @@ public class Stock implements Serializable {
 	
 	public void addOffer(String teamName, int stockId, int amount, double price, boolean sell, IOfferCallback callback) {
 		Offer offer = new Offer(teamName, amount, price);
-		
+		if(sell) {
+			int best = -1;
+			for(int i = 0; i < buyOffers.size(); i++)
+				if(!buyOffers.get(i).clientName.equals(teamName) && (best == -1 || buyOffers.get(best).money < buyOffers.get(i).money))
+					best = i;
+			if(best != -1 && offer.money <= buyOffers.get(best).money)
+				callback.onOffersPaired(stockId, buyOffers.remove(best), offer);
+			else
+				sellOffers.add(offer);
+		} else {
+			int best = -1;
+			for(int i = 0; i < sellOffers.size(); i++)
+				if(!sellOffers.get(i).clientName.equals(teamName) && (best == -1 || sellOffers.get(i).money < sellOffers.get(best).money))
+					best = i;
+			if(best != -1 && sellOffers.get(best).money <= offer.money)
+				callback.onOffersPaired(stockId, sellOffers.remove(best), offer);
+			else
+				buyOffers.add(offer);
+		}
 	}
 }
