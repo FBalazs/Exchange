@@ -1,4 +1,4 @@
-package hu.berzsenyi.exchange.net.cmd;
+package hu.berzsenyi.exchange.net.msg;
 
 import hu.berzsenyi.exchange.net.TCPConnection;
 
