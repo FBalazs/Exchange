@@ -2,6 +2,7 @@ package hu.berzsenyi.exchange.client;
 
 import hu.berzsenyi.exchange.Model;
 import hu.berzsenyi.exchange.SingleEvent;
+import hu.berzsenyi.exchange.Stock;
 import hu.berzsenyi.exchange.Team;
 import hu.berzsenyi.exchange.net.IClientConnectionListener;
 import hu.berzsenyi.exchange.net.TCPClient;
@@ -10,6 +11,7 @@ import hu.berzsenyi.exchange.net.cmd.ICmdHandler;
 import hu.berzsenyi.exchange.net.msg.*;
 
 import java.io.IOException;
+import java.security.acl.Owner;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -175,12 +177,16 @@ public class ExchangeClient implements ICmdHandler, IClientConnectionListener {
 	public void handleCmd(Object o, TCPConnection conn) {
 		Log.d(this.getClass().getName(), "Received command! "
 				+ o.getClass().getName());
-
-		/*if (cmd instanceof CmdServerInfo) {
-			CmdServerInfo info = (CmdServerInfo) cmd;
-			mOwnTeam = new Team(mModel, info.clientID, mName, mPassword);
+		
+		if(o instanceof MsgConnAccept) {
+			MsgConnAccept msg = (MsgConnAccept)o;
+			for(int t = 0; t < msg.teamNames.length; t++)
+				mModel.teams.add(new Team(mModel, null, msg.teamNames[t], null));
+			mModel.stocks = new Stock[msg.stockNames.length];
+			for(int s = 0; s < mModel.stocks.length; s++)
+				mModel.stocks[s] = new Stock(null, msg.stockNames[s], msg.stockPrices[s]);
+			mOwnTeam = mModel.getTeamByName(mName);
 			mOwnTeam.setOnChangeListener(new Team.OnChangeListener() {
-
 				@Override
 				public void onStocksChanged(Team team, int position) {
 					for (IClientListener listener : mListeners)
@@ -193,11 +199,25 @@ public class ExchangeClient implements ICmdHandler, IClientConnectionListener {
 						listener.onMoneyChanged(team);
 				}
 			});
-			mOwnTeam.setMoney(mModel.startMoney = info.startMoney);
-			return;
+			mOwnTeam.setMoney(msg.teamMoney);
+			mOwnTeam.setStocks(msg.teamStocks);
+		} else if(o instanceof MsgConnRefuse) {
+			// TODO wrong pw or not connected in first round
+		} else if(o instanceof MsgStockInfo) {
+			MsgStockInfo msg = (MsgStockInfo)o;
+			for(int s = 0; s < mModel.stocks.length; s++) {
+				mModel.stocks[s].change = msg.stockPrices[s]/mModel.stocks[s].value;
+				mModel.stocks[s].value = msg.stockPrices[s];
+			}
+			// TODO call listeners
+		} else if(o instanceof MsgTeamInfo) {
+			MsgTeamInfo msg = (MsgTeamInfo)o;
+			mOwnTeam.setMoney(msg.money);
+			mOwnTeam.setStocks(msg.stocks);
 		}
+		// TODO offer response
 
-		if (cmd instanceof CmdServerStocks) {
+		/*if (cmd instanceof CmdServerStocks) {
 			CmdServerStocks stockInfo = (CmdServerStocks) cmd;
 			mModel.stocks = stockInfo.stockList;
 			for (IClientListener listener : mListeners)

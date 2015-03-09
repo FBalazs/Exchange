@@ -144,7 +144,6 @@ public class ExchangeServer implements IServerListener, ICmdHandler, IOfferCallb
 				this.model.teams.add(team);
 				conn.writeCommand(new MsgConnAccept(team.getMoney(), null, this.model.teams, this.model.stocks));
 				conn.writeCommand(new MsgBuyRequest());
-				net.writeCmdToAllExcept(new MsgNewTeam(team.name), team.id);
 			} else if(team != null && team.pass.equals(msg.password)) {
 				team.id = conn.getAddrString();
 				conn.writeCommand(new MsgConnAccept(team.getMoney(), team.getStocks(), this.model.teams, this.model.stocks));

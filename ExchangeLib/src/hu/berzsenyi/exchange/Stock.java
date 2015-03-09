@@ -18,7 +18,6 @@ public class Stock implements Serializable {
 	public double change = 1;
 	public double boughtFor;
 	public int boughtAmount;
-	// TODO kupac
 	public List<Offer> sellOffers, buyOffers;
 
 	public Stock(String id, String name, double value) {
