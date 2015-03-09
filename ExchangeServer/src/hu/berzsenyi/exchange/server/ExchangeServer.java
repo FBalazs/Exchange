@@ -138,7 +138,7 @@ public class ExchangeServer implements IServerListener, ICmdHandler {
 			MsgConnRequest msg = (MsgConnRequest)o;
 			Team team = this.model.getTeamByName(msg.nickName);
 			if(team == null && this.model.round == 0) {
-				team = new Team(conn.getAddrString(), msg.nickName, msg.password);
+				team = new Team(this.model, conn.getAddrString(), msg.nickName, msg.password);
 				team.setMoney(this.model.startMoney);
 				this.model.teams.add(team);
 				conn.writeCommand(new MsgConnAccept(team.getMoney(), null, this.model.teams, this.model.stocks));
