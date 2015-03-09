@@ -19,10 +19,9 @@ public class TCPClient extends TCPConnection {
 			this.socket.setSoTimeout(2000);
 			this.socket.connect(new InetSocketAddress(host, port),2000);
 			// The order is important! Deadlock!
-			this.oin = new ObjectInputStream(this.socket.getInputStream());
 			this.oout = new ObjectOutputStream(this.socket.getOutputStream());
 			this.oout.flush();
-			oout.flush();
+			this.oin = new ObjectInputStream(this.socket.getInputStream());
 			onConnect();
 		} catch (IOException e) {
 			if(this.listener != null)

@@ -63,6 +63,7 @@ public class NewActivityMain extends ActionBarActivity {
 	private OutgoingOfferAdapter mOutgoingOfferAdapter;
 	private NewOfferStockAdapter mNewOfferStockAdapter;
 	private StockAdapter mStockAdapter;
+	private TextView moneyTextView, stocksValueTextView;
 	private IClientListener mListener = new IClientListener() {
 
 		@Override
@@ -105,12 +106,14 @@ public class NewActivityMain extends ActionBarActivity {
 				mStockAdapter.notifyDataSetChanged();
 			if (mNewOfferStockAdapter != null)
 				mNewOfferStockAdapter.notifyDataSetChanged();
+			updateStocksValueTextView();
 		}
 
 		@Override
 		public void onStocksChanged(Team ownTeam, int position) {
 			if (mStockAdapter != null)
 				mStockAdapter.notifyDataSetChanged();
+			updateStocksValueTextView();
 		}
 
 		@Override
@@ -126,7 +129,7 @@ public class NewActivityMain extends ActionBarActivity {
 
 		@Override
 		public void onMoneyChanged(Team ownTeam) {
-			// TODO Auto-generated method stub
+			updateMoneyTextView();
 
 		}
 
@@ -146,9 +149,21 @@ public class NewActivityMain extends ActionBarActivity {
 
 		ActionBar actionBar = getSupportActionBar();
 		actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME
-				| ActionBar.DISPLAY_SHOW_TITLE);
+				| ActionBar.DISPLAY_SHOW_CUSTOM);
 		actionBar.setIcon(R.drawable.ic_launcher);
 		actionBar.setElevation(0);
+
+		actionBar.setCustomView(R.layout.action_bar);
+		View customView = actionBar.getCustomView();
+		((TextView) customView.findViewById(R.id.action_bar_title))
+				.setText(R.string.app_name);
+		moneyTextView = (TextView) customView
+				.findViewById(R.id.action_bar_money);
+		stocksValueTextView = (TextView) customView
+				.findViewById(R.id.action_bar_stocks_value);
+
+		updateMoneyTextView();
+		updateStocksValueTextView();
 
 		ViewPager viewPager = (ViewPager) findViewById(R.id.viewPager);
 		viewPager.setAdapter(new MainPagerAdapter());
@@ -222,6 +237,29 @@ public class NewActivityMain extends ActionBarActivity {
 
 							}
 						}).create().show();
+	}
+
+	private void updateMoneyTextView() {
+		if (mClient.getOwnTeam() == null)
+			return;
+
+		Formatter formatter = new Formatter();
+
+		moneyTextView.setText(formatter.format(
+				getString(R.string.action_bar_money),
+				mClient.getOwnTeam().getMoney()).toString());
+		formatter.close();
+	}
+
+	private void updateStocksValueTextView() {
+		if (mClient.getOwnTeam() == null)
+			return;
+
+		Formatter formatter = new Formatter();
+		stocksValueTextView.setText(formatter.format(
+				getString(R.string.action_bar_stocks_value),
+				mClient.getOwnTeam().calculateStocksValue()).toString());
+		formatter.close();
 	}
 
 	private class MainPagerAdapter extends PagerAdapter {

@@ -32,7 +32,7 @@ public class ExchangeClient implements ICmdHandler, IClientConnectionListener {
 	private List<IClientListener> mListeners;
 	private Team mOwnTeam;
 	private ArrayList<MsgOffer> mOutgoingOffers = new ArrayList<MsgOffer>();
-	private SingleEvent[] mEvents;
+	private SingleEvent[] mEvents = new SingleEvent[0];
 
 	private ExchangeClient() {
 		init();
@@ -62,7 +62,7 @@ public class ExchangeClient implements ICmdHandler, IClientConnectionListener {
 
 	public void disconnect() {
 		if (mClient != null) {
-			//mClient.writeCommand(new CmdClientDisconnect());
+			// mClient.writeCommand(new CmdClientDisconnect());
 			mClient.close();
 			mClient = null;
 		}
@@ -134,14 +134,13 @@ public class ExchangeClient implements ICmdHandler, IClientConnectionListener {
 			listener.onOutgoingOffersChanged();
 		return true;
 	}
-	
+
 	public SingleEvent[] getEvents() {
 		return mEvents.clone();
 	}
 
 	public MsgOffer[] getOutgoingOffers() {
-		return mOutgoingOffers.toArray(new MsgOffer[mOutgoingOffers
-				.size()]);
+		return mOutgoingOffers.toArray(new MsgOffer[mOutgoingOffers.size()]);
 	}
 
 	public void addIClientListener(IClientListener listener) {
@@ -177,14 +176,16 @@ public class ExchangeClient implements ICmdHandler, IClientConnectionListener {
 	public void handleCmd(Object o, TCPConnection conn) {
 		Log.d(this.getClass().getName(), "Received command! "
 				+ o.getClass().getName());
-		
-		if(o instanceof MsgConnAccept) {
-			MsgConnAccept msg = (MsgConnAccept)o;
-			for(int t = 0; t < msg.teamNames.length; t++)
-				mModel.teams.add(new Team(mModel, null, msg.teamNames[t], null));
+
+		if (o instanceof MsgConnAccept) {
+			MsgConnAccept msg = (MsgConnAccept) o;
+			for (int t = 0; t < msg.teamNames.length; t++)
+				mModel.teams
+						.add(new Team(mModel, null, msg.teamNames[t], null));
 			mModel.stocks = new Stock[msg.stockNames.length];
-			for(int s = 0; s < mModel.stocks.length; s++)
-				mModel.stocks[s] = new Stock(null, msg.stockNames[s], msg.stockPrices[s]);
+			for (int s = 0; s < mModel.stocks.length; s++)
+				mModel.stocks[s] = new Stock(null, msg.stockNames[s],
+						msg.stockPrices[s]);
 			mOwnTeam = mModel.getTeamByName(mName);
 			mOwnTeam.setOnChangeListener(new Team.OnChangeListener() {
 				@Override
@@ -201,47 +202,41 @@ public class ExchangeClient implements ICmdHandler, IClientConnectionListener {
 			});
 			mOwnTeam.setMoney(msg.teamMoney);
 			mOwnTeam.setStocks(msg.teamStocks);
-		} else if(o instanceof MsgConnRefuse) {
+		} else if (o instanceof MsgConnRefuse) {
 			// TODO wrong pw or not connected in first round
-		} else if(o instanceof MsgStockInfo) {
-			MsgStockInfo msg = (MsgStockInfo)o;
-			for(int s = 0; s < mModel.stocks.length; s++) {
-				mModel.stocks[s].change = msg.stockPrices[s]/mModel.stocks[s].value;
+		} else if (o instanceof MsgStockInfo) {
+			MsgStockInfo msg = (MsgStockInfo) o;
+			for (int s = 0; s < mModel.stocks.length; s++) {
+				mModel.stocks[s].change = msg.stockPrices[s]
+						/ mModel.stocks[s].value;
 				mModel.stocks[s].value = msg.stockPrices[s];
 			}
 			// TODO call listeners
-		} else if(o instanceof MsgTeamInfo) {
-			MsgTeamInfo msg = (MsgTeamInfo)o;
+		} else if (o instanceof MsgTeamInfo) {
+			MsgTeamInfo msg = (MsgTeamInfo) o;
 			mOwnTeam.setMoney(msg.money);
 			mOwnTeam.setStocks(msg.stocks);
 		}
 		// TODO offer response
 
-		/*if (cmd instanceof CmdServerStocks) {
-			CmdServerStocks stockInfo = (CmdServerStocks) cmd;
-			mModel.stocks = stockInfo.stockList;
-			for (IClientListener listener : mListeners)
-				listener.onStocksCommand(this);
-			return;
-		}
-
-		if (cmd instanceof CmdServerEvent) {
-			CmdServerEvent cmdNextRound = (CmdServerEvent) cmd;
-			
-			mEvents = cmdNextRound.newEvents;
-			mModel.round++;
-			mModel.nextRound(cmdNextRound.multipliers);
-			for (IClientListener listener : mListeners)
-				listener.onNewEvents(mEvents);
-			return;
-		}
-
-
-		if (cmd instanceof CmdServerError) {
-			CmdServerError error = (CmdServerError) cmd;
-			for (IClientListener listener : mListeners)
-				listener.onErrorCommand(error);
-		}*/
+		/*
+		 * if (cmd instanceof CmdServerStocks) { CmdServerStocks stockInfo =
+		 * (CmdServerStocks) cmd; mModel.stocks = stockInfo.stockList; for
+		 * (IClientListener listener : mListeners)
+		 * listener.onStocksCommand(this); return; }
+		 * 
+		 * if (cmd instanceof CmdServerEvent) { CmdServerEvent cmdNextRound =
+		 * (CmdServerEvent) cmd;
+		 * 
+		 * mEvents = cmdNextRound.newEvents; mModel.round++;
+		 * mModel.nextRound(cmdNextRound.multipliers); for (IClientListener
+		 * listener : mListeners) listener.onNewEvents(mEvents); return; }
+		 * 
+		 * 
+		 * if (cmd instanceof CmdServerError) { CmdServerError error =
+		 * (CmdServerError) cmd; for (IClientListener listener : mListeners)
+		 * listener.onErrorCommand(error); }
+		 */
 	}
 
 	private class TCPConnectThread extends Thread {

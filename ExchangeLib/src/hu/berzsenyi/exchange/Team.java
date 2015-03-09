@@ -31,6 +31,13 @@ public class Team {
 		if (mListener != null)
 			mListener.onMoneyChanged(this);
 	}
+	
+	public double calculateStocksValue() {
+		double out = 0.0;
+		for(int i=0;i<mStocks.length;i++)
+			out += mStocks[i] * mModel.stocks[i].value;
+		return out;
+	}
 
 	 /**
 	 * Should not be edited!!! Avoid using {@code {@link #getStocks()}[i] =
