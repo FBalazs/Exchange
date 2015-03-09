@@ -6,7 +6,7 @@ import java.util.PriorityQueue;
 public class Stock {
 	private static final String STOCKFOLDER = "/stocks";
 	
-	private static Stock[] stockList = null;
+	public static Stock[] stockList = null;
 	
 	public static boolean isLoaded() {
 		return stockList != null;
@@ -37,11 +37,11 @@ public class Stock {
 		public void onOffersPaired(Offer offerBuy, Offer offerSell);
 	}
 	
-	private final String id, name;
-	private double price;
+	public final String id, name;
+	public double price;
 	private int tradeAmount;
 	private double tradeMoney;
-	private PriorityQueue<Offer> buyOffers, saleOffers;
+	public PriorityQueue<Offer> buyOffers, saleOffers;
 	
 	private Stock(String id, String name, double price) {
 		this.id = id;
@@ -50,35 +50,24 @@ public class Stock {
 		tradeMoney = tradeAmount = 0;
 	}
 	
-	public String getId() {
-		return id;
-	}
-	
-	public String getName() {
-		return name;
-	}
-	
-	public PriorityQueue<Offer> getBuyOffers() {
-		return buyOffers;
-	}
-	
-	public PriorityQueue<Offer> getSaleOffers() {
-		return saleOffers;
+	public void addTrade(int amount, double price) {
+		tradeAmount += amount;
+		tradeMoney += price*amount;
 	}
 	
 	public void updatePrice(double multiplyer) {
 		price = (price + tradeMoney/tradeAmount)/2*multiplyer;
 	}
 	
-	public void addOffer(String teamName, int stockId, int stockAmount, double price, boolean sell, IOfferCallback callback) {
-		Offer offer = new Offer(teamName, stockId, stockAmount, price, sell);
+	public void addOffer(String teamName, int stockId, int amount, double price, boolean sell, IOfferCallback callback) {
+		Offer offer = new Offer(teamName, stockId, amount, price, sell);
 		if(sell)
-			if(buyOffers.size() != 0)
+			if(buyOffers.size() != 0 && price <= buyOffers.peek().price)
 				callback.onOffersPaired(buyOffers.poll(), offer);
 			else
 				saleOffers.add(offer);
 		else
-			if(saleOffers.size() != 0)
+			if(saleOffers.size() != 0 && saleOffers.peek().price <= price)
 				callback.onOffersPaired(offer, saleOffers.poll());
 			else
 				buyOffers.add(offer);

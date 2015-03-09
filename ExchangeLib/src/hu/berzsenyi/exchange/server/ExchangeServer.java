@@ -13,6 +13,8 @@ import hu.berzsenyi.exchange.net.NetServer.NetServerClient;
 import hu.berzsenyi.exchange.net.msg.MsgConnAccept;
 import hu.berzsenyi.exchange.net.msg.MsgConnRefuse;
 import hu.berzsenyi.exchange.net.msg.MsgConnRequest;
+import hu.berzsenyi.exchange.net.msg.MsgNewTeam;
+import hu.berzsenyi.exchange.net.msg.MsgOffer;
 
 public class ExchangeServer implements INetServerListener, IOfferCallback {
 	public static interface IExchangeServerListener {
@@ -28,14 +30,14 @@ public class ExchangeServer implements INetServerListener, IOfferCallback {
 	
 	public Team getTeamByNetId(String netId) {
 		for(Team team : teams)
-			if(netId.equals(team.getNetId()))
+			if(netId.equals(team.netId))
 				return team;
 		return null;
 	}
 	
 	public Team getTeamByName(String name) {
 		for(Team team : teams)
-			if(name.equals(team.getName()))
+			if(name.equals(team.name))
 				return team;
 		return null;
 	}
@@ -69,18 +71,34 @@ public class ExchangeServer implements INetServerListener, IOfferCallback {
 			MsgConnRequest msg = (MsgConnRequest)o;
 			Team team = getTeamByName(msg.nickName);
 			if(team == null) {
+				MsgConnAccept msgAccept = new MsgConnAccept(teams);
 				teams.add(new Team(msg.nickName, msg.password, netClient.getId()));
-				// TODO info
-				netClient.sendObject(new MsgConnAccept());
-			} else if(msg.password.equals(team.getPassword())) {
-				team.setNetId(netClient.getId());
-				// TODO info
-				netClient.sendObject(new MsgConnAccept());
+				netClient.sendObject(msgAccept);
+				net.sendObjectToAllExceptXY(new MsgNewTeam(msg.nickName), netClient.getId());
+			} else if(msg.password.equals(team.password)) {
+				team.netId = netClient.getId();
+				netClient.sendObject(new MsgConnAccept(teams));
 			} else {
 				netClient.sendObject(new MsgConnRefuse());
 				netClient.close();
 			}
+		} else if(o instanceof MsgOffer) {
+			MsgOffer msgOffer = (MsgOffer)o;
+			Stock.stockList[msgOffer.stockId].addOffer(getTeamByNetId(netClient.getId()).name,
+					msgOffer.stockId,
+					msgOffer.stockAmount,
+					msgOffer.price,
+					msgOffer.sell,
+					this);
 		}
+	}
+	
+	@Override
+	public void onOffersPaired(Offer offerBuy, Offer offerSell) {
+		int tradeAmount = Math.min(offerBuy.amount, offerSell.amount);
+		double tradePrice = (offerBuy.price+offerSell.price)/2;
+		Stock.stockList[offerBuy.stockId].addTrade(tradeAmount, tradePrice);
+		// TODO trade
 	}
 
 	@Override
@@ -90,11 +108,6 @@ public class ExchangeServer implements INetServerListener, IOfferCallback {
 
 	@Override
 	public void onClosed(NetServer net) {
-		
-	}
-
-	@Override
-	public void onOffersPaired(Offer offerBuy, Offer offerSell) {
 		
 	}
 }
