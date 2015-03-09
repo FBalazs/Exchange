@@ -1,7 +1,6 @@
 package hu.berzsenyi.exchange.server;
 
 import hu.berzsenyi.exchange.Offer;
-import hu.berzsenyi.exchange.SingleEvent;
 import hu.berzsenyi.exchange.Stock.IOfferCallback;
 import hu.berzsenyi.exchange.Team;
 import hu.berzsenyi.exchange.log.LogEvent;

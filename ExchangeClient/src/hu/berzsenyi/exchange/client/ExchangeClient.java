@@ -10,7 +10,6 @@ import hu.berzsenyi.exchange.net.TCPConnection;
 import hu.berzsenyi.exchange.net.msg.*;
 
 import java.io.IOException;
-import java.security.acl.Owner;
 import java.util.ArrayList;
 import java.util.List;
 
