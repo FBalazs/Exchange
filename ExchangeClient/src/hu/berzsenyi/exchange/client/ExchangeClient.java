@@ -178,7 +178,7 @@ public class ExchangeClient implements ICmdHandler, IClientConnectionListener {
 
 		/*if (cmd instanceof CmdServerInfo) {
 			CmdServerInfo info = (CmdServerInfo) cmd;
-			mOwnTeam = new Team(info.clientID, mName, mPassword);
+			mOwnTeam = new Team(mModel, info.clientID, mName, mPassword);
 			mOwnTeam.setOnChangeListener(new Team.OnChangeListener() {
 
 				@Override

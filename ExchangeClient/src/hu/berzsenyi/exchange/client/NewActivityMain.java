@@ -142,6 +142,8 @@ public class NewActivityMain extends ActionBarActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
+		mClient = ExchangeClient.getInstance();
+
 		ActionBar actionBar = getSupportActionBar();
 		actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME
 				| ActionBar.DISPLAY_SHOW_TITLE);
@@ -165,6 +167,7 @@ public class NewActivityMain extends ActionBarActivity {
 	@Override
 	protected void onDestroy() {
 		mClient.removeIClientListener(mListener);
+		mClient.disconnect();
 		super.onDestroy();
 	}
 
@@ -185,8 +188,6 @@ public class NewActivityMain extends ActionBarActivity {
 					ActivityZerothRound.REQUEST_CODE);
 			mZerothRoundStarted = true;
 		} else { // Now NewActivityMain is really shown
-
-			mClient = ExchangeClient.getInstance();
 
 			mClient.addIClientListener(mListener);
 		}

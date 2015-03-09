@@ -3,23 +3,26 @@ package hu.berzsenyi.exchange;
 public class Team {
 	public String id, name, pass;
 	private double mMoney = 0;
-	private int[] mStocks = null;
+	private int[] mStocks;
 	private OnChangeListener mListener;
+	private Model mModel;
 
-	public Team(String id, String name, String pass) {
+	public Team(Model model, String id, String name, String pass) {
 		this.id = id;
 		this.name = name;
 		this.pass = pass;
+		mModel = model;
+		mStocks = new int[mModel.stocks.length];
 	}
 
 	public double getMoney() {
 		return mMoney;
 	}
-	
-	public double getStockValue(Model model) {
+
+	public double getStockValue() {
 		double out = 0.0;
-		for(int i=0;i<mStocks.length;i++)
-			out += mStocks[i] * model.stocks[i].value;
+		for (int i = 0; i < mStocks.length; i++)
+			out += mStocks[i] * mModel.stocks[i].value;
 		return out;
 	}
 

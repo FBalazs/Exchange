@@ -42,6 +42,7 @@ public class ActivityZerothRound extends ActionBarActivity {
 	private int[] mEditTextValues;
 	private Stock[] mStocks;
 	private int[] mMaxes;
+	private Object mLock = new Object();
 
 	private int COLOR_ILLEGAL = Color.RED;
 	private ColorStateList colorDefault;
@@ -157,50 +158,65 @@ public class ActivityZerothRound extends ActionBarActivity {
 	}
 
 	private boolean checkEditTexts() {
-		for (int i = 0; i < mAmounts.length; i++) {
-			if (mAmounts[i] != mEditTextValues[i]) {
-				AlertDialog.Builder builder = new AlertDialog.Builder(this);
-				builder.setPositiveButton(R.string.ok, null);
-				if (mEditTextValues[i] == -1) {
-					builder.setMessage(String.format(
-							getString(R.string.zeroth_round_bad_number_format),
-							mStocks[i].name).toString());
-				} else {
-					builder.setMessage(String
-							.format(getString(R.string.zeroth_round_cannot_buy_as_many_stocks),
-									mMaxes[i], mStocks[i].name).toString());
+		synchronized (mLock) {
+			for (int i = 0; i < mAmounts.length; i++) {
+				if (mAmounts[i] != mEditTextValues[i]) {
+					AlertDialog.Builder builder = new AlertDialog.Builder(this);
+					builder.setPositiveButton(R.string.ok, null);
+					if (mEditTextValues[i] == -1) {
+						builder.setMessage(String
+								.format(getString(R.string.zeroth_round_bad_number_format),
+										mStocks[i].name).toString());
+					} else {
+						builder.setMessage(String
+								.format(getString(R.string.zeroth_round_cannot_buy_as_many_stocks),
+										mMaxes[i], mStocks[i].name).toString());
+					}
+					builder.create().show();
+					return false;
 				}
-				builder.create().show();
-				return false;
 			}
 		}
 		return true;
 	}
 
 	private void calculateMaxes() {
-		for (int i = 0; i < mStocks.length; i++)
-			mMaxes[i] = (int) (mClient.getModel().startMoney / mStocks[i].value);
+		synchronized (mLock) {
+			for (int i = 0; i < mStocks.length; i++)
+				mMaxes[i] = (int) (mClient.getModel().startMoney / mStocks[i].value);
+		}
 	}
 
 	private class StockAdapter extends BaseAdapter {
 
 		public StockAdapter(Stock[] stocks) {
-			mStocks = stocks == null ? new Stock[0] : stocks; // stocks can be
-																// null!
-			mAmounts = new int[mStocks.length];
-			mEditTextValues = new int[mStocks.length];
-			mMaxes = new int[mStocks.length];
-			calculateMaxes();
+			init(stocks);
+		}
+
+		private void init(Stock[] stocks) {
+			synchronized (mLock) {
+				mStocks = stocks == null ? new Stock[0] : stocks; // stocks can
+																	// be
+																	// null!
+				mAmounts = new int[mStocks.length];
+				mEditTextValues = new int[mStocks.length];
+				mMaxes = new int[mStocks.length];
+				calculateMaxes();
+			}
 		}
 
 		@Override
 		public int getCount() {
-			return mStocks.length;
+			synchronized (mLock) {
+				return mStocks.length;
+			}
 		}
 
 		@Override
 		public Stock getItem(int position) {
-			return mStocks[position];
+			synchronized (mLock) {
+				return mStocks[position];
+			}
 		}
 
 		@Override
@@ -222,7 +238,8 @@ public class ActivityZerothRound extends ActionBarActivity {
 			((TextView) out.findViewById(R.id.stock_name)).setText(stock.name);
 			((TextView) out.findViewById(R.id.main_tab_stocks_card_value))
 					.setText(getString(R.string.unit_price)
-							+ NewActivityMain.DECIMAL_FORMAT.format(stock.value));
+							+ NewActivityMain.DECIMAL_FORMAT
+									.format(stock.value));
 
 			// Android may call SeekBar.setProgress(SeekBar.getMax()) on amount,
 			// causing mAmounts to be modified. So first save mAmounts[position]
@@ -258,7 +275,8 @@ public class ActivityZerothRound extends ActionBarActivity {
 						tv.setTextColor(COLOR_ILLEGAL);
 					else
 						tv.setTextColor(colorDefault);
-					tv.setText(NewActivityMain.DECIMAL_FORMAT.format(currentMoney));
+					tv.setText(NewActivityMain.DECIMAL_FORMAT
+							.format(currentMoney));
 				}
 			});
 			amount.setProgress(currentAmount);
@@ -295,9 +313,7 @@ public class ActivityZerothRound extends ActionBarActivity {
 		}
 
 		public void updateStocks(Stock[] stocks) {
-			mStocks = stocks == null ? new Stock[0] : stocks; // stocks can be
-																// null!
-			mAmounts = new int[mStocks.length];
+			init(stocks);
 			runOnUiThread(new Runnable() {
 				@Override
 				public void run() {
