@@ -1,12 +1,12 @@
 package hu.berzsenyi.exchange;
 
 public class Offer {
-	public String clientID;
+	public String clientName;
 	public int amount;
 	public double money;
 	
-	public Offer(String clientID, int amount, double money) {
-		this.clientID = clientID;
+	public Offer(String clientName, int amount, double money) {
+		this.clientName = clientName;
 		this.amount = amount;
 		this.money = money;
 	}

@@ -1,23 +1,17 @@
 package hu.berzsenyi.exchange.server;
 
+import hu.berzsenyi.exchange.Offer;
 import hu.berzsenyi.exchange.SingleEvent;
 import hu.berzsenyi.exchange.Team;
 import hu.berzsenyi.exchange.log.LogEvent;
 import hu.berzsenyi.exchange.log.LogEventConnAttempt;
-import hu.berzsenyi.exchange.log.LogEventDisconnect;
 import hu.berzsenyi.exchange.net.IServerListener;
 import hu.berzsenyi.exchange.net.TCPConnection;
 import hu.berzsenyi.exchange.net.TCPServer;
 import hu.berzsenyi.exchange.net.TCPServerClient;
-import hu.berzsenyi.exchange.net.cmd.CmdClientBuy;
-import hu.berzsenyi.exchange.net.cmd.CmdClientDisconnect;
-import hu.berzsenyi.exchange.net.cmd.CmdClientInfo;
-import hu.berzsenyi.exchange.net.cmd.CmdServerError;
 import hu.berzsenyi.exchange.net.cmd.CmdServerEvent;
-import hu.berzsenyi.exchange.net.cmd.CmdServerInfo;
-import hu.berzsenyi.exchange.net.cmd.CmdServerStocks;
 import hu.berzsenyi.exchange.net.cmd.ICmdHandler;
-import hu.berzsenyi.exchange.net.cmd.TCPCommand;
+import hu.berzsenyi.exchange.net.msg.*;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -137,96 +131,61 @@ public class ExchangeServer implements IServerListener, ICmdHandler {
 	}
 
 	@Override
-	public void handleCmd(TCPCommand cmd, TCPConnection conn) {
-		System.out.println("Received command! " + cmd.getClass().getName());
-
-		if (cmd instanceof CmdClientInfo) {
-			CmdClientInfo info = (CmdClientInfo) cmd;
-			Team team = this.model.getTeamByName(info.name);
-			if (team == null) {
-				this.model.teams.add(new Team(conn.getAddrString(), info.name,
-						info.password));
-				conn.writeCommand(new CmdServerInfo(this.model.startMoney, conn
-						.getAddrString()));
-				conn.writeCommand(new CmdServerStocks(this.model));
-			} else if (team.pass.equals(info.password)) {
+	public void handleCmd(Object o, TCPConnection conn) {
+		System.out.println("Received command! " + o.getClass().getName());
+		
+		if(o instanceof MsgConnRequest) {
+			MsgConnRequest msg = (MsgConnRequest)o;
+			Team team = this.model.getTeamByName(msg.nickName);
+			if(team == null && this.model.round == 0) {
+				team = new Team(conn.getAddrString(), msg.nickName, msg.password);
+				team.setMoney(this.model.startMoney);
+				this.model.teams.add(team);
+				conn.writeCommand(new MsgConnAccept(team.getMoney(), null, this.model.teams, this.model.stocks));
+				conn.writeCommand(new MsgBuyRequest());
+				net.writeCmdToAllExcept(new MsgNewTeam(team.name), team.id);
+			} else if(team != null && team.pass.equals(msg.password)) {
 				team.id = conn.getAddrString();
-				conn.writeCommand(new CmdServerInfo(this.model.startMoney, conn
-						.getAddrString()));
-				conn.writeCommand(new CmdServerStocks(this.model));
+				conn.writeCommand(new MsgConnAccept(team.getMoney(), team.getStocks(), this.model.teams, this.model.stocks));
+				if(team.getStocks() == null) {
+					conn.writeCommand(new MsgBuyRequest());
+				}
 			} else {
-				conn.writeCommand(new CmdServerError(
-						CmdServerError.ERROR_NAME_DUPLICATE));
+				conn.writeCommand(new MsgConnRefuse());
+			}
+		} else if(o instanceof MsgBuy) {
+			MsgBuy msg = (MsgBuy)o;
+			Team team = this.model.getTeamById(conn.getAddrString());
+			team.setStocks(msg.amounts);
+			for(int i = 0; i < msg.amounts.length; i++)
+				team.setMoney(team.getMoney()-msg.amounts[i]*this.model.stocks[i].value);
+		} else if(o instanceof MsgOffer) {
+			MsgOffer msg = (MsgOffer)o;
+			Team team = this.model.getTeamById(conn.getAddrString());
+			
+		} else if(o instanceof MsgOfferDelete) {
+			MsgOfferDelete msg = (MsgOfferDelete)o;
+			Team team = this.model.getTeamById(conn.getAddrString());
+			if(msg.sell) {
+				boolean removed = false;
+				for(int i = 0; !removed && i < this.model.stocks[msg.stockId].sellOffers.size(); i++) {
+					Offer offer = this.model.stocks[msg.stockId].sellOffers.get(i);
+					if(offer.clientName.equals(team.name) && offer.money == msg.price && offer.amount == msg.stockAmount) {
+						this.model.stocks[msg.stockId].sellOffers.remove(i);
+						removed = true;
+					}
+				}
+			} else {
+				boolean removed = false;
+				for(int i = 0; !removed && i < this.model.stocks[msg.stockId].buyOffers.size(); i++) {
+					Offer offer = this.model.stocks[msg.stockId].buyOffers.get(i);
+					if(offer.clientName.equals(team.name) && offer.money == msg.price && offer.amount == msg.stockAmount) {
+						this.model.stocks[msg.stockId].buyOffers.remove(i);
+						removed = true;
+					}
+				}
 			}
 		}
-
-		if (cmd instanceof CmdClientDisconnect) {
-			this.log(new LogEventDisconnect(conn.getAddrString(), this.model
-					.getTeamById(conn.getAddrString()).name));
-			//this.model.removeTeam(conn.getAddrString());
-			conn.close();
-		}
-
-		if (cmd instanceof CmdClientBuy) {
-			CmdClientBuy buy = (CmdClientBuy) cmd;
-			Team team = this.model.getTeamById(conn.getAddrString());
-			team.setMoney(this.model.calculateMoneyAfterPurchase(buy.amount));
-			team.setStocks(buy.amount);
-			this.log(new LogEvent("Zeroth round buy", team.name + "(" + team.id
-					+ ") performed the zeroth round buy"));
-		}
-
-		// if (cmd instanceof CmdClientOffer) {
-		// CmdClientOffer offer = (CmdClientOffer) cmd;
-		// String to = offer.teamID;
-		// offer.teamID = conn.getAddrString();
-		// this.net.writeCmdTo(offer, to);
-		// }
-		//
-		// if (cmd instanceof CmdOfferResponse) {
-		// CmdOfferResponse offer = (CmdOfferResponse) cmd;
-		// Team teamSender = this.model.getTeamById(offer.teamID);
-		// Team teamReceiver = this.model.getTeamById(conn.getAddrString());
-		//
-		// // System.out.println(teamSender.getStock(offer.stockID) +
-		// // offer.amount);
-		// // System.out.println(teamSender.getMoney() + offer.money);
-		// // System.out.println(teamReceiver.getStock(offer.stockID) -
-		// // offer.amount);
-		// // System.out.println(teamReceiver.getMoney() - offer.money);
-		//
-		// if (0 <= teamSender.getStock(offer.stockID) + offer.amount
-		// && 0 <= teamSender.getMoney() + offer.money
-		// * Math.abs(offer.amount)
-		// && 0 <= teamReceiver.getStock(offer.stockID) - offer.amount
-		// && 0 <= teamReceiver.getMoney() - offer.money
-		// * Math.abs(offer.amount)) {
-		// teamSender.setStock(offer.stockID,
-		// teamSender.getStock(offer.stockID) + offer.amount);
-		// teamSender.setMoney(teamSender.getMoney() + offer.money
-		// * Math.abs(offer.amount));
-		// teamReceiver.setStock(offer.stockID,
-		// teamReceiver.getStock(offer.stockID) - offer.amount);
-		// teamReceiver.setMoney(teamReceiver.getMoney() - offer.money
-		// * Math.abs(offer.amount));
-		//
-		// this.model.stockList[offer.stockID].boughtAmount += Math
-		// .abs(offer.amount);
-		// this.model.stockList[offer.stockID].boughtFor += Math
-		// .abs(offer.money * Math.abs(offer.amount));
-		//
-		// this.net.writeCmdTo(new CmdOfferResponse(conn.getAddrString(),
-		// offer.stockID, offer.amount, offer.money), offer.teamID);
-		// conn.writeCommand(new CmdOfferResponse(offer.teamID,
-		// offer.stockID, -offer.amount, -offer.money));
-		// } else {
-		// // TODO
-		// conn.writeCommand(new CmdServerError(
-		// CmdServerError.ERROR_OFFER, null));
-		// this.net.writeCmdTo(new CmdServerError(
-		// CmdServerError.ERROR_OFFER, null), offer.teamID);
-		// }
-		// }
 
 		if (this.display != null)
 			this.display.repaint();

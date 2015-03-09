@@ -28,123 +28,13 @@ public class Model {
 						files[i].getName().lastIndexOf('.')),
 						parser.getValue("name"), Double.parseDouble(parser
 								.getValue("initvalue")));
-				this.stocks[i].buyOffers = new ArrayList<Offer>();
-				this.stocks[i].saleOffers = new ArrayList<Offer>();
+				this.stocks[i].sellOffers = new ArrayList<>();
+				this.stocks[i].buyOffers = new ArrayList<>();
 			} catch (Exception e) {
 				e.printStackTrace();
 				System.err.println("Failed to parse stock: "
 						+ files[i].getName());
 			}
-		}
-	}
-
-	
-	public void incomingOffer(String clientID, int stockID, int amount, double money) {
-		if(money < 0) { // buy offer
-			money = -money;
-			boolean flag = true;
-			while(0 < amount && flag && this.stocks[stockID].saleOffers.size() != 0) {
-				int mi = 0;
-				for(int i = 1; i < this.stocks[stockID].saleOffers.size(); i++)
-					if(this.stocks[stockID].saleOffers.get(i).money < this.stocks[stockID].saleOffers.get(mi).money)
-						mi = i;
-				Offer minOffer = this.stocks[stockID].saleOffers.get(mi);
-				if(money < minOffer.money)
-					flag = false;
-				else {
-					if(amount < minOffer.amount) {
-						Team teamBuyer = this.getTeamById(clientID);
-						Team teamSeller = this.getTeamById(minOffer.clientID);
-						teamBuyer.setStock(stockID, teamBuyer.getStock(stockID)+amount);
-						teamSeller.setStock(stockID, teamSeller.getStock(stockID)-amount);
-						teamBuyer.setMoney(teamBuyer.getMoney()-(money+minOffer.money)/2*amount);
-						teamSeller.setMoney(teamSeller.getMoney()+(money+minOffer.money)/2*amount);
-						this.stocks[stockID].boughtAmount += amount;
-						this.stocks[stockID].boughtFor += (money+minOffer.money)/2*amount;
-						// TODO stock value
-						this.stocks[stockID].saleOffers.set(mi, new Offer(minOffer.clientID, minOffer.amount-amount, minOffer.money));
-						amount = 0;
-					} else if(amount == minOffer.amount) {
-						Team teamBuyer = this.getTeamById(clientID);
-						Team teamSeller = this.getTeamById(minOffer.clientID);
-						teamBuyer.setStock(stockID, teamBuyer.getStock(stockID)+amount);
-						teamSeller.setStock(stockID, teamSeller.getStock(stockID)-amount);
-						teamBuyer.setMoney(teamBuyer.getMoney()-(money+minOffer.money)/2*amount);
-						teamSeller.setMoney(teamSeller.getMoney()+(money+minOffer.money)/2*amount);
-						this.stocks[stockID].boughtAmount += amount;
-						this.stocks[stockID].boughtFor += (money+minOffer.money)/2*amount;
-						// TODO stock value
-						this.stocks[stockID].saleOffers.remove(mi);
-						amount = 0;
-					} else {
-						Team teamBuyer = this.getTeamById(clientID);
-						Team teamSeller = this.getTeamById(minOffer.clientID);
-						teamBuyer.setStock(stockID, teamBuyer.getStock(stockID)+minOffer.amount);
-						teamSeller.setStock(stockID, teamSeller.getStock(stockID)-minOffer.amount);
-						teamBuyer.setMoney(teamBuyer.getMoney()-(money+minOffer.money)/2*minOffer.amount);
-						teamSeller.setMoney(teamSeller.getMoney()+(money+minOffer.money)/2*minOffer.amount);
-						this.stocks[stockID].boughtAmount += minOffer.amount;
-						this.stocks[stockID].boughtFor += (money+minOffer.money)/2*minOffer.amount;
-						// TODO stock value
-						this.stocks[stockID].saleOffers.remove(mi);
-						amount -= minOffer.amount;
-					}
-				}
-			}
-			if(0 < amount)
-				this.stocks[stockID].buyOffers.add(new Offer(clientID, amount, money));
-		} else { // sell offer
-			boolean flag = true;
-			while(0 < amount && flag && this.stocks[stockID].buyOffers.size() != 0) {
-				int mi = 0;
-				for(int i = 1; i < this.stocks[stockID].buyOffers.size(); i++)
-					if(this.stocks[stockID].buyOffers.get(mi).money < this.stocks[stockID].buyOffers.get(i).money)
-						mi = i;
-				Offer maxOffer = this.stocks[stockID].saleOffers.get(mi);
-				if(money < maxOffer.money)
-					flag = false;
-				else {
-					if(amount < maxOffer.amount) {
-						Team teamBuyer = this.getTeamById(maxOffer.clientID);
-						Team teamSeller = this.getTeamById(clientID);
-						teamBuyer.setStock(stockID, teamBuyer.getStock(stockID)+amount);
-						teamSeller.setStock(stockID, teamSeller.getStock(stockID)-amount);
-						teamBuyer.setMoney(teamBuyer.getMoney()-(money+maxOffer.money)/2*amount);
-						teamSeller.setMoney(teamSeller.getMoney()+(money+maxOffer.money)/2*amount);
-						this.stocks[stockID].boughtAmount += amount;
-						this.stocks[stockID].boughtFor += (money+maxOffer.money)/2*amount;
-						// TODO stock value
-						this.stocks[stockID].buyOffers.set(mi, new Offer(maxOffer.clientID, maxOffer.amount-amount, maxOffer.money));
-						amount = 0;
-					} else if(amount == maxOffer.amount) {
-						Team teamBuyer = this.getTeamById(maxOffer.clientID);
-						Team teamSeller = this.getTeamById(clientID);
-						teamBuyer.setStock(stockID, teamBuyer.getStock(stockID)+amount);
-						teamSeller.setStock(stockID, teamSeller.getStock(stockID)-amount);
-						teamBuyer.setMoney(teamBuyer.getMoney()-(money+maxOffer.money)/2*amount);
-						teamSeller.setMoney(teamSeller.getMoney()+(money+maxOffer.money)/2*amount);
-						this.stocks[stockID].boughtAmount += amount;
-						this.stocks[stockID].boughtFor += (money+maxOffer.money)/2*amount;
-						// TODO stock value
-						this.stocks[stockID].buyOffers.remove(mi);
-						amount = 0;
-					} else {
-						Team teamBuyer = this.getTeamById(maxOffer.clientID);
-						Team teamSeller = this.getTeamById(clientID);
-						teamBuyer.setStock(stockID, teamBuyer.getStock(stockID)+maxOffer.amount);
-						teamSeller.setStock(stockID, teamSeller.getStock(stockID)-maxOffer.amount);
-						teamBuyer.setMoney(teamBuyer.getMoney()-(money+maxOffer.money)/2*maxOffer.amount);
-						teamSeller.setMoney(teamSeller.getMoney()+(money+maxOffer.money)/2*maxOffer.amount);
-						this.stocks[stockID].boughtAmount += maxOffer.amount;
-						this.stocks[stockID].boughtFor += (money+maxOffer.money)/2*maxOffer.amount;
-						// TODO stock value
-						this.stocks[stockID].buyOffers.remove(mi);
-						amount -= maxOffer.amount;
-					}
-				}
-			}
-			if(0 < amount)
-				this.stocks[stockID].saleOffers.add(new Offer(clientID, amount, money));
 		}
 	}
 

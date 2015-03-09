@@ -1,7 +1,6 @@
 package hu.berzsenyi.exchange.net;
 
 import hu.berzsenyi.exchange.net.cmd.ICmdHandler;
-import hu.berzsenyi.exchange.net.cmd.TCPCommand;
 
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -103,18 +102,26 @@ public class TCPServer implements IServerClientListener {
 		}
 	}
 	
-	public void writeCmdTo(TCPCommand cmd, String addr) {
+	public void writeCmdTo(Object o, String addr) {
 		synchronized (this.clients) {
 			for(TCPServerClient client : this.clients)
 				if(client.getAddrString().equals(addr))
-					client.writeCommand(cmd);
+					client.writeCommand(o);
 		}
 	}
 	
-	public void writeCmdToAll(TCPCommand cmd) {
+	public void writeCmdToAllExcept(Object o, String addr) {
 		synchronized (this.clients) {
 			for(TCPServerClient client : this.clients)
-				client.writeCommand(cmd);
+				if(!client.getAddrString().equals(addr))
+					client.writeCommand(o);
+		}
+	}
+	
+	public void writeCmdToAll(Object o) {
+		synchronized (this.clients) {
+			for(TCPServerClient client : this.clients)
+				client.writeCommand(o);
 		}
 	}
 	
