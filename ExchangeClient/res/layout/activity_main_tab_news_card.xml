@@ -31,5 +31,4 @@
                 android:layout_height="wrap_content" />
         </LinearLayout>
     </android.support.v7.widget.CardView>
-
 </FrameLayout>
