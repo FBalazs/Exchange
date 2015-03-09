@@ -144,7 +144,7 @@ public class ExchangeServer implements IServerListener, ICmdHandler {
 			CmdClientInfo info = (CmdClientInfo) cmd;
 			Team team = this.model.getTeamByName(info.name);
 			if (team == null) {
-				this.model.teams.add(new Team(conn.getAddrString(), info.name,
+				this.model.teams.add(new Team(model, conn.getAddrString(), info.name,
 						info.password));
 				conn.writeCommand(new CmdServerInfo(this.model.startMoney, conn
 						.getAddrString()));

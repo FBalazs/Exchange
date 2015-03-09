@@ -7,7 +7,7 @@ import java.util.List;
 public class Model {
 	public int round = 0;
 	public double startMoney = 10000;
-	public Stock[] stocks;
+	public Stock[] stocks = new Stock[0];
 	public List<Team> teams = new ArrayList<Team>();
 	public EventQueue[] events;
 
