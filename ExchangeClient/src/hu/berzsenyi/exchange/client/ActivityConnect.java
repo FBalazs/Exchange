@@ -3,7 +3,6 @@ package hu.berzsenyi.exchange.client;
 import hu.berzsenyi.exchange.SingleEvent;
 import hu.berzsenyi.exchange.Team;
 import hu.berzsenyi.exchange.net.TCPClient;
-import hu.berzsenyi.exchange.net.cmd.CmdServerError;
 
 import java.io.IOException;
 
@@ -98,7 +97,7 @@ public class ActivityConnect extends ActionBarActivity {
 			public void onStocksChanged(Team ownTeam, int position) {
 			}
 
-			@Override
+			/*@Override
 			public void onErrorCommand(CmdServerError error) {
 
 				switch (error.errorId) {
@@ -131,7 +130,7 @@ public class ActivityConnect extends ActionBarActivity {
 					});
 					break;
 				}
-			}
+			}*/
 
 			@Override
 			public void onOutgoingOffersChanged() {

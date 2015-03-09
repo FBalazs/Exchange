@@ -4,7 +4,6 @@ import hu.berzsenyi.exchange.SingleEvent;
 import hu.berzsenyi.exchange.Stock;
 import hu.berzsenyi.exchange.Team;
 import hu.berzsenyi.exchange.net.TCPClient;
-import hu.berzsenyi.exchange.net.cmd.CmdServerError;
 
 import java.io.IOException;
 
@@ -105,9 +104,9 @@ public class ActivityZerothRound extends ActionBarActivity {
 			public void onStocksChanged(Team ownTeam, int position) {
 			}
 
-			@Override
-			public void onErrorCommand(CmdServerError error) {
-			}
+//			@Override
+//			public void onErrorCommand(CmdServerError error) {
+//			}
 
 			@Override
 			public void onOutgoingOffersChanged() {

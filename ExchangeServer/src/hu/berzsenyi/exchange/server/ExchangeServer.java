@@ -10,8 +10,6 @@ import hu.berzsenyi.exchange.net.IServerListener;
 import hu.berzsenyi.exchange.net.TCPConnection;
 import hu.berzsenyi.exchange.net.TCPServer;
 import hu.berzsenyi.exchange.net.TCPServerClient;
-import hu.berzsenyi.exchange.net.cmd.CmdServerEvent;
-import hu.berzsenyi.exchange.net.cmd.ICmdHandler;
 import hu.berzsenyi.exchange.net.msg.*;
 
 import java.io.File;
@@ -112,8 +110,8 @@ public class ExchangeServer implements IServerListener, ICmdHandler, IOfferCallb
 		this.ceventMult = this.model.events[eventNum].getMultipliers();
 
 		this.model.nextRound(multipliers);
-		this.net.writeCmdToAll(new CmdServerEvent(new SingleEvent[0],
-				multipliers)); // TODO
+		this.net.writeCmdToAll(new MsgStockInfo(this.model.stocks));
+		// TODO send event
 
 		this.log(new LogEvent("Round start", "Round " + this.model.round
 				+ " started."));
@@ -205,7 +203,9 @@ public class ExchangeServer implements IServerListener, ICmdHandler, IOfferCallb
 		teamSell.setMoney(teamSell.getMoney()+price*amount);
 		teamBuy.setStock(stockId, teamBuy.getStock(stockId)+amount);
 		teamSell.setStock(stockId, teamSell.getStock(stockId)-amount);
-		// TODO send info to clients
+		this.net.writeCmdTo(new MsgTeamInfo(teamBuy.getMoney(), teamBuy.getStocks()), teamBuy.id);
+		this.net.writeCmdTo(new MsgTeamInfo(teamSell.getMoney(), teamSell.getStocks()), teamSell.id);
+		// TODO send offer change info to clients
 		if(offerBuy.amount != 0)
 			this.model.stocks[stockId].addOffer(offerBuy.clientName, stockId, offerBuy.amount, offerBuy.money, false, this);
 		if(offerSell.amount != 0)

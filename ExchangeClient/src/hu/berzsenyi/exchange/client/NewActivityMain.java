@@ -4,7 +4,6 @@ import hu.berzsenyi.exchange.SingleEvent;
 import hu.berzsenyi.exchange.Stock;
 import hu.berzsenyi.exchange.Team;
 import hu.berzsenyi.exchange.net.TCPClient;
-import hu.berzsenyi.exchange.net.cmd.CmdServerError;
 import hu.berzsenyi.exchange.net.msg.MsgOffer;
 
 import java.io.IOException;
@@ -130,11 +129,11 @@ public class NewActivityMain extends ActionBarActivity {
 
 		}
 
-		@Override
-		public void onErrorCommand(CmdServerError error) {
-			// TODO Auto-generated method stub
-
-		}
+//		@Override
+//		public void onErrorCommand(CmdServerError error) {
+//			// TODO Auto-generated method stub
+//
+//		}
 	};
 
 	@Override

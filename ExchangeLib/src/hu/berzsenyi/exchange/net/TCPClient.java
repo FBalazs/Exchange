@@ -1,6 +1,6 @@
 package hu.berzsenyi.exchange.net;
 
-import hu.berzsenyi.exchange.net.cmd.ICmdHandler;
+import hu.berzsenyi.exchange.net.msg.ICmdHandler;
 
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;

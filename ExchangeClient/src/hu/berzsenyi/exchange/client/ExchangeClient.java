@@ -7,7 +7,6 @@ import hu.berzsenyi.exchange.Team;
 import hu.berzsenyi.exchange.net.IClientConnectionListener;
 import hu.berzsenyi.exchange.net.TCPClient;
 import hu.berzsenyi.exchange.net.TCPConnection;
-import hu.berzsenyi.exchange.net.cmd.ICmdHandler;
 import hu.berzsenyi.exchange.net.msg.*;
 
 import java.io.IOException;
