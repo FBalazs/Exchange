@@ -19,9 +19,9 @@ public abstract class TCPConnection {
 			System.out.println("TCPReceiveThread started");
 			while (TCPConnection.this.open) {
 				try {
-					TCPCommand cmd = (TCPCommand) oin.readObject();
+					Object o = oin.readObject();
 
-					cmdHandler.handleCmd(cmd, TCPConnection.this);
+					cmdHandler.handleCmd(o, TCPConnection.this);
 					// System.out.println("A command has arrived");
 				} catch (EOFException e) { // Nothing special
 				} catch (SocketTimeoutException e) {
@@ -49,9 +49,9 @@ public abstract class TCPConnection {
 				+ this.socket.getPort();
 	}
 
-	public void writeCommand(TCPCommand cmd) {
+	public void writeCommand(Object o) {
 		try {
-			this.oout.writeObject(cmd);
+			this.oout.writeObject(o);
 			this.oout.flush();
 		} catch (Exception e) {
 			e.printStackTrace();

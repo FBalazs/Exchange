@@ -4,8 +4,8 @@ import hu.berzsenyi.exchange.SingleEvent;
 import hu.berzsenyi.exchange.Stock;
 import hu.berzsenyi.exchange.Team;
 import hu.berzsenyi.exchange.net.TCPClient;
-import hu.berzsenyi.exchange.net.cmd.CmdClientOffer;
 import hu.berzsenyi.exchange.net.cmd.CmdServerError;
+import hu.berzsenyi.exchange.net.msg.MsgOffer;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
@@ -287,7 +287,7 @@ public class NewActivityMain extends ActionBarActivity {
 											public void onClick(
 													DialogInterface dialog,
 													int which) {
-												mClient.deleteOffer((CmdClientOffer) parent
+												mClient.deleteOffer((MsgOffer) parent
 														.getItemAtPosition(position));
 											}
 
@@ -413,7 +413,7 @@ public class NewActivityMain extends ActionBarActivity {
 
 	private class OutgoingOfferAdapter extends BaseAdapter {
 
-		private CmdClientOffer[] mOffers;
+		private MsgOffer[] mOffers;
 
 		public OutgoingOfferAdapter() {
 			init();
@@ -445,7 +445,7 @@ public class NewActivityMain extends ActionBarActivity {
 		}
 
 		@Override
-		public CmdClientOffer getItem(int position) {
+		public MsgOffer getItem(int position) {
 			if (position == 0)
 				return null;
 			return mOffers[position - 1];
@@ -553,7 +553,7 @@ public class NewActivityMain extends ActionBarActivity {
 					view = getLayoutInflater().inflate(
 							R.layout.activity_main_tab_exchange_card, parent,
 							false);
-				CmdClientOffer offer = (CmdClientOffer) getItem(position);
+				MsgOffer offer = getItem(position);
 				boolean sell = offer.price > 0;
 
 				((TextView) view.findViewById(R.id.main_tab_exchange_card_type))
@@ -564,7 +564,7 @@ public class NewActivityMain extends ActionBarActivity {
 				((TextView) view.findViewById(R.id.main_tab_exchange_card_name))
 						.setText(formatter
 								.format(getString(R.string.main_tab_exchange_offer_stock_name),
-										mClient.getModel().stocks[offer.stockID].name)
+										mClient.getModel().stocks[offer.stockId].name)
 								.toString());
 				formatter.close();
 
@@ -582,7 +582,7 @@ public class NewActivityMain extends ActionBarActivity {
 						.findViewById(R.id.main_tab_exchange_card_amount))
 						.setText(formatter
 								.format(getString(R.string.main_tab_exchange_offer_amount),
-										offer.amount).toString());
+										offer.stockAmount).toString());
 				formatter.close();
 
 			}

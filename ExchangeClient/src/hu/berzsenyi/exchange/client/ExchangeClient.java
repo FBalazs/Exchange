@@ -2,23 +2,16 @@ package hu.berzsenyi.exchange.client;
 
 import hu.berzsenyi.exchange.Model;
 import hu.berzsenyi.exchange.SingleEvent;
+import hu.berzsenyi.exchange.Stock;
 import hu.berzsenyi.exchange.Team;
 import hu.berzsenyi.exchange.net.IClientConnectionListener;
 import hu.berzsenyi.exchange.net.TCPClient;
 import hu.berzsenyi.exchange.net.TCPConnection;
-import hu.berzsenyi.exchange.net.cmd.CmdClientBuy;
-import hu.berzsenyi.exchange.net.cmd.CmdClientDisconnect;
-import hu.berzsenyi.exchange.net.cmd.CmdClientInfo;
-import hu.berzsenyi.exchange.net.cmd.CmdClientOffer;
-import hu.berzsenyi.exchange.net.cmd.CmdClientOfferDelete;
-import hu.berzsenyi.exchange.net.cmd.CmdServerError;
-import hu.berzsenyi.exchange.net.cmd.CmdServerEvent;
-import hu.berzsenyi.exchange.net.cmd.CmdServerInfo;
-import hu.berzsenyi.exchange.net.cmd.CmdServerStocks;
 import hu.berzsenyi.exchange.net.cmd.ICmdHandler;
-import hu.berzsenyi.exchange.net.cmd.TCPCommand;
+import hu.berzsenyi.exchange.net.msg.*;
 
 import java.io.IOException;
+import java.security.acl.Owner;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,7 +31,7 @@ public class ExchangeClient implements ICmdHandler, IClientConnectionListener {
 	private Model mModel;
 	private List<IClientListener> mListeners;
 	private Team mOwnTeam;
-	private ArrayList<CmdClientOffer> mOutgoingOffers = new ArrayList<CmdClientOffer>();
+	private ArrayList<MsgOffer> mOutgoingOffers = new ArrayList<MsgOffer>();
 	private SingleEvent[] mEvents;
 
 	private ExchangeClient() {
@@ -69,11 +62,9 @@ public class ExchangeClient implements ICmdHandler, IClientConnectionListener {
 
 	public void disconnect() {
 		if (mClient != null) {
-			mClient.writeCommand(new CmdClientDisconnect());
-			if (mClient != null) {
-				mClient.close();
-				mClient = null;
-			}
+			//mClient.writeCommand(new CmdClientDisconnect());
+			mClient.close();
+			mClient = null;
 		}
 	}
 
@@ -121,23 +112,23 @@ public class ExchangeClient implements ICmdHandler, IClientConnectionListener {
 
 		mOwnTeam.setStocks(amounts);
 		mOwnTeam.setMoney(calculated);
-		mClient.writeCommand(new CmdClientBuy(amounts));
+		mClient.writeCommand(new MsgBuy(amounts));
 		return true;
 	}
 
 	public void sendOffer(int stockID, int amount, double price, boolean sell) {
-		CmdClientOffer offer = new CmdClientOffer(stockID, amount, price, sell);
-		mClient.writeCommand(offer);
+		MsgOffer offer = new MsgOffer(stockID, amount, price, sell);
 		mOutgoingOffers.add(offer);
+		mClient.writeCommand(offer);
 		for (IClientListener listener : mListeners)
 			listener.onOutgoingOffersChanged();
 	}
 
-	public boolean deleteOffer(CmdClientOffer offer) {
+	public boolean deleteOffer(MsgOffer offer) {
 		if (!mOutgoingOffers.remove(offer))
 			return false;
-		CmdClientOfferDelete cmd = new CmdClientOfferDelete(offer.stockID,
-				offer.amount, Math.abs(offer.price), offer.price > 0);
+		MsgOfferDelete cmd = new MsgOfferDelete(offer.stockId,
+				offer.stockAmount, offer.price, offer.sell);
 		mClient.writeCommand(cmd);
 		for (IClientListener listener : mListeners)
 			listener.onOutgoingOffersChanged();
@@ -148,8 +139,8 @@ public class ExchangeClient implements ICmdHandler, IClientConnectionListener {
 		return mEvents.clone();
 	}
 
-	public CmdClientOffer[] getOutgoingOffers() {
-		return mOutgoingOffers.toArray(new CmdClientOffer[mOutgoingOffers
+	public MsgOffer[] getOutgoingOffers() {
+		return mOutgoingOffers.toArray(new MsgOffer[mOutgoingOffers
 				.size()]);
 	}
 
@@ -183,15 +174,19 @@ public class ExchangeClient implements ICmdHandler, IClientConnectionListener {
 	}
 
 	@Override
-	public void handleCmd(TCPCommand cmd, TCPConnection conn) {
+	public void handleCmd(Object o, TCPConnection conn) {
 		Log.d(this.getClass().getName(), "Received command! "
-				+ cmd.getClass().getName());
-
-		if (cmd instanceof CmdServerInfo) {
-			CmdServerInfo info = (CmdServerInfo) cmd;
-			mOwnTeam = new Team(mModel, info.clientID, mName, mPassword);
+				+ o.getClass().getName());
+		
+		if(o instanceof MsgConnAccept) {
+			MsgConnAccept msg = (MsgConnAccept)o;
+			for(int t = 0; t < msg.teamNames.length; t++)
+				mModel.teams.add(new Team(mModel, null, msg.teamNames[t], null));
+			mModel.stocks = new Stock[msg.stockNames.length];
+			for(int s = 0; s < mModel.stocks.length; s++)
+				mModel.stocks[s] = new Stock(null, msg.stockNames[s], msg.stockPrices[s]);
+			mOwnTeam = mModel.getTeamByName(mName);
 			mOwnTeam.setOnChangeListener(new Team.OnChangeListener() {
-
 				@Override
 				public void onStocksChanged(Team team, int position) {
 					for (IClientListener listener : mListeners)
@@ -204,11 +199,25 @@ public class ExchangeClient implements ICmdHandler, IClientConnectionListener {
 						listener.onMoneyChanged(team);
 				}
 			});
-			mOwnTeam.setMoney(mModel.startMoney = info.startMoney);
-			return;
+			mOwnTeam.setMoney(msg.teamMoney);
+			mOwnTeam.setStocks(msg.teamStocks);
+		} else if(o instanceof MsgConnRefuse) {
+			// TODO wrong pw or not connected in first round
+		} else if(o instanceof MsgStockInfo) {
+			MsgStockInfo msg = (MsgStockInfo)o;
+			for(int s = 0; s < mModel.stocks.length; s++) {
+				mModel.stocks[s].change = msg.stockPrices[s]/mModel.stocks[s].value;
+				mModel.stocks[s].value = msg.stockPrices[s];
+			}
+			// TODO call listeners
+		} else if(o instanceof MsgTeamInfo) {
+			MsgTeamInfo msg = (MsgTeamInfo)o;
+			mOwnTeam.setMoney(msg.money);
+			mOwnTeam.setStocks(msg.stocks);
 		}
+		// TODO offer response
 
-		if (cmd instanceof CmdServerStocks) {
+		/*if (cmd instanceof CmdServerStocks) {
 			CmdServerStocks stockInfo = (CmdServerStocks) cmd;
 			mModel.stocks = stockInfo.stockList;
 			for (IClientListener listener : mListeners)
@@ -232,7 +241,7 @@ public class ExchangeClient implements ICmdHandler, IClientConnectionListener {
 			CmdServerError error = (CmdServerError) cmd;
 			for (IClientListener listener : mListeners)
 				listener.onErrorCommand(error);
-		}
+		}*/
 	}
 
 	private class TCPConnectThread extends Thread {
@@ -257,7 +266,7 @@ public class ExchangeClient implements ICmdHandler, IClientConnectionListener {
 				e.printStackTrace();
 				return;
 			}
-			mClient.writeCommand(new CmdClientInfo(mName, mPassword));
+			mClient.writeCommand(new MsgConnRequest(mName, mPassword));
 		}
 	}
 

@@ -32,15 +32,15 @@ public class Team {
 			mListener.onMoneyChanged(this);
 	}
 
-	// /**
-	// * Should not be edited!!! Avoid using {@code {@link #getStocks()}[i] =
-	// * ...}!
-	// *
-	// * @return
-	// */
-	// public int[] getStocks() {
-	// return mStocks;
-	// }
+	 /**
+	 * Should not be edited!!! Avoid using {@code {@link #getStocks()}[i] =
+	 * ...}!
+	 *
+	 * @return
+	 */
+	 public int[] getStocks() {
+	 return mStocks;
+	 }
 
 	public int getStock(int index) {
 		return mStocks[index];
