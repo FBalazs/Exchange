@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">Tőzsde játék</string>
+    <string name="app_name">Tőzsdejáték</string>
     <string name="action_settings">Beállítások</string>
     <string name="btnConnect">Kapcsolódás</string>
     <string name="hintIP">Cím</string>

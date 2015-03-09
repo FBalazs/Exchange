@@ -241,6 +241,10 @@ public class ActivityZerothRound extends ActionBarActivity {
 							+ NewActivityMain.DECIMAL_FORMAT
 									.format(stock.value));
 
+			final EditText valueEditText = ((EditText) out
+					.findViewById(R.id.stock_amount_value));
+			valueEditText.setTag(Integer.valueOf(position));
+
 			// Android may call SeekBar.setProgress(SeekBar.getMax()) on amount,
 			// causing mAmounts to be modified. So first save mAmounts[position]
 			// and then load it back, using setProgress(currentAmount)
@@ -281,33 +285,34 @@ public class ActivityZerothRound extends ActionBarActivity {
 			});
 			amount.setProgress(currentAmount);
 
-			EditText value = ((EditText) out
-					.findViewById(R.id.stock_amount_value));
-			value.setText(amount.getProgress() + "");
-			value.addTextChangedListener(new TextWatcher() {
+			valueEditText.setText(amount.getProgress() + "");
+			if (convertView == null) {
+				valueEditText.addTextChangedListener(new TextWatcher() {
 
-				@Override
-				public void onTextChanged(CharSequence s, int start,
-						int before, int count) {
-					try {
-						int value = Integer.parseInt(s.toString());
-						amount.setProgress(value);
-						mEditTextValues[position] = value;
-					} catch (NumberFormatException e) {
-						amount.setProgress(0);
-						mEditTextValues[position] = -1;
+					@Override
+					public void onTextChanged(CharSequence s, int start,
+							int before, int count) {
+						int position = (Integer) valueEditText.getTag();
+						try {
+							int value = Integer.parseInt(s.toString());
+							amount.setProgress(value);
+							mEditTextValues[position] = value;
+						} catch (NumberFormatException e) {
+							amount.setProgress(0);
+							mEditTextValues[position] = -1;
+						}
 					}
-				}
 
-				@Override
-				public void beforeTextChanged(CharSequence s, int start,
-						int count, int after) {
-				}
+					@Override
+					public void beforeTextChanged(CharSequence s, int start,
+							int count, int after) {
+					}
 
-				@Override
-				public void afterTextChanged(Editable s) {
-				}
-			});
+					@Override
+					public void afterTextChanged(Editable s) {
+					}
+				});
+			}
 
 			return out;
 		}
