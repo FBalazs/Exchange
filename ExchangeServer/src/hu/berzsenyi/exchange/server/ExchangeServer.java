@@ -86,7 +86,7 @@ public class ExchangeServer implements IServerListener, ICmdHandler {
 		if (this.display != null)
 			this.display.onRoundEnd(this.model.round);
 
-		int eventNum = this.shuffledEvents[model.round];
+		int eventNum = this.shuffledEvents[(model.round)%this.shuffledEvents.length];
 		// TODO ArrayIndexOutOfBoundsException -> not enough events!
 
 		this.model.round++;
