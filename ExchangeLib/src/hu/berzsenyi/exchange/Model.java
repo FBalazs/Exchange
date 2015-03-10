@@ -4,12 +4,11 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Model {
+public abstract class Model {
 	public int round = 0;
 	public double startMoney = 10000;
 	public Stock[] stocks = new Stock[0];
 	public List<Team> teams = new ArrayList<Team>();
-	public EventQueue[] events;
 
 	/**
 	 * Loads the stocks from the data files.

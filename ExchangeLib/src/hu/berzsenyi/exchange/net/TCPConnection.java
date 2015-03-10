@@ -1,6 +1,7 @@
 package hu.berzsenyi.exchange.net;
 
 import hu.berzsenyi.exchange.net.msg.ICmdHandler;
+import hu.berzsenyi.exchange.net.msg.Msg;
 
 import java.io.*;
 import java.net.Socket;
@@ -19,7 +20,7 @@ public abstract class TCPConnection {
 			System.out.println("TCPReceiveThread started");
 			while (TCPConnection.this.open) {
 				try {
-					Object o = oin.readObject();
+					Msg o = (Msg) oin.readObject();
 
 					cmdHandler.handleCmd(o, TCPConnection.this);
 					// System.out.println("A command has arrived");

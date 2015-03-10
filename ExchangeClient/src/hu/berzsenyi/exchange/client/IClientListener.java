@@ -10,7 +10,7 @@ public interface IClientListener extends IClientConnectionListener {
 
 	public void onTeamsCommand(ExchangeClient client);
 
-	public void onNewEvents(SingleEvent[] event);
+	public void onNewRound(SingleEvent[] event);
 
 	public void onMoneyChanged(Team ownTeam);
 

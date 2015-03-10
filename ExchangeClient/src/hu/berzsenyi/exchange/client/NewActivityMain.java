@@ -101,42 +101,69 @@ public class NewActivityMain extends ActionBarActivity {
 
 		@Override
 		public void onStocksCommand(ExchangeClient client) {
-			if (mStockAdapter != null)
-				mStockAdapter.notifyDataSetChanged();
-			if (mNewOfferStockAdapter != null)
-				mNewOfferStockAdapter.notifyDataSetChanged();
-			updateStocksValueTextView();
+			runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					if (mStockAdapter != null)
+						mStockAdapter.notifyDataSetChanged();
+					if (mNewOfferStockAdapter != null)
+						mNewOfferStockAdapter.notifyDataSetChanged();
+					updateStocksValueTextView();
+				}
+			});
 		}
 
 		@Override
 		public void onStocksChanged(Team ownTeam, int position) {
-			if (mStockAdapter != null)
-				mStockAdapter.notifyDataSetChanged();
-			updateStocksValueTextView();
+			runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+
+					if (mStockAdapter != null)
+						mStockAdapter.notifyDataSetChanged();
+					updateStocksValueTextView();
+				}
+			});
 		}
 
 		@Override
-		public void onNewEvents(SingleEvent[] event) {
-			if (mNewsAdapter != null)
-				mNewsAdapter.notifyDataSetChanged();
+		public void onNewRound(SingleEvent[] event) {
+			runOnUiThread(new Runnable() {
+				public void run() {
+					if (mNewsAdapter != null)
+						mNewsAdapter.notifyDataSetChanged();
+				}
+			});
 		}
 
 		@Override
 		public void onOutgoingOffersChanged() {
-			mOutgoingOfferAdapter.notifyDataSetChanged();
+			runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					mOutgoingOfferAdapter.notifyDataSetChanged();
+				}
+			});
 		}
 
 		@Override
 		public void onMoneyChanged(Team ownTeam) {
-			updateMoneyTextView();
+			runOnUiThread(new Runnable() {
+
+				@Override
+				public void run() {
+
+					updateMoneyTextView();
+				}
+			});
 
 		}
 
-//		@Override
-//		public void onErrorCommand(CmdServerError error) {
-//			// TODO Auto-generated method stub
-//
-//		}
+		// @Override
+		// public void onErrorCommand(CmdServerError error) {
+		// // TODO Auto-generated method stub
+		//
+		// }
 	};
 
 	@Override
@@ -246,7 +273,8 @@ public class NewActivityMain extends ActionBarActivity {
 
 		moneyTextView.setText(formatter.format(
 				getString(R.string.action_bar_money),
-				mClient.getOwnTeam().getMoney()).toString());
+				DECIMAL_FORMAT.format(mClient.getOwnTeam().getMoney()))
+				.toString());
 		formatter.close();
 	}
 
@@ -257,7 +285,8 @@ public class NewActivityMain extends ActionBarActivity {
 		Formatter formatter = new Formatter();
 		stocksValueTextView.setText(formatter.format(
 				getString(R.string.action_bar_stocks_value),
-				mClient.getOwnTeam().calculateStocksValue()).toString());
+				DECIMAL_FORMAT.format(mClient.getOwnTeam()
+						.calculateStocksValue())).toString());
 		formatter.close();
 	}
 

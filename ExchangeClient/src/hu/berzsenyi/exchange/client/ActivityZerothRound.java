@@ -42,6 +42,49 @@ public class ActivityZerothRound extends ActionBarActivity {
 	private Stock[] mStocks;
 	private int[] mMaxes;
 	private Object mLock = new Object();
+	private IClientListener mListener = new IClientListener() {
+
+		@Override
+		public void onConnectionFail(TCPClient client, IOException exception) {
+		}
+
+		@Override
+		public void onConnect(TCPClient client) {
+		}
+
+		@Override
+		public void onClose(TCPClient client) {
+			ActivityZerothRound.this.finish();
+		}
+
+		@Override
+		public void onTeamsCommand(ExchangeClient client) {
+		}
+
+		@Override
+		public void onStocksCommand(ExchangeClient client) {
+			mAdapter.updateStocks(client.getModel().stocks);
+		}
+
+		@Override
+		public void onNewRound(SingleEvent[] events) {
+			ActivityZerothRound.this.finish();
+		}
+
+		@Override
+		public void onMoneyChanged(Team ownTeam) {
+		}
+
+		@Override
+		public void onStocksChanged(Team ownTeam, int position) {
+		}
+
+		@Override
+		public void onOutgoingOffersChanged() {
+
+		}
+
+	};
 
 	private int COLOR_ILLEGAL = Color.RED;
 	private ColorStateList colorDefault;
@@ -67,53 +110,7 @@ public class ActivityZerothRound extends ActionBarActivity {
 		colorDefault = money.getTextColors();
 
 		// TODO Unregister listener
-		mClient.addIClientListener(new IClientListener() {
-
-			@Override
-			public void onConnectionFail(TCPClient client, IOException exception) {
-			}
-
-			@Override
-			public void onConnect(TCPClient client) {
-			}
-
-			@Override
-			public void onClose(TCPClient client) {
-				ActivityZerothRound.this.finish();
-			}
-
-			@Override
-			public void onTeamsCommand(ExchangeClient client) {
-			}
-
-			@Override
-			public void onStocksCommand(ExchangeClient client) {
-				mAdapter.updateStocks(client.getModel().stocks);
-			}
-
-			@Override
-			public void onNewEvents(SingleEvent[] events) {
-				ActivityZerothRound.this.finish();
-			}
-
-			@Override
-			public void onMoneyChanged(Team ownTeam) {
-			}
-
-			@Override
-			public void onStocksChanged(Team ownTeam, int position) {
-			}
-
-//			@Override
-//			public void onErrorCommand(CmdServerError error) {
-//			}
-
-			@Override
-			public void onOutgoingOffersChanged() {
-
-			}
-
-		});
+		mClient.addIClientListener(mListener);
 		if (!mClient.isConnected())
 			finish();
 
@@ -135,6 +132,7 @@ public class ActivityZerothRound extends ActionBarActivity {
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
+		mClient.removeIClientListener(mListener);
 		if (mProgressDialog != null)
 			mProgressDialog.dismiss();
 	}

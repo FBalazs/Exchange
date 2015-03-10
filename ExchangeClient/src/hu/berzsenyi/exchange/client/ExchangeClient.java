@@ -2,12 +2,22 @@ package hu.berzsenyi.exchange.client;
 
 import hu.berzsenyi.exchange.Model;
 import hu.berzsenyi.exchange.SingleEvent;
-import hu.berzsenyi.exchange.Stock;
 import hu.berzsenyi.exchange.Team;
 import hu.berzsenyi.exchange.net.IClientConnectionListener;
 import hu.berzsenyi.exchange.net.TCPClient;
 import hu.berzsenyi.exchange.net.TCPConnection;
-import hu.berzsenyi.exchange.net.msg.*;
+import hu.berzsenyi.exchange.net.msg.ICmdHandler;
+import hu.berzsenyi.exchange.net.msg.Msg;
+import hu.berzsenyi.exchange.net.msg.MsgBuy;
+import hu.berzsenyi.exchange.net.msg.MsgConnAccept;
+import hu.berzsenyi.exchange.net.msg.MsgConnRefuse;
+import hu.berzsenyi.exchange.net.msg.MsgConnRequest;
+import hu.berzsenyi.exchange.net.msg.MsgMoneyChange;
+import hu.berzsenyi.exchange.net.msg.MsgNewRound;
+import hu.berzsenyi.exchange.net.msg.MsgOffer;
+import hu.berzsenyi.exchange.net.msg.MsgOfferDelete;
+import hu.berzsenyi.exchange.net.msg.MsgStockInfo;
+import hu.berzsenyi.exchange.net.msg.MsgTeamInfo;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -39,7 +49,7 @@ public class ExchangeClient implements ICmdHandler, IClientConnectionListener {
 	private void init() {
 		mClient = null;
 		mName = mPassword = null;
-		mModel = new Model();
+		mModel = new ClientModel();
 		mListeners = new ArrayList<IClientListener>();
 		mOwnTeam = null;
 	}
@@ -171,7 +181,7 @@ public class ExchangeClient implements ICmdHandler, IClientConnectionListener {
 	}
 
 	@Override
-	public void handleCmd(Object o, TCPConnection conn) {
+	public void handleCmd(Msg o, TCPConnection conn) {
 		Log.d(this.getClass().getName(), "Received command! "
 				+ o.getClass().getName());
 
@@ -180,10 +190,9 @@ public class ExchangeClient implements ICmdHandler, IClientConnectionListener {
 			for (int t = 0; t < msg.teamNames.length; t++)
 				mModel.teams
 						.add(new Team(mModel, null, msg.teamNames[t], null));
-			mModel.stocks = new Stock[msg.stockNames.length];
-			for (int s = 0; s < mModel.stocks.length; s++)
-				mModel.stocks[s] = new Stock(null, msg.stockNames[s],
-						msg.stockPrices[s]);
+			mModel.stocks = msg.stocks;
+			for(IClientListener listener : mListeners)
+				listener.onStocksCommand(this);
 			mOwnTeam = mModel.getTeamByName(mName);
 			mOwnTeam.setOnChangeListener(new Team.OnChangeListener() {
 				@Override
@@ -199,7 +208,8 @@ public class ExchangeClient implements ICmdHandler, IClientConnectionListener {
 				}
 			});
 			mOwnTeam.setMoney(msg.teamMoney);
-			mOwnTeam.setStocks(msg.teamStocks);
+			if (msg.teamStocks != null)
+				mOwnTeam.setStocks(msg.teamStocks);
 		} else if (o instanceof MsgConnRefuse) {
 			// TODO wrong pw or not connected in first round
 		} else if (o instanceof MsgStockInfo) {
@@ -216,7 +226,23 @@ public class ExchangeClient implements ICmdHandler, IClientConnectionListener {
 			mOwnTeam.setStocks(msg.stocks);
 		}
 		// TODO offer response
-
+		else if (o instanceof MsgNewRound) {
+			MsgNewRound msg = (MsgNewRound) o;
+			mEvents = msg.events;
+			for (IClientListener listener : mListeners)
+				listener.onNewRound(mEvents);
+		} else if (o instanceof MsgStockInfo) {
+			MsgStockInfo msg = (MsgStockInfo) o;
+			for (int i = 0; i < mModel.stocks.length; i++)
+				mModel.stocks[i].value = msg.stockPrices[i];
+			for (IClientListener listener : mListeners)
+				listener.onStocksCommand(this);
+		} else if(o instanceof MsgMoneyChange) {
+			MsgMoneyChange msg = (MsgMoneyChange) o;
+			getOwnTeam().setMoney(msg.newMoney);
+			for(IClientListener listener : mListeners)
+				listener.onMoneyChanged(getOwnTeam());
+		}
 		/*
 		 * if (cmd instanceof CmdServerStocks) { CmdServerStocks stockInfo =
 		 * (CmdServerStocks) cmd; mModel.stocks = stockInfo.stockList; for

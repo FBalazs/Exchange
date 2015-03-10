@@ -1,7 +1,6 @@
 package hu.berzsenyi.exchange.net.msg;
 
-import java.io.Serializable;
 
-public class MsgConnRefuse implements Serializable {
+public class MsgConnRefuse extends Msg {
 	private static final long serialVersionUID = 5682316944048206047L;
 }

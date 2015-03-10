@@ -1,8 +1,7 @@
 package hu.berzsenyi.exchange.net.msg;
 
-import java.io.Serializable;
 
-public class MsgOfferDelete implements Serializable {
+public class MsgOfferDelete extends Msg {
 	private static final long serialVersionUID = 4427033718069601790L;
 	
 	public int stockId, stockAmount;

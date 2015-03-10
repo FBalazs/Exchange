@@ -85,7 +85,7 @@ public class ActivityConnect extends ActionBarActivity {
 			}
 
 			@Override
-			public void onNewEvents(SingleEvent[] events) {
+			public void onNewRound(SingleEvent[] events) {
 			}
 
 			@Override

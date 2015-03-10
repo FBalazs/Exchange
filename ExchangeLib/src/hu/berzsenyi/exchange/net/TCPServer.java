@@ -1,6 +1,7 @@
 package hu.berzsenyi.exchange.net;
 
 import hu.berzsenyi.exchange.net.msg.ICmdHandler;
+import hu.berzsenyi.exchange.net.msg.Msg;
 
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -102,7 +103,7 @@ public class TCPServer implements IServerClientListener {
 		}
 	}
 	
-	public void writeCmdTo(Object o, String addr) {
+	public void writeCmdTo(Msg o, String addr) {
 		synchronized (this.clients) {
 			for(TCPServerClient client : this.clients)
 				if(client.getAddrString().equals(addr))
@@ -110,7 +111,7 @@ public class TCPServer implements IServerClientListener {
 		}
 	}
 	
-	public void writeCmdToAllExcept(Object o, String addr) {
+	public void writeCmdToAllExcept(Msg o, String addr) {
 		synchronized (this.clients) {
 			for(TCPServerClient client : this.clients)
 				if(!client.getAddrString().equals(addr))
@@ -118,7 +119,7 @@ public class TCPServer implements IServerClientListener {
 		}
 	}
 	
-	public void writeCmdToAll(Object o) {
+	public void writeCmdToAll(Msg o) {
 		synchronized (this.clients) {
 			for(TCPServerClient client : this.clients)
 				client.writeCommand(o);

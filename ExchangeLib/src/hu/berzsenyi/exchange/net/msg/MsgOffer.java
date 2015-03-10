@@ -1,8 +1,7 @@
 package hu.berzsenyi.exchange.net.msg;
 
-import java.io.Serializable;
 
-public class MsgOffer implements Serializable {
+public class MsgOffer extends Msg {
 	private static final long serialVersionUID = -6028442585288832957L;
 	
 	public int stockId, stockAmount;

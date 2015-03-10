@@ -1,6 +1,10 @@
 package hu.berzsenyi.exchange;
 
-public abstract class Event {
+import java.io.Serializable;
+
+public abstract class Event implements Serializable {
+
+	private static final long serialVersionUID = 5294233450672199972L;
 
 	private static final String
 			BAD_DESCRIPTION = "Event description must not be null";

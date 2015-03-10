@@ -1,8 +1,7 @@
 package hu.berzsenyi.exchange.net.msg;
 
-import java.io.Serializable;
 
-public class MsgTeamInfo implements Serializable {
+public class MsgTeamInfo extends Msg {
 	private static final long serialVersionUID = 4050629332346872401L;
 	
 	public double money;

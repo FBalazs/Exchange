@@ -7,6 +7,8 @@ import java.util.Random;
 
 public class EventQueue extends Event {
 
+	private static final long serialVersionUID = -3571002757803563472L;
+
 	private static final String BAD_PROBABILITY = "Event probability must be positive",
 			BAD_NEXT_EVENTS = "Event nextEvents must not be null";
 

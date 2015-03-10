@@ -1,8 +1,7 @@
 package hu.berzsenyi.exchange;
 
-import java.io.Serializable;
 
-public class SingleEvent extends Event implements Serializable {
+public class SingleEvent extends Event {
 
 	private static final long serialVersionUID = -740939041210748516L;
 

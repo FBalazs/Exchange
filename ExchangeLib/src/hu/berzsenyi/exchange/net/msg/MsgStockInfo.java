@@ -2,9 +2,7 @@ package hu.berzsenyi.exchange.net.msg;
 
 import hu.berzsenyi.exchange.Stock;
 
-import java.io.Serializable;
-
-public class MsgStockInfo implements Serializable {
+public class MsgStockInfo extends Msg {
 	private static final long serialVersionUID = -3204099119298799477L;
 	
 	public double[] stockPrices;
