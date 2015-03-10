@@ -75,22 +75,23 @@ public class NewActivityMain extends ActionBarActivity {
 
 		@Override
 		public void onClose(TCPClient client) {
-			runOnUiThread(new Runnable() {
-				public void run() {
-					new AlertDialog.Builder(NewActivityMain.this)
-							.setMessage(R.string.connection_lost)
-							.setPositiveButton(R.string.ok,
-									new DialogInterface.OnClickListener() {
-
-										@Override
-										public void onClick(
-												DialogInterface dialog,
-												int which) {
-											finish();
-										}
-									}).create().show();
-				}
-			});
+			if(!isFinishing())
+				runOnUiThread(new Runnable() {
+					public void run() {
+						new AlertDialog.Builder(NewActivityMain.this)
+								.setMessage(R.string.connection_lost)
+								.setPositiveButton(R.string.ok,
+										new DialogInterface.OnClickListener() {
+	
+											@Override
+											public void onClick(
+													DialogInterface dialog,
+													int which) {
+												finish();
+											}
+										}).create().show();
+					}
+				});
 		}
 
 		@Override
@@ -620,10 +621,9 @@ public class NewActivityMain extends ActionBarActivity {
 							R.layout.activity_main_tab_exchange_card, parent,
 							false);
 				MsgOffer offer = getItem(position);
-				boolean sell = offer.price > 0;
 
 				((TextView) view.findViewById(R.id.main_tab_exchange_card_type))
-						.setText(sell ? R.string.main_tab_exchange_offer_type_sell
+						.setText(offer.sell ? R.string.main_tab_exchange_offer_type_sell
 								: R.string.main_tab_exchange_offer_type_buy);
 
 				Formatter formatter = new Formatter();
@@ -639,8 +639,7 @@ public class NewActivityMain extends ActionBarActivity {
 						.findViewById(R.id.main_tab_exchange_card_price))
 						.setText(formatter
 								.format(getString(R.string.main_tab_exchange_offer_price),
-										DECIMAL_FORMAT.format(Math
-												.abs(offer.price))).toString());
+										DECIMAL_FORMAT.format(offer.price)).toString());
 				formatter.close();
 
 				formatter = new Formatter();

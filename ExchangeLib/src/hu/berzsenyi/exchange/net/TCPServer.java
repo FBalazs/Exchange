@@ -65,11 +65,13 @@ public class TCPServer implements IServerClientListener {
 
 	@Override
 	public void onClose(TCPServerClient client) {
-		synchronized (this.clients) {
+		/*synchronized (this.clients) {
 			this.clients.remove(client);
 			if(this.listener != null)
 				this.listener.onClientDisconnected(client);
-		}
+		}*/
+		if(this.listener != null)
+			this.listener.onClientDisconnected(client);
 	}
 	
 //	public void update() {
@@ -105,24 +107,33 @@ public class TCPServer implements IServerClientListener {
 	
 	public void writeCmdTo(Msg o, String addr) {
 		synchronized (this.clients) {
-			for(TCPServerClient client : this.clients)
-				if(client.getAddrString().equals(addr))
-					client.writeCommand(o);
+			for(int i = 0; i < clients.size(); i++)
+				if(clients.get(i).getAddrString().equals(addr)) {
+					clients.get(i).writeCommand(o);
+					if(!clients.get(i).open)
+						clients.remove(i--);
+				}
 		}
 	}
 	
 	public void writeCmdToAllExcept(Msg o, String addr) {
 		synchronized (this.clients) {
-			for(TCPServerClient client : this.clients)
-				if(!client.getAddrString().equals(addr))
-					client.writeCommand(o);
+			for(int i = 0; i < clients.size(); i++)
+				if(!clients.get(i).getAddrString().equals(addr)) {
+					clients.get(i).writeCommand(o);
+					if(!clients.get(i).open)
+						clients.remove(i--);
+				}
 		}
 	}
 	
 	public void writeCmdToAll(Msg o) {
 		synchronized (this.clients) {
-			for(TCPServerClient client : this.clients)
-				client.writeCommand(o);
+			for(int i = 0; i < clients.size(); i++) {
+				clients.get(i).writeCommand(o);
+				if(!clients.get(i).open)
+					clients.remove(i--);
+			}
 		}
 	}
 	

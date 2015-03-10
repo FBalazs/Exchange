@@ -169,6 +169,7 @@ public class ExchangeServer implements IServerListener, IMsgHandler,
 				conn.writeCommand(new MsgBuyRequest());
 			} else if (team != null && team.pass.equals(msg.password)) {
 				team.id = conn.getAddrString();
+				System.out.println("team.id="+team.id);
 				conn.writeCommand(new MsgConnAccept(team.getMoney(), team
 						.getStocks(), this.model.teams, this.model.stocks));
 				if (team.getStocks() == null) {

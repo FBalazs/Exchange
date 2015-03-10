@@ -21,7 +21,7 @@ import android.widget.EditText;
 public class ActivityConnect extends ActionBarActivity {
 
 	private static final String DEFAULT_NAME = "NickName",
-			DEFAULT_IP = "192.168.0.11", DEFAULT_PORT = "8080";
+			DEFAULT_IP = "192.168.0.12", DEFAULT_PORT = "8080";
 
 	private EditText editTextName, editTextPass, editTextIP, editTextPort;
 	private Button btnConnect;
