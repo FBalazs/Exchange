@@ -239,6 +239,8 @@ public class ExchangeServer implements IServerListener, IMsgHandler,
 		teamSell.setMoney(teamSell.getMoney() + price * amount);
 		teamBuy.setStock(stockId, teamBuy.getStock(stockId) + amount);
 		teamSell.setStock(stockId, teamSell.getStock(stockId) - amount);
+		this.net.writeCmdTo(new MsgOffer(stockId, amount, price, false), teamBuy.id);
+		this.net.writeCmdTo(new MsgOffer(stockId, amount, price, true), teamSell.id);
 		this.net.writeCmdTo(
 				new MsgTeamInfo(teamBuy.getMoney(), teamBuy.getStocks()),
 				teamBuy.id);

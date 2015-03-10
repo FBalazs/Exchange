@@ -29,7 +29,7 @@ public class ExchangeClient implements IMsgHandler, IClientConnectionListener {
 	private Model mModel;
 	private List<IClientListener> mListeners;
 	private Team mOwnTeam;
-	private ArrayList<MsgOffer> mOutgoingOffers = new ArrayList<MsgOffer>();
+	private ArrayList<MsgOffer> mOutgoingOffers = new ArrayList<MsgOffer>(); // TODO maybe it's need to be synchronized, but not with vector
 	private SingleEvent[] mEvents = new SingleEvent[0];
 
 	private ExchangeClient() {
@@ -229,6 +229,18 @@ public class ExchangeClient implements IMsgHandler, IClientConnectionListener {
 				mModel.stocks[i].value = msg.stockPrices[i];
 			for (IClientListener listener : mListeners)
 				listener.onStocksCommand(this);
+		} else if(o instanceof MsgOffer) {
+			MsgOffer msg = (MsgOffer)o;
+			int offer = -1;
+			for(int i = 0; i < mOutgoingOffers.size() && offer == -1; i++)
+				if(mOutgoingOffers.get(i).stockId == msg.stockId && mOutgoingOffers.get(i).sell == msg.sell)
+					offer = i;
+			mOutgoingOffers.get(offer).stockAmount -= msg.stockAmount;
+			if(mOutgoingOffers.get(offer).stockAmount == 0)
+				mOutgoingOffers.remove(offer);
+			// TODO call some listener to display a toast or whatever to show that a transaction did happen
+			for (IClientListener listener : mListeners)
+				listener.onOutgoingOffersChanged();
 		}
 		/*
 		 * if (cmd instanceof CmdServerStocks) { CmdServerStocks stockInfo =
