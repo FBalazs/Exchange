@@ -22,7 +22,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.Random;
 
-public class ExchangeServer implements IServerListener, ICmdHandler,
+public class ExchangeServer implements IServerListener, IMsgHandler,
 		IOfferCallback {
 
 	public boolean running;
@@ -153,7 +153,7 @@ public class ExchangeServer implements IServerListener, ICmdHandler,
 	}
 
 	@Override
-	public void handleCmd(Msg o, TCPConnection conn) {
+	public void handleMsg(Msg o, TCPConnection conn) {
 		System.out.println("Received command! " + o.getClass().getName());
 
 		if (o instanceof MsgConnRequest) {

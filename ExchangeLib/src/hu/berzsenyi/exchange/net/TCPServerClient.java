@@ -1,6 +1,6 @@
 package hu.berzsenyi.exchange.net;
 
-import hu.berzsenyi.exchange.net.msg.ICmdHandler;
+import hu.berzsenyi.exchange.net.msg.IMsgHandler;
 
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -9,7 +9,7 @@ import java.net.Socket;
 public class TCPServerClient extends TCPConnection {
 	public IServerClientListener listener = null;
 
-	public TCPServerClient(Socket socket, ICmdHandler cmdHandler) {
+	public TCPServerClient(Socket socket, IMsgHandler cmdHandler) {
 		super(cmdHandler);
 		try {
 			this.socket = socket;

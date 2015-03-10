@@ -6,18 +6,8 @@ import hu.berzsenyi.exchange.Team;
 import hu.berzsenyi.exchange.net.IClientConnectionListener;
 import hu.berzsenyi.exchange.net.TCPClient;
 import hu.berzsenyi.exchange.net.TCPConnection;
-import hu.berzsenyi.exchange.net.msg.ICmdHandler;
-import hu.berzsenyi.exchange.net.msg.Msg;
-import hu.berzsenyi.exchange.net.msg.MsgBuy;
-import hu.berzsenyi.exchange.net.msg.MsgConnAccept;
-import hu.berzsenyi.exchange.net.msg.MsgConnRefuse;
-import hu.berzsenyi.exchange.net.msg.MsgConnRequest;
-import hu.berzsenyi.exchange.net.msg.MsgMoneyChange;
-import hu.berzsenyi.exchange.net.msg.MsgNewRound;
-import hu.berzsenyi.exchange.net.msg.MsgOffer;
-import hu.berzsenyi.exchange.net.msg.MsgOfferDelete;
-import hu.berzsenyi.exchange.net.msg.MsgStockInfo;
-import hu.berzsenyi.exchange.net.msg.MsgTeamInfo;
+import hu.berzsenyi.exchange.net.msg.IMsgHandler;
+import hu.berzsenyi.exchange.net.msg.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -29,7 +19,7 @@ import android.util.Log;
  * Singleton class
  *
  */
-public class ExchangeClient implements ICmdHandler, IClientConnectionListener {
+public class ExchangeClient implements IMsgHandler, IClientConnectionListener {
 
 	private static final ExchangeClient INSTANCE = new ExchangeClient();
 
@@ -181,7 +171,7 @@ public class ExchangeClient implements ICmdHandler, IClientConnectionListener {
 	}
 
 	@Override
-	public void handleCmd(Msg o, TCPConnection conn) {
+	public void handleMsg(Msg o, TCPConnection conn) {
 		Log.d(this.getClass().getName(), "Received command! "
 				+ o.getClass().getName());
 
@@ -224,6 +214,8 @@ public class ExchangeClient implements ICmdHandler, IClientConnectionListener {
 			MsgTeamInfo msg = (MsgTeamInfo) o;
 			mOwnTeam.setMoney(msg.money);
 			mOwnTeam.setStocks(msg.stocks);
+			for(IClientListener listener : mListeners)
+				listener.onMoneyChanged(getOwnTeam());
 		}
 		// TODO offer response
 		else if (o instanceof MsgNewRound) {
@@ -237,11 +229,6 @@ public class ExchangeClient implements ICmdHandler, IClientConnectionListener {
 				mModel.stocks[i].value = msg.stockPrices[i];
 			for (IClientListener listener : mListeners)
 				listener.onStocksCommand(this);
-		} else if(o instanceof MsgMoneyChange) {
-			MsgMoneyChange msg = (MsgMoneyChange) o;
-			getOwnTeam().setMoney(msg.newMoney);
-			for(IClientListener listener : mListeners)
-				listener.onMoneyChanged(getOwnTeam());
 		}
 		/*
 		 * if (cmd instanceof CmdServerStocks) { CmdServerStocks stockInfo =

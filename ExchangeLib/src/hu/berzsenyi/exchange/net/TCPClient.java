@@ -1,6 +1,6 @@
 package hu.berzsenyi.exchange.net;
 
-import hu.berzsenyi.exchange.net.msg.ICmdHandler;
+import hu.berzsenyi.exchange.net.msg.IMsgHandler;
 
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -11,7 +11,7 @@ import java.io.IOException;
 public class TCPClient extends TCPConnection {
 	public IClientConnectionListener listener;
 	
-	public TCPClient(String host, int port, ICmdHandler cmdHandler, IClientConnectionListener listener) throws IOException {
+	public TCPClient(String host, int port, IMsgHandler cmdHandler, IClientConnectionListener listener) throws IOException {
 		super(cmdHandler);
 		try {
 			this.listener = listener;

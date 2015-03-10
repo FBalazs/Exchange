@@ -1,6 +1,6 @@
 package hu.berzsenyi.exchange.net;
 
-import hu.berzsenyi.exchange.net.msg.ICmdHandler;
+import hu.berzsenyi.exchange.net.msg.IMsgHandler;
 import hu.berzsenyi.exchange.net.msg.Msg;
 
 import java.io.*;
@@ -22,7 +22,7 @@ public abstract class TCPConnection {
 				try {
 					Msg o = (Msg) oin.readObject();
 
-					cmdHandler.handleCmd(o, TCPConnection.this);
+					cmdHandler.handleMsg(o, TCPConnection.this);
 					// System.out.println("A command has arrived");
 				} catch (EOFException e) { // Nothing special
 				} catch (SocketTimeoutException e) {
@@ -39,9 +39,9 @@ public abstract class TCPConnection {
 	public boolean open = false;
 	protected ObjectInputStream oin;
 	protected ObjectOutputStream oout;
-	public ICmdHandler cmdHandler;
+	public IMsgHandler cmdHandler;
 
-	public TCPConnection(ICmdHandler cmdHandler) {
+	public TCPConnection(IMsgHandler cmdHandler) {
 		this.cmdHandler = cmdHandler;
 	}
 

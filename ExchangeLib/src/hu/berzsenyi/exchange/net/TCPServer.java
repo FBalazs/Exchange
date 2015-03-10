@@ -1,6 +1,6 @@
 package hu.berzsenyi.exchange.net;
 
-import hu.berzsenyi.exchange.net.msg.ICmdHandler;
+import hu.berzsenyi.exchange.net.msg.IMsgHandler;
 import hu.berzsenyi.exchange.net.msg.Msg;
 
 import java.net.ServerSocket;
@@ -41,10 +41,10 @@ public class TCPServer implements IServerClientListener {
 	public ServerSocket socket;
 	public List<TCPServerClient> clients = new ArrayList<TCPServerClient>();
 	public boolean open = true;
-	public ICmdHandler cmdHandler;
+	public IMsgHandler cmdHandler;
 	public IServerListener listener;
 	
-	public TCPServer(int port, ICmdHandler cmdHandler, IServerListener listener) {
+	public TCPServer(int port, IMsgHandler cmdHandler, IServerListener listener) {
 		try {
 			this.listener = listener;
 			this.socket = new ServerSocket(port);
