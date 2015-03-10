@@ -70,7 +70,7 @@ public class ServerDisplay extends JFrame implements WindowListener,
 		this.setSize(this.width, this.height);
 		this.setLayout(null);
 		this.setLocationRelativeTo(null);
-		this.setBackground(Color.white);
+		this.setBackground(Color.lightGray);
 
 		this.compStocks = new CompStocks(this);
 		this.add(this.compStocks);
