@@ -17,6 +17,7 @@ public class ServerModel extends Model {
 	public List<EventQueue> currentEvents = new ArrayList<EventQueue>();
 
 	public EventQueue[] allEvents;
+	public int round = 0;
 
 	public void loadEvents(File file) {
 		try {

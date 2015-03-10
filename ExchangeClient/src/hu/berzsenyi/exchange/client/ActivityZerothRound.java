@@ -106,7 +106,7 @@ public class ActivityZerothRound extends ActionBarActivity {
 		setContentView(R.layout.activity_zeroth_round);
 
 		TextView money = ((TextView) findViewById(R.id.money));
-		money.setText(NewActivityMain.DECIMAL_FORMAT.format(mClient.getModel().startMoney));
+		money.setText(ActivityMain.DECIMAL_FORMAT.format(mClient.getModel().startMoney));
 		colorDefault = money.getTextColors();
 
 		// TODO Unregister listener
@@ -235,7 +235,7 @@ public class ActivityZerothRound extends ActionBarActivity {
 			((TextView) out.findViewById(R.id.stock_name)).setText(stock.name);
 			((TextView) out.findViewById(R.id.main_tab_stocks_card_value))
 					.setText(getString(R.string.unit_price)
-							+ NewActivityMain.DECIMAL_FORMAT
+							+ ActivityMain.DECIMAL_FORMAT
 									.format(stock.value));
 
 			final EditText valueEditText = ((EditText) out
@@ -276,7 +276,7 @@ public class ActivityZerothRound extends ActionBarActivity {
 						tv.setTextColor(COLOR_ILLEGAL);
 					else
 						tv.setTextColor(colorDefault);
-					tv.setText(NewActivityMain.DECIMAL_FORMAT
+					tv.setText(ActivityMain.DECIMAL_FORMAT
 							.format(currentMoney));
 				}
 			});

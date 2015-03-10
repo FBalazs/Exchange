@@ -1,13 +1,21 @@
 package hu.berzsenyi.exchange.client;
 
-import hu.berzsenyi.exchange.Model;
 import hu.berzsenyi.exchange.SingleEvent;
 import hu.berzsenyi.exchange.Team;
 import hu.berzsenyi.exchange.net.IClientConnectionListener;
 import hu.berzsenyi.exchange.net.TCPClient;
 import hu.berzsenyi.exchange.net.TCPConnection;
 import hu.berzsenyi.exchange.net.msg.IMsgHandler;
-import hu.berzsenyi.exchange.net.msg.*;
+import hu.berzsenyi.exchange.net.msg.Msg;
+import hu.berzsenyi.exchange.net.msg.MsgBuy;
+import hu.berzsenyi.exchange.net.msg.MsgConnAccept;
+import hu.berzsenyi.exchange.net.msg.MsgConnRefuse;
+import hu.berzsenyi.exchange.net.msg.MsgConnRequest;
+import hu.berzsenyi.exchange.net.msg.MsgNewRound;
+import hu.berzsenyi.exchange.net.msg.MsgOffer;
+import hu.berzsenyi.exchange.net.msg.MsgOfferDelete;
+import hu.berzsenyi.exchange.net.msg.MsgStockInfo;
+import hu.berzsenyi.exchange.net.msg.MsgTeamInfo;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -26,11 +34,22 @@ public class ExchangeClient implements IMsgHandler, IClientConnectionListener {
 	private TCPClient mClient;
 	private boolean mConnected = false;
 	private String mName, mPassword;
-	private Model mModel;
+	private ClientModel mModel;
 	private List<IClientListener> mListeners;
 	private Team mOwnTeam;
-	private ArrayList<MsgOffer> mOutgoingOffers = new ArrayList<MsgOffer>(); // TODO maybe it's need to be synchronized, but not with vector
+	private ArrayList<MsgOffer> mOutgoingOffers = new ArrayList<MsgOffer>(); // TODO
+																				// maybe
+																				// it's
+																				// need
+																				// to
+																				// be
+																				// synchronized,
+																				// but
+																				// not
+																				// with
+																				// vector
 	private SingleEvent[] mEvents = new SingleEvent[0];
+	private boolean mZerothRound = true;
 
 	private ExchangeClient() {
 		init();
@@ -87,7 +106,7 @@ public class ExchangeClient implements IMsgHandler, IClientConnectionListener {
 		mPassword = password;
 	}
 
-	public Model getModel() {
+	public ClientModel getModel() {
 		return mModel;
 	}
 
@@ -98,9 +117,13 @@ public class ExchangeClient implements IMsgHandler, IClientConnectionListener {
 	public boolean isConnected() {
 		return mConnected;
 	}
+	
+	public boolean isInZerothRound() {
+		return mZerothRound;
+	}
 
 	public boolean doBuy(int[] amounts) {
-		if (getModel().round != 0)
+		if (!isInZerothRound())
 			throw new IllegalStateException(
 					"doBuy can be called only in the 0th round");
 
@@ -177,11 +200,12 @@ public class ExchangeClient implements IMsgHandler, IClientConnectionListener {
 
 		if (o instanceof MsgConnAccept) {
 			MsgConnAccept msg = (MsgConnAccept) o;
+			mZerothRound = msg.zerothRound;
 			for (int t = 0; t < msg.teamNames.length; t++)
 				mModel.teams
 						.add(new Team(mModel, null, msg.teamNames[t], null));
 			mModel.stocks = msg.stocks;
-			for(IClientListener listener : mListeners)
+			for (IClientListener listener : mListeners)
 				listener.onStocksCommand(this);
 			mOwnTeam = mModel.getTeamByName(mName);
 			mOwnTeam.setOnChangeListener(new Team.OnChangeListener() {
@@ -209,16 +233,18 @@ public class ExchangeClient implements IMsgHandler, IClientConnectionListener {
 						/ mModel.stocks[s].value;
 				mModel.stocks[s].value = msg.stockPrices[s];
 			}
-			// TODO call listeners
+			for (IClientListener listener : mListeners)
+				listener.onStocksCommand(this);
 		} else if (o instanceof MsgTeamInfo) {
 			MsgTeamInfo msg = (MsgTeamInfo) o;
 			mOwnTeam.setMoney(msg.money);
 			mOwnTeam.setStocks(msg.stocks);
-			for(IClientListener listener : mListeners)
+			for (IClientListener listener : mListeners)
 				listener.onMoneyChanged(getOwnTeam());
 		}
 		// TODO offer response
 		else if (o instanceof MsgNewRound) {
+			mZerothRound = false;
 			MsgNewRound msg = (MsgNewRound) o;
 			mEvents = msg.events;
 			for (IClientListener listener : mListeners)
@@ -229,16 +255,18 @@ public class ExchangeClient implements IMsgHandler, IClientConnectionListener {
 				mModel.stocks[i].value = msg.stockPrices[i];
 			for (IClientListener listener : mListeners)
 				listener.onStocksCommand(this);
-		} else if(o instanceof MsgOffer) {
-			MsgOffer msg = (MsgOffer)o;
+		} else if (o instanceof MsgOffer) {
+			MsgOffer msg = (MsgOffer) o;
 			int offer = -1;
-			for(int i = 0; i < mOutgoingOffers.size() && offer == -1; i++)
-				if(mOutgoingOffers.get(i).stockId == msg.stockId && mOutgoingOffers.get(i).sell == msg.sell)
+			for (int i = 0; i < mOutgoingOffers.size() && offer == -1; i++)
+				if (mOutgoingOffers.get(i).stockId == msg.stockId
+						&& mOutgoingOffers.get(i).sell == msg.sell)
 					offer = i;
 			mOutgoingOffers.get(offer).stockAmount -= msg.stockAmount;
-			if(mOutgoingOffers.get(offer).stockAmount == 0)
+			if (mOutgoingOffers.get(offer).stockAmount == 0)
 				mOutgoingOffers.remove(offer);
-			// TODO call some listener to display a toast or whatever to show that a transaction did happen
+			// TODO call some listener to display a toast or whatever to show
+			// that a transaction did happen
 			for (IClientListener listener : mListeners)
 				listener.onOutgoingOffersChanged();
 		}

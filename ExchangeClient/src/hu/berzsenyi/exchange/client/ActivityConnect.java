@@ -67,7 +67,7 @@ public class ActivityConnect extends ActionBarActivity {
 					public void run() {
 						mDialog.dismiss();
 						startActivity(new Intent(ActivityConnect.this,
-								NewActivityMain.class));
+								ActivityMain.class));
 					}
 				});
 			}

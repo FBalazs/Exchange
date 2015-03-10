@@ -1,7 +1,5 @@
 package hu.berzsenyi.exchange.server;
 
-import hu.berzsenyi.exchange.Model;
-
 import java.awt.Component;
 import java.awt.Graphics;
 
@@ -13,7 +11,7 @@ public class DisplayComp extends Component {
 	}
 	
 	public ServerDisplay display;
-	public Model model;
+	public ServerModel model;
 	
 	public DisplayComp(ServerDisplay display) {
 		this.display = display;

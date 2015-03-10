@@ -165,18 +165,19 @@ public class ExchangeServer implements IServerListener, IMsgHandler,
 				team.setMoney(this.model.startMoney);
 				this.model.teams.add(team);
 				conn.writeCommand(new MsgConnAccept(team.getMoney(), null,
-						this.model.teams, this.model.stocks));
+						this.model.teams, this.model.stocks, this.model.round == 0));
 				conn.writeCommand(new MsgBuyRequest());
 			} else if (team != null && team.pass.equals(msg.password)) {
 				team.id = conn.getAddrString();
 				System.out.println("team.id="+team.id);
 				conn.writeCommand(new MsgConnAccept(team.getMoney(), team
-						.getStocks(), this.model.teams, this.model.stocks));
+						.getStocks(), this.model.teams, this.model.stocks, this.model.round == 0));
 				if (team.getStocks() == null) {
 					conn.writeCommand(new MsgBuyRequest());
 				}
 			} else {
 				conn.writeCommand(new MsgConnRefuse());
+				conn.close();
 			}
 		} else if (o instanceof MsgBuy) {
 			MsgBuy msg = (MsgBuy) o;
