@@ -166,15 +166,15 @@ public class ExchangeServer implements IServerListener, IMsgHandler,
 				this.model.teams.add(team);
 				conn.writeCommand(new MsgConnAccept(team.getMoney(), null,
 						this.model.teams, this.model.stocks, this.model.round == 0));
-				conn.writeCommand(new MsgBuyRequest());
+				//conn.writeCommand(new MsgBuyRequest());
 			} else if (team != null && team.pass.equals(msg.password)) {
 				team.id = conn.getAddrString();
 				System.out.println("team.id="+team.id);
 				conn.writeCommand(new MsgConnAccept(team.getMoney(), team
 						.getStocks(), this.model.teams, this.model.stocks, this.model.round == 0));
-				if (team.getStocks() == null) {
+				/*if (team.getStocks() == null) {
 					conn.writeCommand(new MsgBuyRequest());
-				}
+				}*/
 			} else {
 				conn.writeCommand(new MsgConnRefuse());
 				conn.close();
@@ -189,7 +189,7 @@ public class ExchangeServer implements IServerListener, IMsgHandler,
 		} else if (o instanceof MsgOffer) {
 			MsgOffer msg = (MsgOffer) o;
 			Team team = this.model.getTeamById(conn.getAddrString());
-			this.model.stocks[msg.stockId].addOffer(team.name, msg.stockId,
+			this.model.stocks[msg.stockId].addOffer(this.model, team.name, msg.stockId,
 					msg.stockAmount, msg.price, msg.sell, this);
 		} else if (o instanceof MsgOfferDelete) {
 			MsgOfferDelete msg = (MsgOfferDelete) o;
@@ -249,12 +249,11 @@ public class ExchangeServer implements IServerListener, IMsgHandler,
 		this.net.writeCmdTo(
 				new MsgTeamInfo(teamSell.getMoney(), teamSell.getStocks()),
 				teamSell.id);
-		// TODO send offer change info to clients
 		if (offerBuy.amount != 0)
-			this.model.stocks[stockId].addOffer(offerBuy.clientName, stockId,
+			this.model.stocks[stockId].addOffer(this.model, offerBuy.clientName, stockId,
 					offerBuy.amount, offerBuy.money, false, this);
 		if (offerSell.amount != 0)
-			this.model.stocks[stockId].addOffer(offerSell.clientName, stockId,
+			this.model.stocks[stockId].addOffer(this.model, offerSell.clientName, stockId,
 					offerSell.amount, offerSell.money, true, this);
 	}
 

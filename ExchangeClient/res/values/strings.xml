@@ -80,5 +80,6 @@
     <!-- ActionBar -->
     <string name="action_bar_money">Pénz: %s$</string>
     <string name="action_bar_stocks_value">Részvények: %s$</string>
+    <string name="hintPassword">Jelszó</string>
 
 </resources>
