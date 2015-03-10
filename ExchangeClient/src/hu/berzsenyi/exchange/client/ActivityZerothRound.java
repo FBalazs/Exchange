@@ -249,7 +249,6 @@ public class ActivityZerothRound extends ActionBarActivity {
 
 			final SeekBar amount = (SeekBar) out
 					.findViewById(R.id.stock_amount_seekbar);
-			amount.setMax(mMaxes[position]);
 			amount.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
 
 				@Override
@@ -280,6 +279,7 @@ public class ActivityZerothRound extends ActionBarActivity {
 							.format(currentMoney));
 				}
 			});
+			amount.setMax(mMaxes[position]);
 			amount.setProgress(currentAmount);
 
 			valueEditText.setText(amount.getProgress() + "");
