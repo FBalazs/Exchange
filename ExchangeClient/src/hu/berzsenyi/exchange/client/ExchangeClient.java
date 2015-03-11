@@ -1,6 +1,7 @@
 package hu.berzsenyi.exchange.client;
 
 import hu.berzsenyi.exchange.SingleEvent;
+import hu.berzsenyi.exchange.Stock;
 import hu.berzsenyi.exchange.Team;
 import hu.berzsenyi.exchange.net.IClientConnectionListener;
 import hu.berzsenyi.exchange.net.TCPClient;
@@ -240,6 +241,7 @@ public class ExchangeClient implements IMsgHandler, IClientConnectionListener {
 				mModel.stocks[s].change = msg.stockPrices[s]
 						/ mModel.stocks[s].value;
 				mModel.stocks[s].value = msg.stockPrices[s];
+				mModel.stocks[s].circulated = msg.circulated[s];
 			}
 			for (IClientListener listener : mListeners)
 				listener.onStocksCommand(this);
@@ -259,8 +261,11 @@ public class ExchangeClient implements IMsgHandler, IClientConnectionListener {
 				listener.onNewRound(mEvents);
 		} else if (o instanceof MsgStockInfo) {
 			MsgStockInfo msg = (MsgStockInfo) o;
-			for (int i = 0; i < mModel.stocks.length; i++)
-				mModel.stocks[i].value = msg.stockPrices[i];
+			for (int i = 0; i < mModel.stocks.length; i++) {
+				Stock stock = mModel.stocks[i];
+				stock.value = msg.stockPrices[i];
+				stock.circulated = msg.circulated[i];
+			}
 			for (IClientListener listener : mListeners)
 				listener.onStocksCommand(this);
 		} else if (o instanceof MsgOffer) {

@@ -1,6 +1,5 @@
 package hu.berzsenyi.exchange;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,32 +8,6 @@ public abstract class Model {
 	public Stock[] stocks = new Stock[0];
 	public List<Team> teams = new ArrayList<Team>();
 
-	/**
-	 * Loads the stocks from the data files.
-	 * 
-	 * @param stockFolder
-	 *            The folder where the files are located.
-	 */
-	public void loadStocks(String stockFolder) {
-		File[] files = new File(stockFolder).listFiles();
-		this.stocks = new Stock[files.length];
-		for (int i = 0; i < files.length; i++) {
-			try {
-				DatParser parser = new DatParser(files[i].getAbsolutePath());
-				parser.parse();
-				this.stocks[i] = new Stock(files[i].getName().substring(0,
-						files[i].getName().lastIndexOf('.')),
-						parser.getValue("name"), Double.parseDouble(parser
-								.getValue("initvalue")));
-				this.stocks[i].sellOffers = new ArrayList<>();
-				this.stocks[i].buyOffers = new ArrayList<>();
-			} catch (Exception e) {
-				e.printStackTrace();
-				System.err.println("Failed to parse stock: "
-						+ files[i].getName());
-			}
-		}
-	}
 
 	public void nextRound(double[] multipliers) {
 		for (int i = 0; i < multipliers.length; i++) {

@@ -52,7 +52,7 @@ public class ActivityMain extends ActionBarActivity {
 			R.string.main_tab_label_stats };
 	private static final int POSITION_TAB_NEWS_FEED = 0,
 			POSITION_TAB_STOCKS = 1, POSITION_TAB_EXCHANGE = 2;
-			//POSITION_TAB_STATS = 3;
+	// POSITION_TAB_STATS = 3;
 	private static final int POSITION_OFFER_TYPE_SELL = 1;
 	// POSITION_OFFER_TYPE_BUY = 0,
 
@@ -75,14 +75,14 @@ public class ActivityMain extends ActionBarActivity {
 
 		@Override
 		public void onClose(TCPClient client) {
-			if(!isFinishing())
+			if (!isFinishing())
 				runOnUiThread(new Runnable() {
 					public void run() {
 						new AlertDialog.Builder(ActivityMain.this)
 								.setMessage(R.string.connection_lost)
 								.setPositiveButton(R.string.ok,
 										new DialogInterface.OnClickListener() {
-	
+
 											@Override
 											public void onClick(
 													DialogInterface dialog,
@@ -96,7 +96,7 @@ public class ActivityMain extends ActionBarActivity {
 
 		@Override
 		public void onTeamsCommand(ExchangeClient client) {
-			
+
 		}
 
 		@Override
@@ -161,7 +161,16 @@ public class ActivityMain extends ActionBarActivity {
 
 		@Override
 		public void onOfferFailed() {
-			new AlertDialog.Builder(getApplicationContext()).setMessage("You already have an offer for this stock!").setNeutralButton("OK", null).create().show();
+			runOnUiThread(new Runnable() {
+
+				@Override
+				public void run() {
+					new AlertDialog.Builder(ActivityMain.this)
+							.setMessage(R.string.offer_stock_duplicate)
+							.setPositiveButton(R.string.ok, null).create()
+							.show();
+				}
+			});
 		}
 	};
 
@@ -382,7 +391,7 @@ public class ActivityMain extends ActionBarActivity {
 		public int getCount() {
 			return mClient.getModel().stocks.length + 2;
 		}
-		
+
 		@Override
 		public void notifyDataSetChanged() {
 			super.notifyDataSetChanged();
@@ -466,8 +475,8 @@ public class ActivityMain extends ActionBarActivity {
 			formatter = new Formatter();
 			((TextView) view.findViewById(R.id.main_tab_stocks_card_circulated))
 					.setText(formatter.format(
-							getString(R.string.main_tab_stocks_circulated), -1)
-							.toString());
+							getString(R.string.main_tab_stocks_circulated),
+							stock.circulated).toString());
 			formatter.close();
 			formatter = new Formatter();
 			((TextView) view.findViewById(R.id.main_tab_stocks_card_possessed))
@@ -552,8 +561,7 @@ public class ActivityMain extends ActionBarActivity {
 							.findViewById(R.id.main_tab_exchange_new_offer_send);
 
 					// Type Spinner
-					type.setAdapter(new ArrayAdapter<String>(
-							ActivityMain.this,
+					type.setAdapter(new ArrayAdapter<String>(ActivityMain.this,
 							android.R.layout.simple_spinner_dropdown_item,
 							android.R.id.text1, getResources().getStringArray(
 									R.array.main_tab_exchange_new_offer_type)));
@@ -642,7 +650,8 @@ public class ActivityMain extends ActionBarActivity {
 						.findViewById(R.id.main_tab_exchange_card_price))
 						.setText(formatter
 								.format(getString(R.string.main_tab_exchange_offer_price),
-										DECIMAL_FORMAT.format(offer.price)).toString());
+										DECIMAL_FORMAT.format(offer.price))
+								.toString());
 				formatter.close();
 
 				formatter = new Formatter();

@@ -12,6 +12,7 @@ public class Stock implements Serializable {
 	
 	public String id, name;
 	public double value;
+	public int circulated = 0;
 	/**
 	 * <code>value/last value</code>
 	 */

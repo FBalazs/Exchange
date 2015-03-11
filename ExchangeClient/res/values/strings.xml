@@ -48,6 +48,7 @@
     <string name="tabOffer_bad_number_format">Egy számot adj meg egységárként!</string>
     <string name="tabOffer_for_sale">Eladó</string>
     <string name="tabOffer_to_buy">Vétel</string>
+    <string name="offer_stock_duplicate">Egy részvény – egy ajánlat</string>
     <!-- ActivityMain -->
     <string name="connection_lost">Megszakadt a kapcsolat :(</string>
     <!-- ActivityMain tabs -->

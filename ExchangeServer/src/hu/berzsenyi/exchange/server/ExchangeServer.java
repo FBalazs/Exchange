@@ -128,11 +128,11 @@ public class ExchangeServer implements IServerListener, IMsgHandler,
 		this.model.currentEvents.add(this.model.allEvents[eventNum]);
 
 		this.model.nextRound(multipliers);
-		Backup.save(this, "backup/round"+model.round+".save");
+		Backup.save(this, "backup/round" + model.round + ".save");
 		this.net.writeCmdToAll(new MsgStockInfo(this.model.stocks));
-		
+
 		SingleEvent[] events = new SingleEvent[this.model.currentEvents.size()];
-		for(int i=0;i<events.length;i++)
+		for (int i = 0; i < events.length; i++)
 			events[i] = this.model.currentEvents.get(i).getSingleEvent();
 		this.net.writeCmdToAll(new MsgNewRound(events));
 
@@ -165,32 +165,39 @@ public class ExchangeServer implements IServerListener, IMsgHandler,
 				team.setMoney(this.model.startMoney);
 				this.model.teams.add(team);
 				conn.writeCommand(new MsgConnAccept(team.getMoney(), null,
-						this.model.teams, this.model.stocks, this.model.round == 0));
-				//conn.writeCommand(new MsgBuyRequest());
+						this.model.teams, this.model.stocks,
+						this.model.round == 0));
+				// conn.writeCommand(new MsgBuyRequest());
 			} else if (team != null && team.pass.equals(msg.password)) {
 				team.id = conn.getAddrString();
-				System.out.println("team.id="+team.id);
+				System.out.println("team.id=" + team.id);
 				conn.writeCommand(new MsgConnAccept(team.getMoney(), team
-						.getStocks(), this.model.teams, this.model.stocks, this.model.round == 0));
-				/*if (team.getStocks() == null) {
-					conn.writeCommand(new MsgBuyRequest());
-				}*/
+						.getStocks(), this.model.teams, this.model.stocks,
+						this.model.round == 0));
+				/*
+				 * if (team.getStocks() == null) { conn.writeCommand(new
+				 * MsgBuyRequest()); }
+				 */
 			} else {
 				conn.writeCommand(new MsgConnRefuse());
 				conn.close();
 			}
 		} else if (o instanceof MsgBuy) {
+			// TODO zeroth round check
 			MsgBuy msg = (MsgBuy) o;
 			Team team = this.model.getTeamById(conn.getAddrString());
 			team.setStocks(msg.amounts);
-			for (int i = 0; i < msg.amounts.length; i++)
+			for (int i = 0; i < msg.amounts.length; i++) {
 				team.setMoney(team.getMoney() - msg.amounts[i]
 						* this.model.stocks[i].value);
+				this.model.stocks[i].circulated += msg.amounts[i];
+			}
+			this.net.writeCmdToAll(new MsgStockInfo(this.model.stocks));
 		} else if (o instanceof MsgOffer) {
 			MsgOffer msg = (MsgOffer) o;
 			Team team = this.model.getTeamById(conn.getAddrString());
-			this.model.stocks[msg.stockId].addOffer(this.model, team.name, msg.stockId,
-					msg.stockAmount, msg.price, msg.sell, this);
+			this.model.stocks[msg.stockId].addOffer(this.model, team.name,
+					msg.stockId, msg.stockAmount, msg.price, msg.sell, this);
 		} else if (o instanceof MsgOfferDelete) {
 			MsgOfferDelete msg = (MsgOfferDelete) o;
 			Team team = this.model.getTeamById(conn.getAddrString());
@@ -228,7 +235,8 @@ public class ExchangeServer implements IServerListener, IMsgHandler,
 	}
 
 	@Override
-	public void onOffersPaired(int stockId, int amount, double price, Offer offerBuy, Offer offerSell) {
+	public void onOffersPaired(int stockId, int amount, double price,
+			Offer offerBuy, Offer offerSell) {
 		Team teamBuy = this.model.getTeamByName(offerBuy.clientName);
 		Team teamSell = this.model.getTeamByName(offerSell.clientName);
 		this.model.stocks[stockId].boughtAmount += amount;
@@ -239,8 +247,10 @@ public class ExchangeServer implements IServerListener, IMsgHandler,
 		teamSell.setMoney(teamSell.getMoney() + price * amount);
 		teamBuy.setStock(stockId, teamBuy.getStock(stockId) + amount);
 		teamSell.setStock(stockId, teamSell.getStock(stockId) - amount);
-		this.net.writeCmdTo(new MsgOffer(stockId, amount, price, false), teamBuy.id);
-		this.net.writeCmdTo(new MsgOffer(stockId, amount, price, true), teamSell.id);
+		this.net.writeCmdTo(new MsgOffer(stockId, amount, price, false),
+				teamBuy.id);
+		this.net.writeCmdTo(new MsgOffer(stockId, amount, price, true),
+				teamSell.id);
 		this.net.writeCmdTo(
 				new MsgTeamInfo(teamBuy.getMoney(), teamBuy.getStocks()),
 				teamBuy.id);
@@ -248,30 +258,34 @@ public class ExchangeServer implements IServerListener, IMsgHandler,
 				new MsgTeamInfo(teamSell.getMoney(), teamSell.getStocks()),
 				teamSell.id);
 		if (offerBuy.amount != 0)
-			this.model.stocks[stockId].addOffer(this.model, offerBuy.clientName, stockId,
-					offerBuy.amount, offerBuy.money, false, this);
+			this.model.stocks[stockId].addOffer(this.model,
+					offerBuy.clientName, stockId, offerBuy.amount,
+					offerBuy.money, false, this);
 		if (offerSell.amount != 0)
-			this.model.stocks[stockId].addOffer(this.model, offerSell.clientName, stockId,
-					offerSell.amount, offerSell.money, true, this);
+			this.model.stocks[stockId].addOffer(this.model,
+					offerSell.clientName, stockId, offerSell.amount,
+					offerSell.money, true, this);
 	}
 
 	@Override
 	public void onClientDisconnected(TCPServerClient client) {
 		System.out.println("Client disconnected!");
 		// if(this.model.round == 0)
-		//this.model.removeTeam(client.getAddrString());
+		// this.model.removeTeam(client.getAddrString());
 		Team team = this.model.getTeamById(client.getAddrString());
-		for(int s = 0; s < this.model.stocks.length; s++) {
-			for(int o = 0; o < this.model.stocks[s].buyOffers.size(); o++)
-				if(this.model.stocks[s].buyOffers.get(o).clientName.equals(team.name))
+		for (int s = 0; s < this.model.stocks.length; s++) {
+			for (int o = 0; o < this.model.stocks[s].buyOffers.size(); o++)
+				if (this.model.stocks[s].buyOffers.get(o).clientName
+						.equals(team.name))
 					this.model.stocks[s].buyOffers.remove(o--);
-			for(int o = 0; o < this.model.stocks[s].sellOffers.size(); o++)
-				if(this.model.stocks[s].sellOffers.get(o).clientName.equals(team.name))
+			for (int o = 0; o < this.model.stocks[s].sellOffers.size(); o++)
+				if (this.model.stocks[s].sellOffers.get(o).clientName
+						.equals(team.name))
 					this.model.stocks[s].sellOffers.remove(o--);
 		}
 
-		//if (this.display != null)
-			//this.display.repaint();
+		// if (this.display != null)
+		// this.display.repaint();
 	}
 
 	public void destroy() {
