@@ -60,11 +60,9 @@ public class ServerDisplay extends JFrame implements WindowListener,
 	public ServerDisplay() {
 		super("Exchange Server");
 		
-		String saveFile = JOptionPane.showInputDialog("File to load:");
 		this.server = new ExchangeServer();
 		this.server.setDisplay(this);
 		this.server.create();
-		Backup.load(this.server, saveFile);
 		
 		try {
 			this.setIconImage(ImageIO.read(getClass().getResource("/hu/berzsenyi/exchange/server/res/ic_launcher.png")));
@@ -129,6 +127,9 @@ public class ServerDisplay extends JFrame implements WindowListener,
 		this.addWindowStateListener(this);
 		this.addWindowFocusListener(this);
 		this.setVisible(true);
+		
+		String saveFile = JOptionPane.showInputDialog(this, "File to load:");
+		Backup.load(this.server, saveFile);
 	}
 
 	public void onResize() {
