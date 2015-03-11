@@ -2,7 +2,7 @@ package hu.berzsenyi.exchange.net.msg;
 
 
 public class MsgOffer extends Msg {
-	private static final long serialVersionUID = -6028442585288832957L;
+	private static final long serialVersionUID = -8386984689320068766L;
 	
 	public int stockId, stockAmount;
 	public double price;
