@@ -50,7 +50,7 @@ public abstract class TCPConnection {
 				+ this.socket.getPort();
 	}
 
-	public void writeCommand(Object o) {
+	public void writeCommand(Msg o) {
 		try {
 			this.oout.writeObject(o);
 			this.oout.flush();
