@@ -228,11 +228,9 @@ public class ExchangeServer implements IServerListener, IMsgHandler,
 	}
 
 	@Override
-	public void onOffersPaired(int stockId, Offer offerBuy, Offer offerSell) {
+	public void onOffersPaired(int stockId, int amount, double price, Offer offerBuy, Offer offerSell) {
 		Team teamBuy = this.model.getTeamByName(offerBuy.clientName);
 		Team teamSell = this.model.getTeamByName(offerSell.clientName);
-		int amount = Math.min(offerBuy.amount, offerSell.amount);
-		double price = (offerBuy.money + offerSell.money) / 2;
 		this.model.stocks[stockId].boughtAmount += amount;
 		this.model.stocks[stockId].boughtFor += amount * price;
 		offerBuy.amount -= amount;
