@@ -51,7 +51,7 @@ public class Stock implements Serializable {
 				if(!sellOffers.get(i).clientName.equals(teamName) && (best == -1 || sellOffers.get(i).money < sellOffers.get(best).money) && sellOffers.get(i).amount <= model.getTeamByName(sellOffers.get(i).clientName).getStock(stockId))
 					best = i;
 			if(best != -1 && sellOffers.get(best).money <= offer.money)
-				callback.onOffersPaired(stockId, sellOffers.remove(best), offer);
+				callback.onOffersPaired(stockId, offer, sellOffers.remove(best));
 			else
 				buyOffers.add(offer);
 		}
