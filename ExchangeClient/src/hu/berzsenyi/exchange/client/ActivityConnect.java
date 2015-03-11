@@ -136,6 +136,11 @@ public class ActivityConnect extends ActionBarActivity {
 			public void onOutgoingOffersChanged() {
 			}
 
+			@Override
+			public void onOfferFailed() {
+				
+			}
+
 		});
 		mClient.connect(editTextIP.getText().toString(), Integer.parseInt(editTextPort.getText().toString().equals("") ? DEFAULT_PORT : editTextPort.getText().toString()));
 	}

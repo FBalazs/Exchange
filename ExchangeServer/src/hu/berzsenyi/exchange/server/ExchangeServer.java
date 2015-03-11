@@ -261,10 +261,19 @@ public class ExchangeServer implements IServerListener, IMsgHandler,
 	public void onClientDisconnected(TCPServerClient client) {
 		System.out.println("Client disconnected!");
 		// if(this.model.round == 0)
-		this.model.removeTeam(client.getAddrString());
+		//this.model.removeTeam(client.getAddrString());
+		Team team = this.model.getTeamById(client.getAddrString());
+		for(int s = 0; s < this.model.stocks.length; s++) {
+			for(int o = 0; o < this.model.stocks[s].buyOffers.size(); o++)
+				if(this.model.stocks[s].buyOffers.get(o).clientName.equals(team.name))
+					this.model.stocks[s].buyOffers.remove(o--);
+			for(int o = 0; o < this.model.stocks[s].sellOffers.size(); o++)
+				if(this.model.stocks[s].sellOffers.get(o).clientName.equals(team.name))
+					this.model.stocks[s].sellOffers.remove(o--);
+		}
 
-		if (this.display != null)
-			this.display.repaint();
+		//if (this.display != null)
+			//this.display.repaint();
 	}
 
 	public void destroy() {

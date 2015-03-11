@@ -17,4 +17,6 @@ public interface IClientListener extends IClientConnectionListener {
 	public void onStocksChanged(Team ownTeam, int position);
 	
 	public void onOutgoingOffersChanged();
+	
+	public void onOfferFailed();
 }
