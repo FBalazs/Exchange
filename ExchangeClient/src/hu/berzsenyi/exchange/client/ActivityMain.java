@@ -39,6 +39,7 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.android.common.view.SlidingTabLayout;
 
@@ -171,6 +172,21 @@ public class ActivityMain extends ActionBarActivity {
 							.show();
 				}
 			});
+		}
+
+		@Override
+		public void onTradeComplete(int stockId, int amount, double price, boolean sell) {
+			// TODO Auto-generated method stub
+			if(sell)
+				Toast.makeText(getApplicationContext(), getString(R.string.toast_trade_sell_0)+amount
+						+getString(R.string.toast_trade_sell_1)+mClient.getModel().stocks[stockId].name
+						+getString(R.string.toast_trade_sell_2)+price
+						+getString(R.string.toast_trade_sell_3), Toast.LENGTH_LONG).show();
+			else
+				Toast.makeText(getApplicationContext(), getString(R.string.toast_trade_buy_0)+amount
+						+getString(R.string.toast_trade_buy_1)+mClient.getModel().stocks[stockId].name
+						+getString(R.string.toast_trade_buy_2)+price
+						+getString(R.string.toast_trade_buy_3), Toast.LENGTH_LONG).show();
 		}
 	};
 

@@ -141,6 +141,11 @@ public class ActivityConnect extends ActionBarActivity {
 				
 			}
 
+			@Override
+			public void onTradeComplete(int stockId, int amount, double price, boolean sell) {
+				
+			}
+
 		});
 		mClient.connect(editTextIP.getText().toString(), Integer.parseInt(editTextPort.getText().toString().equals("") ? DEFAULT_PORT : editTextPort.getText().toString()));
 	}

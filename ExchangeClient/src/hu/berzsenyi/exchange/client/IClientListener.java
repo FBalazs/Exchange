@@ -19,4 +19,6 @@ public interface IClientListener extends IClientConnectionListener {
 	public void onOutgoingOffersChanged();
 	
 	public void onOfferFailed();
+	
+	public void onTradeComplete(int stockId, int amount, double price, boolean sell);
 }

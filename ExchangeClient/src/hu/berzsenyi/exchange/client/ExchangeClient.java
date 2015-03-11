@@ -209,15 +209,15 @@ public class ExchangeClient implements IMsgHandler, IClientConnectionListener {
 
 		if (o instanceof MsgConnAccept) {
 			MsgConnAccept msg = (MsgConnAccept) o;
-			mZerothRound = msg.zerothRound;
-			for (int t = 0; t < msg.teamNames.length; t++)
-				mModel.teams
-						.add(new Team(mModel, null, msg.teamNames[t], null));
 			mModel.stocks = new Stock[msg.stockNames.length];
 			for(int s = 0; s < msg.stockNames.length; s++) {
 				mModel.stocks[s] = new Stock(null, msg.stockNames[s], msg.stockValues[s]);
 				mModel.stocks[s].circulated = msg.stockCirc[s];
 			}
+			mZerothRound = msg.zerothRound;
+			for (int t = 0; t < msg.teamNames.length; t++)
+				mModel.teams
+						.add(new Team(mModel, null, msg.teamNames[t], null));
 			for (IClientListener listener : mListeners)
 				listener.onStocksCommand(this);
 			mOwnTeam = mModel.getTeamByName(mName);
@@ -281,11 +281,11 @@ public class ExchangeClient implements IMsgHandler, IClientConnectionListener {
 				mOutgoingOffers.get(offer).stockAmount -= msg.stockAmount;
 				if (mOutgoingOffers.get(offer).stockAmount == 0)
 					mOutgoingOffers.remove(offer);
-				// TODO call some listener to display a toast or whatever to show
-				// that a transaction did happen
 				for (IClientListener listener : mListeners)
 					listener.onOutgoingOffersChanged();
 			}
+			for (IClientListener listener : mListeners)
+				listener.onTradeComplete(msg.stockId, msg.stockAmount, msg.price, msg.sell);
 		}
 		/*
 		 * if (cmd instanceof CmdServerStocks) { CmdServerStocks stockInfo =

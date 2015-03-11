@@ -82,5 +82,12 @@
     <string name="action_bar_money">Pénz: %s$</string>
     <string name="action_bar_stocks_value">Részvények: %s$</string>
     <string name="hintPassword">Jelszó</string>
-
+    <string name="toast_trade_sell_0">Eladtál </string>
+	<string name="toast_trade_sell_1"> db </string>
+	<string name="toast_trade_sell_2"> részvényt, darabját </string>
+	<string name="toast_trade_sell_3">-ért.</string>
+	<string name="toast_trade_buy_0">Vettél </string>
+	<string name="toast_trade_buy_1"> db </string>
+	<string name="toast_trade_buy_2"> részvényt, darabját </string>
+	<string name="toast_trade_buy_3">-ért.</string>
 </resources>

@@ -89,6 +89,11 @@ public class ActivityZerothRound extends ActionBarActivity {
 			
 		}
 
+		@Override
+		public void onTradeComplete(int stockId, int amount, double price, boolean sell) {
+			
+		}
+
 	};
 
 	private int COLOR_ILLEGAL = Color.RED;
