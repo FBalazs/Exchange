@@ -264,13 +264,15 @@ public class ExchangeClient implements IMsgHandler, IClientConnectionListener {
 				if (mOutgoingOffers.get(i).stockId == msg.stockId
 						&& mOutgoingOffers.get(i).sell == msg.sell)
 					offer = i;
-			mOutgoingOffers.get(offer).stockAmount -= msg.stockAmount;
-			if (mOutgoingOffers.get(offer).stockAmount == 0)
-				mOutgoingOffers.remove(offer);
-			// TODO call some listener to display a toast or whatever to show
-			// that a transaction did happen
-			for (IClientListener listener : mListeners)
-				listener.onOutgoingOffersChanged();
+			if(offer != -1) { // client reconnected since offer
+				mOutgoingOffers.get(offer).stockAmount -= msg.stockAmount;
+				if (mOutgoingOffers.get(offer).stockAmount == 0)
+					mOutgoingOffers.remove(offer);
+				// TODO call some listener to display a toast or whatever to show
+				// that a transaction did happen
+				for (IClientListener listener : mListeners)
+					listener.onOutgoingOffersChanged();
+			}
 		}
 		/*
 		 * if (cmd instanceof CmdServerStocks) { CmdServerStocks stockInfo =

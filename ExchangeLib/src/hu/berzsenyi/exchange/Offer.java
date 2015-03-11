@@ -1,8 +1,6 @@
 package hu.berzsenyi.exchange;
 
-import java.io.Serializable;
-
-public class Offer implements Serializable {
+public class Offer {
 	public String clientName;
 	public int amount;
 	public double money;

@@ -51,8 +51,8 @@ public class ActivityMain extends ActionBarActivity {
 			R.string.main_tab_label_stocks, R.string.main_tab_label_exchange,
 			R.string.main_tab_label_stats };
 	private static final int POSITION_TAB_NEWS_FEED = 0,
-			POSITION_TAB_STOCKS = 1, POSITION_TAB_EXCHANGE = 2,
-			POSITION_TAB_STATS = 3;
+			POSITION_TAB_STOCKS = 1, POSITION_TAB_EXCHANGE = 2;
+			//POSITION_TAB_STATS = 3;
 	private static final int POSITION_OFFER_TYPE_SELL = 1;
 	// POSITION_OFFER_TYPE_BUY = 0,
 
@@ -96,8 +96,7 @@ public class ActivityMain extends ActionBarActivity {
 
 		@Override
 		public void onTeamsCommand(ExchangeClient client) {
-			// TODO Auto-generated method stub
-
+			
 		}
 
 		@Override
@@ -159,12 +158,6 @@ public class ActivityMain extends ActionBarActivity {
 			});
 
 		}
-
-		// @Override
-		// public void onErrorCommand(CmdServerError error) {
-		// // TODO Auto-generated method stub
-		//
-		// }
 	};
 
 	@Override
@@ -387,7 +380,6 @@ public class ActivityMain extends ActionBarActivity {
 		
 		@Override
 		public void notifyDataSetChanged() {
-			// TODO Auto-generated method stub
 			super.notifyDataSetChanged();
 		}
 
