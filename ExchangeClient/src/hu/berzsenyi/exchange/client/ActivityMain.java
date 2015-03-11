@@ -175,18 +175,22 @@ public class ActivityMain extends ActionBarActivity {
 		}
 
 		@Override
-		public void onTradeComplete(int stockId, int amount, double price, boolean sell) {
-			// TODO Auto-generated method stub
-			if(sell)
-				Toast.makeText(getApplicationContext(), getString(R.string.toast_trade_sell_0)+amount
-						+getString(R.string.toast_trade_sell_1)+mClient.getModel().stocks[stockId].name
-						+getString(R.string.toast_trade_sell_2)+price
-						+getString(R.string.toast_trade_sell_3), Toast.LENGTH_LONG).show();
-			else
-				Toast.makeText(getApplicationContext(), getString(R.string.toast_trade_buy_0)+amount
-						+getString(R.string.toast_trade_buy_1)+mClient.getModel().stocks[stockId].name
-						+getString(R.string.toast_trade_buy_2)+price
-						+getString(R.string.toast_trade_buy_3), Toast.LENGTH_LONG).show();
+		public void onTradeComplete(final int stockId, final int amount, final double price, final boolean sell) {
+			runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					if(sell)
+						Toast.makeText(getApplicationContext(), getString(R.string.toast_trade_sell_0)+amount
+								+getString(R.string.toast_trade_sell_1)+mClient.getModel().stocks[stockId].name
+								+getString(R.string.toast_trade_sell_2)+price
+								+getString(R.string.toast_trade_sell_3), Toast.LENGTH_LONG).show();
+					else
+						Toast.makeText(getApplicationContext(), getString(R.string.toast_trade_buy_0)+amount
+								+getString(R.string.toast_trade_buy_1)+mClient.getModel().stocks[stockId].name
+								+getString(R.string.toast_trade_buy_2)+price
+								+getString(R.string.toast_trade_buy_3), Toast.LENGTH_LONG).show();
+				}
+			});
 		}
 	};
 
