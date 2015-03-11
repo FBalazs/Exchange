@@ -29,40 +29,48 @@ public class Stock implements Serializable {
 	
 	public void addOffer(Model model, String teamName, int stockId, int amount, double price, boolean sell, IOfferCallback callback) {
 		Offer offer = new Offer(teamName, amount, price);
-		int tradeAmount;
-		double tradePrice;
+		int bestAmount = 0;
+		double bestPrice = 0;
 		if(sell) {
-			if(model.getTeamByName(teamName).getStock(stockId) < amount) {
-				sellOffers.add(offer);
-				return;
-			}
+//			if(model.getTeamByName(teamName).getStock(stockId) < amount) {
+//				sellOffers.add(offer);
+//				return;
+//			}
 			int best = -1;
 			for(int i = 0; i < buyOffers.size(); i++)
 				if(!buyOffers.get(i).clientName.equals(teamName) && (best == -1 || buyOffers.get(best).money < buyOffers.get(i).money)) {
-					tradeAmount = Math.min(amount, buyOffers.get(i).amount);
-					tradePrice = (price+buyOffers.get(i).money)/2;
-					if(tradeAmount <= model.getTeamByName(teamName).getStock(stockId) && tradePrice*tradeAmount <= model.getTeamByName(buyOffers.get(i).clientName).getMoney())
+					double tradePrice = (price+buyOffers.get(i).money)/2;
+					int tradeAmount = (int) Math.min(Math.min(amount, model.getTeamByName(teamName).getStock(stockId)),
+													Math.min(buyOffers.get(i).amount, Math.floor(model.getTeamByName(buyOffers.get(i).clientName).getMoney()/tradePrice)));
+					if(0 < tradeAmount) {
 						best = i;
+						bestPrice = tradePrice;
+						bestAmount = tradeAmount;
+					}
 				}
 			if(best != -1 && offer.money <= buyOffers.get(best).money)
-				callback.onOffersPaired(stockId, Math.min(amount, buyOffers.get(best).amount), (price+buyOffers.get(best).money)/2, buyOffers.remove(best), offer);
+				callback.onOffersPaired(stockId, bestAmount, bestPrice, buyOffers.remove(best), offer);
 			else
 				sellOffers.add(offer);
 		} else {
-			if(model.getTeamByName(teamName).getMoney() < amount*price) {
-				buyOffers.add(offer);
-				return;
-			}
+//			if(model.getTeamByName(teamName).getMoney() < amount*price) {
+//				buyOffers.add(offer);
+//				return;
+//			}
 			int best = -1;
 			for(int i = 0; i < sellOffers.size(); i++)
 				if(!sellOffers.get(i).clientName.equals(teamName) && (best == -1 || sellOffers.get(i).money < sellOffers.get(best).money)) {
-					tradeAmount = Math.min(amount, sellOffers.get(i).amount);
-					tradePrice = (price+sellOffers.get(i).money)/2;
-					if(tradeAmount <= model.getTeamByName(sellOffers.get(i).clientName).getStock(stockId) && tradePrice*tradeAmount <= model.getTeamByName(teamName).getMoney())
+					double tradePrice = (price+sellOffers.get(i).money)/2;
+					int tradeAmount = (int) Math.min(Math.min(amount, Math.floor(model.getTeamByName(teamName).getMoney()/tradePrice)),
+													Math.min(sellOffers.get(i).amount, model.getTeamByName(sellOffers.get(i).clientName).getStock(stockId)));
+					if(0 < tradeAmount) {
 						best = i;
+						bestPrice = tradePrice;
+						bestAmount = tradeAmount;
+					}
 				}
 			if(best != -1 && sellOffers.get(best).money <= offer.money)
-				callback.onOffersPaired(stockId, Math.min(amount, sellOffers.get(best).amount), (price+sellOffers.get(best).money)/2, offer, sellOffers.remove(best));
+				callback.onOffersPaired(stockId, bestAmount, bestPrice, offer, sellOffers.remove(best));
 			else
 				buyOffers.add(offer);
 		}
