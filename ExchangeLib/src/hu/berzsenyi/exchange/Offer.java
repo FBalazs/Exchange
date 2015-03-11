@@ -1,6 +1,5 @@
 package hu.berzsenyi.exchange;
 
-
 public class Offer {
 	public String clientName;
 	public int amount;
