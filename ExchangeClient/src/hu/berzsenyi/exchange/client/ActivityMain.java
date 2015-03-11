@@ -158,6 +158,11 @@ public class ActivityMain extends ActionBarActivity {
 			});
 
 		}
+
+		@Override
+		public void onOfferFailed() {
+			new AlertDialog.Builder(getApplicationContext()).setMessage("You already have an offer for this stock!").setNeutralButton("OK", null).create().show();
+		}
 	};
 
 	@Override

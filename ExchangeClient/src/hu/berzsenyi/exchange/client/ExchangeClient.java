@@ -141,6 +141,12 @@ public class ExchangeClient implements IMsgHandler, IClientConnectionListener {
 
 	public void sendOffer(int stockID, int amount, double price, boolean sell) {
 		MsgOffer offer = new MsgOffer(stockID, amount, price, sell);
+		for(int i = 0; i < mOutgoingOffers.size(); i++)
+			if(mOutgoingOffers.get(i).stockId == stockID) {
+				for(IClientListener listener : mListeners)
+					listener.onOfferFailed();
+				return;
+			}
 		mOutgoingOffers.add(offer);
 		mClient.writeCommand(offer);
 		for (IClientListener listener : mListeners)

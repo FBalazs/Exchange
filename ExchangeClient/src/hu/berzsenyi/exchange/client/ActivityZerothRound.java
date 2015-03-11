@@ -84,6 +84,11 @@ public class ActivityZerothRound extends ActionBarActivity {
 
 		}
 
+		@Override
+		public void onOfferFailed() {
+			
+		}
+
 	};
 
 	private int COLOR_ILLEGAL = Color.RED;
