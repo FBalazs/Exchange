@@ -25,7 +25,6 @@ import java.util.Random;
 public class ExchangeServer implements IServerListener, IMsgHandler,
 		IOfferCallback {
 
-	public boolean running;
 	public TCPServer net;
 	public ServerModel model;
 
@@ -37,7 +36,7 @@ public class ExchangeServer implements IServerListener, IMsgHandler,
 
 	public IServerDisplay display;
 
-	private int[] shuffledEvents;
+	public int[] shuffledEvents;
 
 	public void setDisplay(IServerDisplay display) {
 		this.display = display;
@@ -129,6 +128,7 @@ public class ExchangeServer implements IServerListener, IMsgHandler,
 		this.model.currentEvents.add(this.model.allEvents[eventNum]);
 
 		this.model.nextRound(multipliers);
+		Backup.save(this, "backup/round"+model.round+".save");
 		this.net.writeCmdToAll(new MsgStockInfo(this.model.stocks));
 		
 		SingleEvent[] events = new SingleEvent[this.model.currentEvents.size()];

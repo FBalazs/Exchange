@@ -74,6 +74,8 @@ public class ExchangeClient implements IMsgHandler, IClientConnectionListener {
 	 * @param port
 	 */
 	public void connect(String ip, int port) {
+		if(ip.equals(""))
+			ip = "localhost";
 		new TCPConnectThread(ip, port).start();
 	}
 

@@ -45,7 +45,7 @@ public abstract class Model {
 
 	public Team getTeamById(String id) {
 		for (Team team : this.teams)
-			if (team.id.equals(id))
+			if (id.equals(team.id))
 				return team;
 		return null;
 	}
@@ -59,7 +59,7 @@ public abstract class Model {
 
 	public void removeTeam(String id) {
 		for (int i = 0; i < this.teams.size(); i++)
-			if (this.teams.get(i).id.equals(id))
+			if (id.equals(teams.get(i).id))
 				this.teams.remove(i--);
 	}
 

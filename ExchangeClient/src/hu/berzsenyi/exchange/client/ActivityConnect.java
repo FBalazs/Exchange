@@ -13,6 +13,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -136,8 +138,7 @@ public class ActivityConnect extends ActionBarActivity {
 			}
 
 		});
-		mClient.connect(editTextIP.getText().toString(),
-				Integer.parseInt(editTextPort.getText().toString()));
+		mClient.connect(editTextIP.getText().toString(), Integer.parseInt(editTextPort.getText().toString().equals("") ? DEFAULT_PORT : editTextPort.getText().toString()));
 	}
 
 	@Override
@@ -158,17 +159,40 @@ public class ActivityConnect extends ActionBarActivity {
 		editTextIP = (EditText) findViewById(R.id.editTextIP);
 		editTextPort = (EditText) findViewById(R.id.editTextPort);
 
-		editTextName.setText(DEFAULT_NAME);
-		editTextIP.setText(DEFAULT_IP);
-		editTextPort.setText(DEFAULT_PORT);
+		//editTextName.setText(DEFAULT_NAME);
+		if(editTextIP.getText().toString().equals(""))
+			editTextIP.setText(DEFAULT_IP);
+		if(editTextPort.getText().toString().equals(""))
+			editTextPort.setText(DEFAULT_PORT);
 
 		btnConnect = (Button) findViewById(R.id.buttonConnect);
+		btnConnect.setEnabled(!editTextName.getText().toString().equals("") && !editTextPass.getText().toString().equals(""));
 		btnConnect.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				onClickConnect();
 			}
 		});
+		
+		TextWatcher textWatcher = new TextWatcher() {
+			@Override
+			public void onTextChanged(CharSequence s, int start, int before, int count) {
+				
+			}
+			
+			@Override
+			public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+				
+			}
+			
+			@Override
+			public void afterTextChanged(Editable s) {
+				btnConnect.setEnabled(!editTextName.getText().toString().equals("") && !editTextPass.getText().toString().equals(""));
+			}
+		};
+		
+		editTextName.addTextChangedListener(textWatcher);
+		editTextPass.addTextChangedListener(textWatcher);
 	}
 
 	@Override

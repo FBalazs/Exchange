@@ -16,6 +16,7 @@ import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JRadioButton;
 
 public class ServerDisplay extends JFrame implements WindowListener,
@@ -58,14 +59,18 @@ public class ServerDisplay extends JFrame implements WindowListener,
 
 	public ServerDisplay() {
 		super("Exchange Server");
+		
+		String saveFile = JOptionPane.showInputDialog("File to load:");
+		this.server = new ExchangeServer();
+		this.server.setDisplay(this);
+		this.server.create();
+		Backup.load(this.server, saveFile);
+		
 		try {
-			this.setIconImage(ImageIO.read(getClass().getResource(
-					"/hu/berzsenyi/exchange/server/res/ic_launcher.png")));
+			this.setIconImage(ImageIO.read(getClass().getResource("/hu/berzsenyi/exchange/server/res/ic_launcher.png")));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		this.server = new ExchangeServer();
-		this.server.setDisplay(this);
 
 		this.setSize(this.width, this.height);
 		this.setLayout(null);
@@ -124,9 +129,6 @@ public class ServerDisplay extends JFrame implements WindowListener,
 		this.addWindowStateListener(this);
 		this.addWindowFocusListener(this);
 		this.setVisible(true);
-
-		this.server.create();
-		this.server.running = true;
 	}
 
 	public void onResize() {
