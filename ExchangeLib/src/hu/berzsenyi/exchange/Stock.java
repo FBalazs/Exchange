@@ -31,10 +31,10 @@ public class Stock implements Serializable {
 		int bestAmount = 0;
 		double bestPrice = 0;
 		if(sell) {
-			if(model.getTeamByName(teamName).getStock(stockId) < amount) {
-				sellOffers.add(offer);
-				return;
-			}
+//			if(model.getTeamByName(teamName).getStock(stockId) < amount) {
+//				sellOffers.add(offer);
+//				return;
+//			}
 			int best = -1;
 			for(int i = 0; i < buyOffers.size(); i++)
 				if(!buyOffers.get(i).clientName.equals(teamName) && (best == -1 || buyOffers.get(best).money < buyOffers.get(i).money)) {
@@ -52,10 +52,10 @@ public class Stock implements Serializable {
 			else
 				sellOffers.add(offer);
 		} else {
-			if(model.getTeamByName(teamName).getMoney() < amount*price) {
-				buyOffers.add(offer);
-				return;
-			}
+//			if(model.getTeamByName(teamName).getMoney() < amount*price) {
+//				buyOffers.add(offer);
+//				return;
+//			}
 			int best = -1;
 			for(int i = 0; i < sellOffers.size(); i++)
 				if(!sellOffers.get(i).clientName.equals(teamName) && (best == -1 || sellOffers.get(i).money < sellOffers.get(best).money)) {
