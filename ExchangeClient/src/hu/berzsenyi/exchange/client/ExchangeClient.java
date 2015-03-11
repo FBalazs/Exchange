@@ -249,8 +249,6 @@ public class ExchangeClient implements IMsgHandler, IClientConnectionListener {
 			MsgTeamInfo msg = (MsgTeamInfo) o;
 			mOwnTeam.setMoney(msg.money);
 			mOwnTeam.setStocks(msg.stocks);
-			for (IClientListener listener : mListeners)
-				listener.onMoneyChanged(getOwnTeam());
 		}
 		// TODO offer response
 		else if (o instanceof MsgNewRound) {
