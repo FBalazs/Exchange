@@ -1,10 +1,8 @@
 package hu.berzsenyi.exchange;
 
-import java.io.Serializable;
 import java.util.List;
 
-public class Stock implements Serializable {
-	private static final long serialVersionUID = -7698800698738451407L;
+public class Stock {
 	
 	public static interface IOfferCallback {
 		public void onOffersPaired(int stockId, int amount, double price, Offer offerBuy, Offer offerSell);

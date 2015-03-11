@@ -10,15 +10,24 @@ public class MsgConnAccept extends Msg {
 	
 	public double teamMoney;
 	public int[] teamStocks;
-	public Stock[] stocks;
+	public String[] stockNames;
+	public double[] stockValues;
+	public int[] stockCirc;
 	public String[] teamNames;
 	public boolean zerothRound;
 	
 	public MsgConnAccept(double teamMoney, int[] teamStocks, List<Team> teams, Stock[] stocks, boolean firstRound) {
 		this.teamMoney = teamMoney;
 		this.teamStocks = teamStocks;
-		this.stocks = stocks;
-		this.zerothRound = firstRound;
+		stockNames = new String[stocks.length];
+		stockValues = new double[stocks.length];
+		stockCirc = new int[stocks.length];
+		for(int s = 0; s < stocks.length; s++) {
+			stockNames[s] = stocks[s].name;
+			stockValues[s] = stocks[s].value;
+			stockCirc[s] = stocks[s].circulated;
+		}
+		zerothRound = firstRound;
 		teamNames = new String[teams.size()];
 		for(int t = 0; t < teamNames.length; t++)
 			teamNames[t] = teams.get(t).name;

@@ -213,7 +213,11 @@ public class ExchangeClient implements IMsgHandler, IClientConnectionListener {
 			for (int t = 0; t < msg.teamNames.length; t++)
 				mModel.teams
 						.add(new Team(mModel, null, msg.teamNames[t], null));
-			mModel.stocks = msg.stocks;
+			mModel.stocks = new Stock[msg.stockNames.length];
+			for(int s = 0; s < msg.stockNames.length; s++) {
+				mModel.stocks[s] = new Stock(null, msg.stockNames[s], msg.stockValues[s]);
+				mModel.stocks[s].circulated = msg.stockCirc[s];
+			}
 			for (IClientListener listener : mListeners)
 				listener.onStocksCommand(this);
 			mOwnTeam = mModel.getTeamByName(mName);
