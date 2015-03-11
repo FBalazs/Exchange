@@ -31,14 +31,10 @@ public class Stock implements Serializable {
 		Offer offer = new Offer(teamName, amount, price);
 		int bestAmount = 0;
 		double bestPrice = 0;
+		int best = -1;
 		if(sell) {
-//			if(model.getTeamByName(teamName).getStock(stockId) < amount) {
-//				sellOffers.add(offer);
-//				return;
-//			}
-			int best = -1;
 			for(int i = 0; i < buyOffers.size(); i++)
-				if(!buyOffers.get(i).clientName.equals(teamName) && (best == -1 || buyOffers.get(best).money < buyOffers.get(i).money)) {
+				if(!buyOffers.get(i).clientName.equals(teamName) && (best == -1 || buyOffers.get(best).money < buyOffers.get(i).money) && offer.money <= buyOffers.get(i).money) {
 					double tradePrice = (price+buyOffers.get(i).money)/2;
 					int tradeAmount = (int) Math.min(Math.min(amount, model.getTeamByName(teamName).getStock(stockId)),
 													Math.min(buyOffers.get(i).amount, Math.floor(model.getTeamByName(buyOffers.get(i).clientName).getMoney()/tradePrice)));
@@ -48,18 +44,13 @@ public class Stock implements Serializable {
 						bestAmount = tradeAmount;
 					}
 				}
-			if(best != -1 && offer.money <= buyOffers.get(best).money)
+			if(best != -1)
 				callback.onOffersPaired(stockId, bestAmount, bestPrice, buyOffers.remove(best), offer);
 			else
 				sellOffers.add(offer);
 		} else {
-//			if(model.getTeamByName(teamName).getMoney() < amount*price) {
-//				buyOffers.add(offer);
-//				return;
-//			}
-			int best = -1;
 			for(int i = 0; i < sellOffers.size(); i++)
-				if(!sellOffers.get(i).clientName.equals(teamName) && (best == -1 || sellOffers.get(i).money < sellOffers.get(best).money)) {
+				if(!sellOffers.get(i).clientName.equals(teamName) && (best == -1 || sellOffers.get(i).money < sellOffers.get(best).money) && sellOffers.get(i).money <= offer.money) {
 					double tradePrice = (price+sellOffers.get(i).money)/2;
 					int tradeAmount = (int) Math.min(Math.min(amount, Math.floor(model.getTeamByName(teamName).getMoney()/tradePrice)),
 													Math.min(sellOffers.get(i).amount, model.getTeamByName(sellOffers.get(i).clientName).getStock(stockId)));
@@ -69,7 +60,7 @@ public class Stock implements Serializable {
 						bestAmount = tradeAmount;
 					}
 				}
-			if(best != -1 && sellOffers.get(best).money <= offer.money)
+			if(best != -1)
 				callback.onOffersPaired(stockId, bestAmount, bestPrice, offer, sellOffers.remove(best));
 			else
 				buyOffers.add(offer);
