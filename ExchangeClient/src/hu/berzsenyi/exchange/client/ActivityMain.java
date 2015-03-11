@@ -182,9 +182,6 @@ public class ActivityMain extends ActionBarActivity {
 		stocksValueTextView = (TextView) customView
 				.findViewById(R.id.action_bar_stocks_value);
 
-		updateMoneyTextView();
-		updateStocksValueTextView();
-
 		ViewPager viewPager = (ViewPager) findViewById(R.id.viewPager);
 		viewPager.setAdapter(new MainPagerAdapter());
 
@@ -225,6 +222,9 @@ public class ActivityMain extends ActionBarActivity {
 		} else { // Now NewActivityMain is really shown
 
 			mClient.addIClientListener(mListener);
+
+			updateMoneyTextView();
+			updateStocksValueTextView();
 		}
 	}
 
