@@ -2,8 +2,8 @@ package hu.berzsenyi.exchange.net.msg;
 
 
 public class MsgTeamInfo extends Msg {
-	private static final long serialVersionUID = 4050629332346872401L;
-	
+
+	private static final long serialVersionUID = 1011240999320048166L;
 	public double money;
 	public int[] stocks;
 	

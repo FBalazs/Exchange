@@ -31,23 +31,17 @@ public class Team {
 		if (mListener != null)
 			mListener.onMoneyChanged(this);
 	}
-	
+
 	public double calculateStocksValue() {
 		double out = 0.0;
-		for(int i=0;i<mStocks.length;i++)
+		for (int i = 0; i < mStocks.length; i++)
 			out += mStocks[i] * mModel.stocks[i].value;
 		return out;
 	}
 
-	 /**
-	 * Should not be edited!!! Avoid using {@code {@link #getStocks()}[i] =
-	 * ...}!
-	 *
-	 * @return
-	 */
-	 public int[] getStocks() {
-	 return mStocks;
-	 }
+	public int[] getStocks() {
+		return mStocks.clone();
+	}
 
 	public int getStock(int index) {
 		return mStocks[index];

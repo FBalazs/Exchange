@@ -52,8 +52,8 @@ public class ActivityMain extends ActionBarActivity {
 			R.string.main_tab_label_stocks, R.string.main_tab_label_exchange,
 			R.string.main_tab_label_stats };
 	private static final int POSITION_TAB_NEWS_FEED = 0,
-			POSITION_TAB_STOCKS = 1, POSITION_TAB_EXCHANGE = 2;
-	// POSITION_TAB_STATS = 3;
+			POSITION_TAB_STOCKS = 1, POSITION_TAB_EXCHANGE = 2,
+			POSITION_TAB_STATS = 3;
 	private static final int POSITION_OFFER_TYPE_SELL = 1;
 	// POSITION_OFFER_TYPE_BUY = 0,
 
@@ -63,7 +63,8 @@ public class ActivityMain extends ActionBarActivity {
 	private OutgoingOfferAdapter mOutgoingOfferAdapter;
 	private NewOfferStockAdapter mNewOfferStockAdapter;
 	private StockAdapter mStockAdapter;
-	private TextView moneyTextView, stocksValueTextView;
+	private TextView moneyTextView1, stocksValueTextView1, moneyTextView2,
+			stocksValueTextView2;
 	private IClientListener mListener = new IClientListener() {
 
 		@Override
@@ -109,7 +110,7 @@ public class ActivityMain extends ActionBarActivity {
 						mStockAdapter.notifyDataSetChanged();
 					if (mNewOfferStockAdapter != null)
 						mNewOfferStockAdapter.notifyDataSetChanged();
-					updateStocksValueTextView();
+					updateStocksValueTextViews();
 				}
 			});
 		}
@@ -122,7 +123,7 @@ public class ActivityMain extends ActionBarActivity {
 
 					if (mStockAdapter != null)
 						mStockAdapter.notifyDataSetChanged();
-					updateStocksValueTextView();
+					updateStocksValueTextViews();
 				}
 			});
 		}
@@ -154,7 +155,7 @@ public class ActivityMain extends ActionBarActivity {
 				@Override
 				public void run() {
 
-					updateMoneyTextView();
+					updateMoneyTextViews();
 				}
 			});
 
@@ -175,20 +176,33 @@ public class ActivityMain extends ActionBarActivity {
 		}
 
 		@Override
-		public void onTradeComplete(final int stockId, final int amount, final double price, final boolean sell) {
+		public void onTradeComplete(final int stockId, final int amount,
+				final double price, final boolean sell) {
 			runOnUiThread(new Runnable() {
 				@Override
 				public void run() {
-					if(sell)
-						Toast.makeText(getApplicationContext(), getString(R.string.toast_trade_sell_0)+amount
-								+getString(R.string.toast_trade_sell_1)+mClient.getModel().stocks[stockId].name
-								+getString(R.string.toast_trade_sell_2)+price
-								+getString(R.string.toast_trade_sell_3), Toast.LENGTH_LONG).show();
+					if (sell)
+						Toast.makeText(
+								getApplicationContext(),
+								getString(R.string.toast_trade_sell_0)
+										+ amount
+										+ getString(R.string.toast_trade_sell_1)
+										+ mClient.getModel().stocks[stockId].name
+										+ getString(R.string.toast_trade_sell_2)
+										+ price
+										+ getString(R.string.toast_trade_sell_3),
+								Toast.LENGTH_LONG).show();
 					else
-						Toast.makeText(getApplicationContext(), getString(R.string.toast_trade_buy_0)+amount
-								+getString(R.string.toast_trade_buy_1)+mClient.getModel().stocks[stockId].name
-								+getString(R.string.toast_trade_buy_2)+price
-								+getString(R.string.toast_trade_buy_3), Toast.LENGTH_LONG).show();
+						Toast.makeText(
+								getApplicationContext(),
+								getString(R.string.toast_trade_buy_0)
+										+ amount
+										+ getString(R.string.toast_trade_buy_1)
+										+ mClient.getModel().stocks[stockId].name
+										+ getString(R.string.toast_trade_buy_2)
+										+ price
+										+ getString(R.string.toast_trade_buy_3),
+								Toast.LENGTH_LONG).show();
 				}
 			});
 		}
@@ -211,9 +225,9 @@ public class ActivityMain extends ActionBarActivity {
 		View customView = actionBar.getCustomView();
 		((TextView) customView.findViewById(R.id.action_bar_title))
 				.setText(R.string.app_name);
-		moneyTextView = (TextView) customView
+		moneyTextView1 = (TextView) customView
 				.findViewById(R.id.action_bar_money);
-		stocksValueTextView = (TextView) customView
+		stocksValueTextView1 = (TextView) customView
 				.findViewById(R.id.action_bar_stocks_value);
 
 		ViewPager viewPager = (ViewPager) findViewById(R.id.viewPager);
@@ -257,8 +271,8 @@ public class ActivityMain extends ActionBarActivity {
 
 			mClient.addIClientListener(mListener);
 
-			updateMoneyTextView();
-			updateStocksValueTextView();
+			updateMoneyTextViews();
+			updateStocksValueTextViews();
 		}
 	}
 
@@ -293,29 +307,38 @@ public class ActivityMain extends ActionBarActivity {
 						}).create().show();
 	}
 
-	private void updateMoneyTextView() {
+	private void updateMoneyTextViews() {
 		if (mClient.getOwnTeam() == null)
 			return;
 
 		Formatter formatter = new Formatter();
 
-		moneyTextView.setText(formatter.format(
-				getString(R.string.action_bar_money),
+		String string = formatter.format(getString(R.string.action_bar_money),
 				DECIMAL_FORMAT.format(mClient.getOwnTeam().getMoney()))
-				.toString());
+				.toString();
 		formatter.close();
+
+		if (moneyTextView1 != null)
+			moneyTextView1.setText(string);
+		if (moneyTextView2 != null)
+			moneyTextView2.setText(string);
 	}
 
-	private void updateStocksValueTextView() {
+	private void updateStocksValueTextViews() {
 		if (mClient.getOwnTeam() == null)
 			return;
 
 		Formatter formatter = new Formatter();
-		stocksValueTextView.setText(formatter.format(
+		String string = formatter.format(
 				getString(R.string.action_bar_stocks_value),
 				DECIMAL_FORMAT.format(mClient.getOwnTeam()
-						.calculateStocksValue())).toString());
+						.calculateStocksValue())).toString();
 		formatter.close();
+
+		if (stocksValueTextView1 != null)
+			stocksValueTextView1.setText(string);
+		if (stocksValueTextView2 != null)
+			stocksValueTextView2.setText(string);
 	}
 
 	private class MainPagerAdapter extends PagerAdapter {
@@ -337,7 +360,7 @@ public class ActivityMain extends ActionBarActivity {
 
 		@Override
 		public Object instantiateItem(ViewGroup container, int position) {
-			View view;
+			View view = null;
 
 			switch (position) {
 			case POSITION_TAB_NEWS_FEED:
@@ -390,12 +413,22 @@ public class ActivityMain extends ActionBarActivity {
 				});
 
 				break;
-			default:
-				view = getLayoutInflater().inflate(R.layout.eraseme, container,
-						false);
+			case POSITION_TAB_STATS:
+				view = getLayoutInflater().inflate(
+						R.layout.activity_main_tab_stats, container, false);
+				((TextView) view.findViewById(R.id.main_tab_stats_team_name))
+						.setText(mClient.getOwnTeam().name);
+				moneyTextView2 = (TextView) view
+						.findViewById(R.id.main_tab_stats_money);
+				stocksValueTextView2 = (TextView) view
+						.findViewById(R.id.main_tab_stats_stocks_value);
+				updateMoneyTextViews();
+				updateStocksValueTextViews();
+				break;
 			}
 
-			container.addView(view);
+			if (view != null)
+				container.addView(view);
 			return view;
 		}
 
