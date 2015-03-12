@@ -10,6 +10,7 @@ import java.io.IOException;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -92,6 +93,16 @@ public class ActivityZerothRound extends ActionBarActivity {
 		@Override
 		public void onTradeComplete(int stockId, int amount, double price, boolean sell) {
 			
+		}
+
+		@Override
+		public void onConnectionRefused() {
+			new AlertDialog.Builder(ActivityZerothRound.this).setMessage(R.string.error_connection_refused).setNeutralButton("OK", new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					finish();
+				}
+			}).create().show();
 		}
 
 	};
