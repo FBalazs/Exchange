@@ -238,7 +238,8 @@ public class ExchangeClient implements IMsgHandler, IClientConnectionListener {
 			if (msg.teamStocks != null)
 				mOwnTeam.setStocks(msg.teamStocks);
 		} else if (o instanceof MsgConnRefuse) {
-			// TODO wrong pw or not connected in first round
+			for(IClientListener listener : mListeners)
+				listener.onConnectionRefused();
 		} else if (o instanceof MsgStockInfo) {
 			MsgStockInfo msg = (MsgStockInfo) o;
 			for (int s = 0; s < mModel.stocks.length; s++) {

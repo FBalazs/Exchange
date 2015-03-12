@@ -206,6 +206,21 @@ public class ActivityMain extends ActionBarActivity {
 				}
 			});
 		}
+
+		@Override
+		public void onConnectionRefused() {
+			runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					new AlertDialog.Builder(ActivityMain.this).setMessage(R.string.error_connection_refused).setNeutralButton("OK", new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							finish();
+						}
+					}).create().show();
+				}
+			});
+		}
 	};
 
 	@Override

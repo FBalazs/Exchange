@@ -90,4 +90,5 @@
 	<string name="toast_trade_buy_1"> db </string>
 	<string name="toast_trade_buy_2"> részvényt, darabját </string>
 	<string name="toast_trade_buy_3">-ért.</string>
+	<string name="error_connection_refused">A kapcsolat megtagadva! Biztosan jól adtad meg a felhasználóneved és jelszavad?</string>
 </resources>
