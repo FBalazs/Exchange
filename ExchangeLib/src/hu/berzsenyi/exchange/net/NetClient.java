@@ -1,17 +1,18 @@
 package hu.berzsenyi.exchange.net;
 
+import hu.berzsenyi.exchange.net.msg.Msg;
+
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Vector;
 
 public class NetClient {
 	public static interface INetClientListener {
 		public void onConnected(NetClient net);
-		public void onObjectReceived(Object o);
+		public void onObjectReceived(NetClient net, Msg msg);
 		public void onClosed(NetClient net);
 	}
 	
@@ -21,9 +22,9 @@ public class NetClient {
 			while(connected)
 				try {
 					if(0 < oin.available()) {
-						Object o = oin.readObject();
+						Msg msg = (Msg)oin.readObject();
 						for(INetClientListener listener : listeners)
-							listener.onObjectReceived(o);
+							listener.onObjectReceived(NetClient.this, msg);
 					}
 				} catch(Exception e) {
 					e.printStackTrace();
@@ -57,7 +58,7 @@ public class NetClient {
 	private ObjectInputStream oin = null;
 	private ObjectOutputStream oout = null;
 	private boolean connected = false, connecting = false;
-	private List<INetClientListener> listeners = new ArrayList<>();
+	private Vector<INetClientListener> listeners = new Vector<>();
 	
 	public void addListener(INetClientListener listener) {
 		listeners.add(listener);
@@ -87,9 +88,9 @@ public class NetClient {
 		new ThreadConnect().start();
 	}
 	
-	public void sendObject(Object o) {
+	public void sendMsg(Msg msg) {
 		try {
-			oout.writeObject(o);
+			oout.writeObject(msg);
 			oout.flush();
 		} catch(Exception e) {
 			e.printStackTrace();

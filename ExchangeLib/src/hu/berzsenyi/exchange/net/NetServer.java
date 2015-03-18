@@ -1,17 +1,18 @@
 package hu.berzsenyi.exchange.net;
 
+import hu.berzsenyi.exchange.net.msg.Msg;
+
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Vector;
 
 public class NetServer {
 	public static interface INetServerListener {
 		public void onOpened(NetServer net);
 		public void onClientConnected(NetServer net, NetServerClient netClient);
-		public void onObjectReceived(NetServer net, NetServerClient netClient, Object o);
+		public void onObjectReceived(NetServer net, NetServerClient netClient, Msg msg);
 		public void onClientClosed(NetServer net, NetServerClient netClient);
 		public void onClosed(NetServer net);
 	}
@@ -23,9 +24,9 @@ public class NetServer {
 				while(connected)
 					try {
 						if(0 < oin.available()) {
-							Object o = oin.readObject();
+							Msg msg = (Msg)oin.readObject();
 							for(INetServerListener listener : listeners)
-								listener.onObjectReceived(NetServer.this, NetServerClient.this, o);
+								listener.onObjectReceived(NetServer.this, NetServerClient.this, msg);
 						}
 					} catch(Exception e) {
 						e.printStackTrace();
@@ -62,9 +63,9 @@ public class NetServer {
 			return id;
 		}
 		
-		public void sendObject(Object o) {
+		public void sendMsg(Msg msg) {
 			try {
-				oout.writeObject(o);
+				oout.writeObject(msg);
 				oout.flush();
 			} catch(Exception e) {
 				e.printStackTrace();
@@ -99,9 +100,6 @@ public class NetServer {
 			connected = false;
 			for(INetServerListener listener : listeners)
 				listener.onClientClosed(NetServer.this, this);
-			synchronized (clients) {
-				clients.remove(this);
-			}
 		}
 	}
 	
@@ -143,9 +141,9 @@ public class NetServer {
 	
 	private ServerSocket serverSocket = null;
 	private int port = -1;
-	private List<NetServerClient> clients = new ArrayList<>();
+	private Vector<NetServerClient> clients = new Vector<>();
 	private boolean opened = false, opening = false;
-	private List<INetServerListener> listeners = new ArrayList<>();
+	private Vector<INetServerListener> listeners = new Vector<>();
 	
 	public boolean isOpened() {
 		return opened;
@@ -175,26 +173,35 @@ public class NetServer {
 		new ThreadOpen().start();
 	}
 	
-	public void sendObjectToXY(Object o, String id) {
+	public void sendMsgToXY(Msg msg, String id) {
 		synchronized (clients) {
-			for(NetServerClient client : clients)
-				if(id.equals(client.id))
-					client.sendObject(o);
+			for(int i = 0; i < clients.size(); i++)
+				if(clients.get(i).id.equals(id)) {
+					clients.get(i).sendMsg(msg);
+					if(!clients.get(i).connected)
+						clients.remove(i--);
+				}
 		}
 	}
 	
-	public void sendObjectToAllExceptXY(Object o, String id) {
+	public void sendMsgToAllExceptXY(Msg msg, String id) {
 		synchronized (clients) {
-			for(NetServerClient client : clients)
-				if(!id.equals(client.id))
-					client.sendObject(o);
+			for(int i = 0; i < clients.size(); i++)
+				if(!clients.get(i).id.equals(id)) {
+					clients.get(i).sendMsg(msg);
+					if(!clients.get(i).connected)
+						clients.remove(i--);
+				}
 		}
 	}
 	
-	public void sendObjectToAll(Object o) {
+	public void sendMsgToAll(Msg msg) {
 		synchronized (clients) {
-			for(NetServerClient client : clients)
-				client.sendObject(o);
+			for(int i = 0; i < clients.size(); i++) {
+				clients.get(i).sendMsg(msg);
+				if(!clients.get(i).connected)
+					clients.remove(i--);
+			}
 		}
 	}
 	
@@ -211,5 +218,7 @@ public class NetServer {
 			} catch(Exception e) {
 				e.printStackTrace();
 			}
+		for(INetServerListener listener : listeners)
+			listener.onClosed(this);
 	}
 }
