@@ -8,8 +8,10 @@ public class MsgServerConnAccept extends Msg {
 	public int gameMode;
 	public String[] stockNames;
 	public double[] stockPrices;
+	public double playerMoney;
+	public int[] playerStocks;
 	
-	public MsgServerConnAccept(int gameMode, Stock[] stocks) {
+	public MsgServerConnAccept(int gameMode, Stock[] stocks, double playerMoney, int[] playerStocks) {
 		this.gameMode = gameMode;
 		stockNames = new String[stocks.length];
 		stockPrices = new double[stocks.length];
@@ -17,5 +19,7 @@ public class MsgServerConnAccept extends Msg {
 			stockNames[i] = stocks[i].name;
 			stockPrices[i] = stocks[i].price;
 		}
+		this.playerMoney = playerMoney;
+		this.playerStocks = playerStocks;
 	}
 }

@@ -59,6 +59,34 @@ public class ExchangeClient extends Exchange implements NetClient.INetClientList
 		listeners = new Vector<IExchangeClientListener>();
 	}
 	
+	public synchronized int getGameMode() {
+		return gameMode;
+	}
+	
+	public synchronized String getName() {
+		return myName;
+	}
+	
+	public synchronized double getMoney() {
+		return myMoney;
+	}
+	
+	public synchronized int getStocksNumber() {
+		return stocks.length;
+	}
+	
+	public synchronized int getStockAmount(int stockId) {
+		return myStocks[stockId];
+	}
+	
+	public synchronized String getStockName(int stockId) {
+		return stocks[stockId].name;
+	}
+	
+	public synchronized double getStockPrice(int stockId) {
+		return stocks[stockId].price;
+	}
+	
 	public synchronized void addListener(IExchangeClientListener listener) {
 		listeners.add(listener);
 	}
@@ -110,13 +138,14 @@ public class ExchangeClient extends Exchange implements NetClient.INetClientList
 			stocks = new Stock[msgAccept.stockNames.length];
 			for(int i = 0; i < stocks.length; i++)
 				stocks[i] = new Stock(msgAccept.stockNames[i], msgAccept.stockPrices[i]);
+			myMoney = msgAccept.playerMoney;
+			myStocks = msgAccept.playerStocks;
 			for(IExchangeClientListener listener : listeners)
 				listener.onConnAccepted(this);
 		} else if(msg instanceof MsgServerConnRefuse) {
 			for(IExchangeClientListener listener : listeners)
 				listener.onConnRefused(this);
 		} else if(msg instanceof MsgServerBuyRequest) {
-			myMoney = ((MsgServerBuyRequest) msg).money;
 			for(IExchangeClientListener listener : listeners)
 				listener.onShowBuy(this);
 		} else if(msg instanceof MsgServerBuyAccept) {
