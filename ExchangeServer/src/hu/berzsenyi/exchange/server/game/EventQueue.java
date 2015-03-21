@@ -1,7 +1,7 @@
 package hu.berzsenyi.exchange.server.game;
 
 import hu.berzsenyi.exchange.game.Event;
-import hu.berzsenyi.exchange.game.Exchange;
+import hu.berzsenyi.exchange.game.ExchangeGame;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -59,9 +59,9 @@ public class EventQueue extends Event {
 		private String mDescription;
 		private double[] mMultipliers;
 		private List<Builder> mNextEventBuilders = new ArrayList<Builder>();
-		private Exchange mExchange;
+		private ExchangeGame mExchange;
 
-		public Builder(Exchange exchange) {
+		public Builder(ExchangeGame exchange) {
 			if (exchange == null)
 				throw new NullPointerException();
 			mExchange = exchange;

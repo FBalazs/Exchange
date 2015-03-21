@@ -1,13 +1,13 @@
 package hu.berzsenyi.exchange.game;
 
 public class Team {
-	public String id, name, pass;
+	private String id, name, pass;
 	private double mMoney = 0;
 	private int[] mStocks;
 	private OnChangeListener mListener;
-	private Exchange mExchange;
+	private ExchangeGame mExchange;
 
-	public Team(Exchange exchange, String id, String name, String pass) {
+	public Team(ExchangeGame exchange, String id, String name, String pass) {
 		this.id = id;
 		this.name = name;
 		this.pass = pass;
@@ -22,7 +22,7 @@ public class Team {
 	public double getStockValue() {
 		double out = 0.0;
 		for (int i = 0; i < mStocks.length; i++)
-			out += mStocks[i] * mExchange.getStock(i).price;
+			out += mStocks[i] * mExchange.getStock(i).getPrice();
 		return out;
 	}
 
@@ -35,12 +35,8 @@ public class Team {
 	public double calculateStocksValue() {
 		double out = 0.0;
 		for (int i = 0; i < mStocks.length; i++)
-			out += mStocks[i] * mExchange.getStock(i).price;
+			out += mStocks[i] * mExchange.getStock(i).getPrice();
 		return out;
-	}
-
-	public int[] getStocks() {
-		return mStocks.clone();
 	}
 
 	public int getStock(int index) {
@@ -58,6 +54,23 @@ public class Team {
 		if (mListener != null)
 			for (int i = 0; i < stocks.length; i++)
 				mListener.onStocksChanged(this, i);
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	/*
+	 * Returns true, if the names and the passwords match
+	 * 
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		Team another = (Team) obj;
+		return name.equals(another.name) && pass.equals(another.pass);
 	}
 
 	public void setOnChangeListener(OnChangeListener listener) {

@@ -2,8 +2,9 @@ package hu.berzsenyi.exchange.client.game;
 
 import java.util.Vector;
 
-import hu.berzsenyi.exchange.game.Exchange;
+import hu.berzsenyi.exchange.game.ExchangeGame;
 import hu.berzsenyi.exchange.game.Stock;
+import hu.berzsenyi.exchange.game.Team;
 import hu.berzsenyi.exchange.net.NetClient;
 import hu.berzsenyi.exchange.net.msg.Msg;
 import hu.berzsenyi.exchange.net.msg.MsgClientConnRequest;
@@ -20,40 +21,37 @@ import hu.berzsenyi.exchange.net.msg.MsgServerSentOfferAccept;
 import hu.berzsenyi.exchange.net.msg.MsgServerSentOfferRefuse;
 import hu.berzsenyi.exchange.net.msg.MsgServerStockUpdate;
 
-public class ExchangeClient extends Exchange implements NetClient.INetClientListener {
+public class ClientExchangeGame extends ExchangeGame implements NetClient.INetClientListener {
 	public static interface IExchangeClientListener {
-		public void onConnAccepted(ExchangeClient exchange);
-		public void onConnRefused(ExchangeClient exchange);
-		public void onConnLost(ExchangeClient exchange);
-		public void onShowBuy(ExchangeClient exchange);
-		public void onBuyAccepted(ExchangeClient exchange);
-		public void onBuyRefused(ExchangeClient exchange);
-		public void onStocksChanged(ExchangeClient exchange);
-		public void onMyMoneyChanged(ExchangeClient exchange);
-		public void onMyStocksChanged(ExchangeClient exchange);
-		public void onSentOfferAccepted(ExchangeClient exchange);
-		public void onSentOfferRefused(ExchangeClient exchange);
-		public void onOfferCame(ExchangeClient exchange);
-		public void onTrade(ExchangeClient exchange);
+		public void onConnAccepted(ClientExchangeGame exchange);
+		public void onConnRefused(ClientExchangeGame exchange);
+		public void onConnLost(ClientExchangeGame exchange);
+		public void onShowBuy(ClientExchangeGame exchange);
+		public void onBuyAccepted(ClientExchangeGame exchange);
+		public void onBuyRefused(ClientExchangeGame exchange);
+		public void onStocksChanged(ClientExchangeGame exchange);
+		public void onMyMoneyChanged(ClientExchangeGame exchange);
+		public void onMyStocksChanged(ClientExchangeGame exchange);
+		public void onSentOfferAccepted(ClientExchangeGame exchange);
+		public void onSentOfferRefused(ClientExchangeGame exchange);
+		public void onOfferCame(ClientExchangeGame exchange);
+		public void onTrade(ClientExchangeGame exchange);
 	}
 	
-	public static final ExchangeClient INSTANCE = new ExchangeClient();
+	public static final ClientExchangeGame INSTANCE = new ClientExchangeGame();
 	
 	private NetClient net;
 	
 	// TODO synchronized getter functions
 	private int gameMode;
-	private String myName, myPassword;
-	private double myMoney;
-	private int[] myStocks;
-	private Stock[] stocks;
+	private Team myTeam;
 	private String[] playerNames;
 	
 	private boolean sendingOffer;
 	
 	private Vector<IExchangeClientListener> listeners;
 	
-	public ExchangeClient() { // TODO lock until the connection accept or refuse arrives
+	public ClientExchangeGame() { // TODO lock until the connection accept or refuse arrives
 		net = new NetClient();
 		net.addListener(this);
 		listeners = new Vector<IExchangeClientListener>();
@@ -63,29 +61,10 @@ public class ExchangeClient extends Exchange implements NetClient.INetClientList
 		return gameMode;
 	}
 	
-	public synchronized String getName() {
-		return myName;
+	public synchronized Team getOwnTeam() {
+		return myTeam;
 	}
 	
-	public synchronized double getMoney() {
-		return myMoney;
-	}
-	
-	public synchronized int getStocksNumber() {
-		return stocks.length;
-	}
-	
-	public synchronized int getStockAmount(int stockId) {
-		return myStocks[stockId];
-	}
-	
-	public synchronized String getStockName(int stockId) {
-		return stocks[stockId].name;
-	}
-	
-	public synchronized double getStockPrice(int stockId) {
-		return stocks[stockId].price;
-	}
 	
 	public synchronized void addListener(IExchangeClientListener listener) {
 		listeners.add(listener);

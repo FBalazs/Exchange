@@ -9,7 +9,7 @@ public class ServerPlayer {
 		this.name = name;
 		this.password = password;
 		this.netId = netId;
-		money = ExchangeServer.INSTANCE.startMoney;
-		stocks = new int[ExchangeServer.INSTANCE.stocks.length];
+		money = ServerExchangeGame.INSTANCE.startMoney;
+		stocks = new int[ServerExchangeGame.INSTANCE.stocks.length];
 	}
 }

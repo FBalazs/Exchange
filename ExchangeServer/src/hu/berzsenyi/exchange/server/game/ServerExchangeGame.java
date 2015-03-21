@@ -2,7 +2,7 @@ package hu.berzsenyi.exchange.server.game;
 
 import java.util.Vector;
 
-import hu.berzsenyi.exchange.game.Exchange;
+import hu.berzsenyi.exchange.game.ExchangeGame;
 import hu.berzsenyi.exchange.net.NetServer;
 import hu.berzsenyi.exchange.net.NetServer.NetServerClient;
 import hu.berzsenyi.exchange.net.msg.Msg;
@@ -12,14 +12,14 @@ import hu.berzsenyi.exchange.net.msg.MsgServerConnAccept;
 import hu.berzsenyi.exchange.net.msg.MsgServerConnRefuse;
 import hu.berzsenyi.exchange.net.msg.MsgServerPlayers;
 
-public class ExchangeServer extends Exchange implements NetServer.INetServerListener {
+public class ServerExchangeGame extends ExchangeGame implements NetServer.INetServerListener {
 	public static interface IExchangeServerListener {
-		public void onOpened(ExchangeServer exchange);
-		public void onClosed(ExchangeServer exchange);
-		public void onConnAccepted(ExchangeServer exchange);
+		public void onOpened(ServerExchangeGame exchange);
+		public void onClosed(ServerExchangeGame exchange);
+		public void onConnAccepted(ServerExchangeGame exchange);
 	}
 	
-	public static final ExchangeServer INSTANCE = new ExchangeServer(loadStocks());
+	public static final ServerExchangeGame INSTANCE = new ServerExchangeGame(loadStocks());
 	
 	private NetServer net;
 	
@@ -31,7 +31,7 @@ public class ExchangeServer extends Exchange implements NetServer.INetServerList
 	
 	private Vector<IExchangeServerListener> listeners;
 	
-	private ExchangeServer(ServerStock[] stocks) {
+	private ServerExchangeGame(ServerStock[] stocks) {
 		super(stocks);
 		net = new NetServer();
 		net.addListener(this);
