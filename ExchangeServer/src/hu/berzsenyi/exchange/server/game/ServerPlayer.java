@@ -1,11 +1,11 @@
-package hu.berzsenyi.exchange.server;
+package hu.berzsenyi.exchange.server.game;
 
-public class PlayerServer {
+public class ServerPlayer {
 	public String name, password, netId;
 	public double money;
 	public int[] stocks;
 	
-	public PlayerServer(String name, String password, String netId) {
+	public ServerPlayer(String name, String password, String netId) {
 		this.name = name;
 		this.password = password;
 		this.netId = netId;

@@ -1,6 +1,6 @@
 package hu.berzsenyi.exchange.net.msg;
 
-import hu.berzsenyi.exchange.Stock;
+import hu.berzsenyi.exchange.game.Stock;
 
 public class MsgServerConnAccept extends Msg {
 	private static final long serialVersionUID = 5764574461133362668L;

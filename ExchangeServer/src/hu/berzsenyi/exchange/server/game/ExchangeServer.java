@@ -1,8 +1,8 @@
-package hu.berzsenyi.exchange.server;
+package hu.berzsenyi.exchange.server.game;
 
 import java.util.Vector;
 
-import hu.berzsenyi.exchange.Exchange;
+import hu.berzsenyi.exchange.game.Exchange;
 import hu.berzsenyi.exchange.net.NetServer;
 import hu.berzsenyi.exchange.net.NetServer.NetServerClient;
 import hu.berzsenyi.exchange.net.msg.Msg;
@@ -19,19 +19,20 @@ public class ExchangeServer extends Exchange implements NetServer.INetServerList
 		public void onConnAccepted(ExchangeServer exchange);
 	}
 	
-	public static final ExchangeServer INSTANCE = new ExchangeServer();
+	public static final ExchangeServer INSTANCE = new ExchangeServer(loadStocks());
 	
 	private NetServer net;
 	
 	public int gameMode;
 	public double startMoney;
-	public StockServer[] stocks;
-	public Vector<PlayerServer> players;
+	public ServerStock[] stocks;
+	public Vector<ServerPlayer> players;
 	public boolean started;
 	
 	private Vector<IExchangeServerListener> listeners;
 	
-	public ExchangeServer() {
+	private ExchangeServer(ServerStock[] stocks) {
+		super(stocks);
 		net = new NetServer();
 		net.addListener(this);
 		listeners = new Vector<>();
@@ -45,8 +46,8 @@ public class ExchangeServer extends Exchange implements NetServer.INetServerList
 		listeners.remove(listener);
 	}
 	
-	public synchronized PlayerServer getPlayerByName(String name) {
-		for(PlayerServer player : players)
+	public synchronized ServerPlayer getPlayerByName(String name) {
+		for(ServerPlayer player : players)
 			if(player.name.equals(name))
 				return player;
 		return null;
@@ -56,8 +57,8 @@ public class ExchangeServer extends Exchange implements NetServer.INetServerList
 		// TODO load
 		gameMode = GAMEMODE_DIRECT;
 		startMoney = 10000;
-		stocks = new StockServer[10];
-		players = new Vector<PlayerServer>();
+		stocks = new ServerStock[10];
+		players = new Vector<ServerPlayer>();
 		started = false;
 		
 		net.open(port);
@@ -82,10 +83,10 @@ public class ExchangeServer extends Exchange implements NetServer.INetServerList
 			Msg msg) {
 		if(msg instanceof MsgClientConnRequest) {
 			MsgClientConnRequest msgConn = (MsgClientConnRequest) msg;
-			PlayerServer player = getPlayerByName(msgConn.nickName);
+			ServerPlayer player = getPlayerByName(msgConn.nickName);
 			if(player == null)
 				if(!started) {
-					player = new PlayerServer(msgConn.nickName, msgConn.password, netClient.getId());
+					player = new ServerPlayer(msgConn.nickName, msgConn.password, netClient.getId());
 					players.add(player);
 					netClient.sendMsg(new MsgServerConnAccept(gameMode, stocks, player.money, player.stocks));
 					if(player.money == startMoney)
@@ -120,5 +121,9 @@ public class ExchangeServer extends Exchange implements NetServer.INetServerList
 	@Override
 	public synchronized void onClosed(NetServer net) {
 		
+	}
+	
+	private static ServerStock[] loadStocks() {
+		return null;
 	}
 }

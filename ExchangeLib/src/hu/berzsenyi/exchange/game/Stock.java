@@ -1,4 +1,4 @@
-package hu.berzsenyi.exchange;
+package hu.berzsenyi.exchange.game;
 
 public class Stock {
 	public String name;

@@ -1,9 +1,9 @@
-package hu.berzsenyi.exchange.client;
+package hu.berzsenyi.exchange.client.game;
 
 import java.util.Vector;
 
-import hu.berzsenyi.exchange.Exchange;
-import hu.berzsenyi.exchange.Stock;
+import hu.berzsenyi.exchange.game.Exchange;
+import hu.berzsenyi.exchange.game.Stock;
 import hu.berzsenyi.exchange.net.NetClient;
 import hu.berzsenyi.exchange.net.msg.Msg;
 import hu.berzsenyi.exchange.net.msg.MsgClientConnRequest;
@@ -53,7 +53,7 @@ public class ExchangeClient extends Exchange implements NetClient.INetClientList
 	
 	private Vector<IExchangeClientListener> listeners;
 	
-	public ExchangeClient() {
+	public ExchangeClient() { // TODO lock until the connection accept or refuse arrives
 		net = new NetClient();
 		net.addListener(this);
 		listeners = new Vector<IExchangeClientListener>();

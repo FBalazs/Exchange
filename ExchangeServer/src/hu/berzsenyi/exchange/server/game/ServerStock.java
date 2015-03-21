@@ -1,13 +1,13 @@
-package hu.berzsenyi.exchange.server;
+package hu.berzsenyi.exchange.server.game;
 
-import hu.berzsenyi.exchange.Stock;
+import hu.berzsenyi.exchange.game.Stock;
 
-public class StockServer extends Stock {
+public class ServerStock extends Stock {
 	public String id;
 	private long tradeAmount;
 	private double tradeMoney;
 	
-	public StockServer(String id, String name, double price) {
+	public ServerStock(String id, String name, double price) {
 		super(name, price);
 		this.id = id;
 		tradeAmount = 10;
