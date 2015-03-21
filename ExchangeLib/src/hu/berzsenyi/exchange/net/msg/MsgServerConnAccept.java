@@ -1,6 +1,6 @@
 package hu.berzsenyi.exchange.net.msg;
 
-import hu.berzsenyi.exchange.Stock;
+import hu.berzsenyi.exchange.game.Stock;
 
 public class MsgServerConnAccept extends Msg {
 	private static final long serialVersionUID = 5764574461133362668L;
@@ -16,8 +16,8 @@ public class MsgServerConnAccept extends Msg {
 		stockNames = new String[stocks.length];
 		stockPrices = new double[stocks.length];
 		for(int i = 0; i < stocks.length; i++) {
-			stockNames[i] = stocks[i].name;
-			stockPrices[i] = stocks[i].price;
+			stockNames[i] = stocks[i].getName();
+			stockPrices[i] = stocks[i].getPrice();
 		}
 		this.playerMoney = playerMoney;
 		this.playerStocks = playerStocks;

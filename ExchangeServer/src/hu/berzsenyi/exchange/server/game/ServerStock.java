@@ -1,17 +1,17 @@
-package hu.berzsenyi.exchange.server;
+package hu.berzsenyi.exchange.server.game;
 
 import java.util.Vector;
 
 import hu.berzsenyi.exchange.Offer;
-import hu.berzsenyi.exchange.Stock;
+import hu.berzsenyi.exchange.game.Stock;
 
-public class StockServer extends Stock {
+public class ServerStock extends Stock {
 	public String id;
 	private long tradeAmount;
 	private double tradeMoney;
 	private Vector<Offer> offers;
 	
-	public StockServer(String id, String name, double price) {
+	public ServerStock(String id, String name, double price) {
 		super(name, price);
 		this.id = id;
 		tradeAmount = 10;
@@ -19,6 +19,6 @@ public class StockServer extends Stock {
 	}
 	
 	public void updatePrice(double multiplier) {
-		price = (price*multiplier + tradeMoney/tradeAmount)/2;
+		setPrice((getPrice()*multiplier + tradeMoney/tradeAmount)/2);
 	}
 }
