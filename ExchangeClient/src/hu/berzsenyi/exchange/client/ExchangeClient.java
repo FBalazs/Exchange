@@ -3,6 +3,7 @@ package hu.berzsenyi.exchange.client;
 import java.util.Vector;
 
 import hu.berzsenyi.exchange.Exchange;
+import hu.berzsenyi.exchange.Offer;
 import hu.berzsenyi.exchange.Stock;
 import hu.berzsenyi.exchange.net.NetClient;
 import hu.berzsenyi.exchange.net.msg.Msg;
@@ -18,6 +19,7 @@ import hu.berzsenyi.exchange.net.msg.MsgServerMoneyUpdate;
 import hu.berzsenyi.exchange.net.msg.MsgServerPlayers;
 import hu.berzsenyi.exchange.net.msg.MsgServerSentOfferAccept;
 import hu.berzsenyi.exchange.net.msg.MsgServerSentOfferRefuse;
+import hu.berzsenyi.exchange.net.msg.MsgServerSentOfferToAccept;
 import hu.berzsenyi.exchange.net.msg.MsgServerStockUpdate;
 
 public class ExchangeClient extends Exchange implements NetClient.INetClientListener {
@@ -48,6 +50,7 @@ public class ExchangeClient extends Exchange implements NetClient.INetClientList
 	private int[] myStocks;
 	private Stock[] stocks;
 	private String[] playerNames;
+	private Vector<Offer> incomingOffers, myOffers;
 	
 	private boolean sendingOffer;
 	
@@ -57,6 +60,14 @@ public class ExchangeClient extends Exchange implements NetClient.INetClientList
 		net = new NetClient();
 		net.addListener(this);
 		listeners = new Vector<IExchangeClientListener>();
+	}
+	
+	public synchronized void addListener(IExchangeClientListener listener) {
+		listeners.add(listener);
+	}
+	
+	public synchronized void removeListener(IExchangeClientListener listener) {
+		listeners.remove(listener);
 	}
 	
 	public synchronized int getGameMode() {
@@ -87,12 +98,18 @@ public class ExchangeClient extends Exchange implements NetClient.INetClientList
 		return stocks[stockId].price;
 	}
 	
-	public synchronized void addListener(IExchangeClientListener listener) {
-		listeners.add(listener);
-	}
-	
-	public synchronized void removeListener(IExchangeClientListener listener) {
-		listeners.remove(listener);
+	public synchronized void connect(String host, int port, String nickName, String password) {
+		gameMode = -1;
+		myName = nickName;
+		myPassword = password;
+		myMoney = 0;
+		myStocks = null;
+		stocks = null;
+		playerNames = null;
+		incomingOffers = new Vector<Offer>();
+		myOffers = new Vector<Offer>();
+		sendingOffer = false;
+		net.connect(host, port);
 	}
 	
 	public synchronized void offer(int stockId, int amount, double price, boolean sell) {
@@ -107,18 +124,6 @@ public class ExchangeClient extends Exchange implements NetClient.INetClientList
 			new Exception("Already sending an offer!").printStackTrace();
 		sendingOffer = true;
 		net.sendMsg(new MsgClientOfferTo(stockId, amount, price, sell, playerNames[playerId]));
-	}
-	
-	public synchronized void connect(String host, int port, String nickName, String password) {
-		gameMode = -1;
-		myName = nickName;
-		myPassword = password;
-		myMoney = 0;
-		myStocks = null;
-		stocks = null;
-		playerNames = null;
-		sendingOffer = false;
-		net.connect(host, port);
 	}
 	
 	public synchronized void close() {
@@ -167,6 +172,14 @@ public class ExchangeClient extends Exchange implements NetClient.INetClientList
 			for(IExchangeClientListener listener : listeners)
 				listener.onMyMoneyChanged(this);
 		} else if(msg instanceof MsgServerSentOfferAccept) {
+			MsgServerSentOfferAccept msgAccept = (MsgServerSentOfferAccept) msg;
+			myOffers.add(new Offer(myName, null, msgAccept.stockId, msgAccept.amount, msgAccept.price, msgAccept.sell));
+			sendingOffer = false;
+			for(IExchangeClientListener listener : listeners)
+				listener.onSentOfferAccepted(this);
+		} else if(msg instanceof MsgServerSentOfferToAccept) {
+			MsgServerSentOfferToAccept msgAccept = (MsgServerSentOfferToAccept) msg;
+			myOffers.add(new Offer(myName, msgAccept.target, msgAccept.stockId, msgAccept.amount, msgAccept.price, msgAccept.sell));
 			sendingOffer = false;
 			for(IExchangeClientListener listener : listeners)
 				listener.onSentOfferAccepted(this);

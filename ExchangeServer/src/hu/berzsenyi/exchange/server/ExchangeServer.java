@@ -6,7 +6,10 @@ import hu.berzsenyi.exchange.Exchange;
 import hu.berzsenyi.exchange.net.NetServer;
 import hu.berzsenyi.exchange.net.NetServer.NetServerClient;
 import hu.berzsenyi.exchange.net.msg.Msg;
+import hu.berzsenyi.exchange.net.msg.MsgClientBuy;
 import hu.berzsenyi.exchange.net.msg.MsgClientConnRequest;
+import hu.berzsenyi.exchange.net.msg.MsgServerBuyAccept;
+import hu.berzsenyi.exchange.net.msg.MsgServerBuyRefuse;
 import hu.berzsenyi.exchange.net.msg.MsgServerBuyRequest;
 import hu.berzsenyi.exchange.net.msg.MsgServerConnAccept;
 import hu.berzsenyi.exchange.net.msg.MsgServerConnRefuse;
@@ -48,6 +51,13 @@ public class ExchangeServer extends Exchange implements NetServer.INetServerList
 	public synchronized PlayerServer getPlayerByName(String name) {
 		for(PlayerServer player : players)
 			if(player.name.equals(name))
+				return player;
+		return null;
+	}
+	
+	private synchronized PlayerServer getPlayerByNetId(String netId) {
+		for(PlayerServer player : players)
+			if(player.netId.equals(netId))
 				return player;
 		return null;
 	}
@@ -109,6 +119,27 @@ public class ExchangeServer extends Exchange implements NetServer.INetServerList
 				} else {
 					netClient.sendMsg(new MsgServerConnRefuse(MsgServerConnRefuse.BAD_PASSWORD));
 				}
+		} else if(msg instanceof MsgClientBuy) {
+			if(started) {
+				netClient.sendMsg(new MsgServerBuyRefuse());
+			} else {
+				PlayerServer player = getPlayerByNetId(netClient.getId());
+				if(player.money == startMoney) {
+					MsgClientBuy msgBuy = (MsgClientBuy)msg;
+					double money = 0;
+					for(int i = 0; i < stocks.length; i++)
+						money += msgBuy.stocks[i]*stocks[i].price;
+					if(money <= player.money) {
+						player.stocks = msgBuy.stocks;
+						player.money = player.money-money;
+						netClient.sendMsg(new MsgServerBuyAccept());
+					} else {
+						netClient.sendMsg(new MsgServerBuyRefuse());
+					}
+				} else {
+					netClient.sendMsg(new MsgServerBuyRefuse());
+				}
+			}
 		}
 	}
 

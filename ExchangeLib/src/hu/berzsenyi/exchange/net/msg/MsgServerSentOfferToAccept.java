@@ -1,13 +1,15 @@
 package hu.berzsenyi.exchange.net.msg;
 
-public class MsgServerSentOfferAccept extends Msg {
+public class MsgServerSentOfferToAccept extends Msg {
 	private static final long serialVersionUID = 4296816089805808071L;
 	
+	public String target;
 	public int stockId, amount;
 	public double price;
 	public boolean sell;
 	
-	public MsgServerSentOfferAccept(int stockId, int amount, double price, boolean sell) {
+	public MsgServerSentOfferToAccept(String target, int stockId, int amount, double price, boolean sell) {
+		this.target = target;
 		this.stockId = stockId;
 		this.amount = amount;
 		this.price = price;
