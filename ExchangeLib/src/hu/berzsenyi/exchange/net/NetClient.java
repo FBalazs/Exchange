@@ -2,6 +2,7 @@ package hu.berzsenyi.exchange.net;
 
 import hu.berzsenyi.exchange.net.msg.Msg;
 
+import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.InetSocketAddress;
@@ -88,13 +89,13 @@ public class NetClient {
 		new ThreadConnect().start();
 	}
 	
-	public void sendMsg(Msg msg) {
+	public void sendMsg(Msg msg) throws IOException {
 		try {
 			oout.writeObject(msg);
 			oout.flush();
-		} catch(Exception e) {
-			e.printStackTrace();
+		} catch(IOException e) {
 			close();
+			throw e;
 		}
 	}
 	

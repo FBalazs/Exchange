@@ -2,7 +2,7 @@ package hu.berzsenyi.exchange.server.game;
 
 import java.util.Vector;
 
-import hu.berzsenyi.exchange.Offer;
+import hu.berzsenyi.exchange.game.Offer;
 import hu.berzsenyi.exchange.game.Stock;
 
 public class ServerStock extends Stock {

@@ -12,10 +12,16 @@ public abstract class ExchangeGame {
 	public synchronized Stock getStock(int index) {
 		return mStocks[index];
 	}
+	
+	/**
+	 * Use {@link #getStock(int)} instead where you want to access a single element
+	 * @return a cloned Stock array
+	 */
+	public synchronized Stock[] getStocks() {
+		return mStocks.clone();
+	}
 
-	protected void setStocks(Stock[] stocks) {
-		if (stocks == null)
-			throw new NullPointerException();
+	protected synchronized void setStocks(Stock[] stocks) {
 		mStocks = stocks;
 	}
 
