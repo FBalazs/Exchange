@@ -6,10 +6,10 @@ import hu.berzsenyi.exchange.Offer;
 import hu.berzsenyi.exchange.Stock;
 
 public class StockServer extends Stock {
-	public String id;
-	private long tradeAmount;
-	private double tradeMoney;
-	private Vector<Offer> offers;
+	protected final String id;
+	protected long tradeAmount;
+	protected double tradeMoney;
+	protected Vector<Offer> offers;
 	
 	public StockServer(String id, String name, double price) {
 		super(name, price);

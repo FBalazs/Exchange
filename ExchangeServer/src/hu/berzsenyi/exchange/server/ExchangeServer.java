@@ -128,7 +128,7 @@ public class ExchangeServer extends Exchange implements NetServer.INetServerList
 					MsgClientBuy msgBuy = (MsgClientBuy)msg;
 					double money = 0;
 					for(int i = 0; i < stocks.length; i++)
-						money += msgBuy.stocks[i]*stocks[i].price;
+						money += msgBuy.stocks[i]*stocks[i].getPrice();
 					if(money <= player.money) {
 						player.stocks = msgBuy.stocks;
 						player.money = player.money-money;

@@ -43,7 +43,6 @@ public class ExchangeClient extends Exchange implements NetClient.INetClientList
 	
 	private NetClient net;
 	
-	// TODO synchronized getter functions
 	private int gameMode;
 	private String myName, myPassword;
 	private double myMoney;
@@ -91,11 +90,11 @@ public class ExchangeClient extends Exchange implements NetClient.INetClientList
 	}
 	
 	public synchronized String getStockName(int stockId) {
-		return stocks[stockId].name;
+		return stocks[stockId].getName();
 	}
 	
 	public synchronized double getStockPrice(int stockId) {
-		return stocks[stockId].price;
+		return stocks[stockId].getPrice();
 	}
 	
 	public synchronized void connect(String host, int port, String nickName, String password) {
@@ -164,7 +163,7 @@ public class ExchangeClient extends Exchange implements NetClient.INetClientList
 		} else if(msg instanceof MsgServerStockUpdate) {
 			MsgServerStockUpdate msgUpdate = (MsgServerStockUpdate)msg;
 			for(int i = 0; i < stocks.length; i++)
-				stocks[i].price = msgUpdate.prices[i];
+				stocks[i].setPrice(msgUpdate.prices[i]);
 			for(IExchangeClientListener listener : listeners)
 				listener.onStocksChanged(this);
 		} else if(msg instanceof MsgServerMoneyUpdate) {
