@@ -35,7 +35,7 @@ public class ClientExchangeGame extends ExchangeGame implements
 		public void onConnRefused(ClientExchangeGame exchange);
 
 		public void onConnLost(ClientExchangeGame exchange);
-		
+
 		public void onConnFailed(ClientExchangeGame exchange);
 
 		public void onShowBuy(ClientExchangeGame exchange);
@@ -62,6 +62,8 @@ public class ClientExchangeGame extends ExchangeGame implements
 	}
 
 	public static final ClientExchangeGame INSTANCE = new ClientExchangeGame();
+
+	public static final int COMMUNICATION_VERSION_CODE = 1;
 
 	private NetClient net;
 
@@ -165,8 +167,8 @@ public class ClientExchangeGame extends ExchangeGame implements
 	@Override
 	public synchronized void onConnected(NetClient net) {
 		try {
-			net.sendMsg(new MsgClientConnRequest(getOwnPlayer().getName(),
-					getPassword(getOwnPlayer())));
+			net.sendMsg(new MsgClientConnRequest(COMMUNICATION_VERSION_CODE,
+					getOwnPlayer().getName(), getPassword(getOwnPlayer())));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -174,7 +176,7 @@ public class ClientExchangeGame extends ExchangeGame implements
 
 	@Override
 	public synchronized void onObjectReceived(NetClient net, Msg msg) {
-		
+
 		if (msg instanceof MsgServerConnAccept) {
 			MsgServerConnAccept msgAccept = (MsgServerConnAccept) msg;
 			inGame = true;
@@ -188,47 +190,47 @@ public class ClientExchangeGame extends ExchangeGame implements
 			setStockAmounts(getOwnPlayer(), msgAccept.playerStocks);
 			for (IClientExchangeGameListener listener : listeners)
 				listener.onConnAccepted(this);
-			
+
 		} else if (msg instanceof MsgServerConnRefuse) {
-			
+
 			for (IClientExchangeGameListener listener : listeners)
 				listener.onConnRefused(this);
-			
+
 		} else if (msg instanceof MsgServerBuyRequest) {
-			
+
 			for (IClientExchangeGameListener listener : listeners)
 				listener.onShowBuy(this);
-			
+
 		} else if (msg instanceof MsgServerBuyAccept) {
-			
+
 			for (IClientExchangeGameListener listener : listeners)
 				listener.onBuyAccepted(this);
-			
+
 		} else if (msg instanceof MsgServerBuyRefuse) {
-			
+
 			for (IClientExchangeGameListener listener : listeners)
 				listener.onBuyRefused(this);
-			
+
 		} else if (msg instanceof MsgServerPlayers) {
-			
+
 			playerNames = ((MsgServerPlayers) msg).playerNames;
-			
+
 		} else if (msg instanceof MsgServerStockUpdate) {
-			
+
 			MsgServerStockUpdate msgUpdate = (MsgServerStockUpdate) msg;
 			for (int i = 0; i < getStockCount(); i++)
 				setStockPrice(getStock(i), msgUpdate.prices[i]);
 			for (IClientExchangeGameListener listener : listeners)
 				listener.onStocksChanged(this);
-			
+
 		} else if (msg instanceof MsgServerMoneyUpdate) {
-			
+
 			setMoney(getOwnPlayer(), ((MsgServerMoneyUpdate) msg).money);
 			for (IClientExchangeGameListener listener : listeners)
 				listener.onMyMoneyChanged(this);
-			
+
 		} else if (msg instanceof MsgServerSentOfferAccept) {
-			
+
 			MsgServerSentOfferAccept msgAccept = (MsgServerSentOfferAccept) msg;
 			myOffers.add(new Offer(getOwnPlayer().getName(), null,
 					msgAccept.stockId, msgAccept.amount, msgAccept.price,
@@ -236,9 +238,9 @@ public class ClientExchangeGame extends ExchangeGame implements
 			sendingOffer = false;
 			for (IClientExchangeGameListener listener : listeners)
 				listener.onSentOfferAccepted(this);
-			
+
 		} else if (msg instanceof MsgServerSentOfferToAccept) {
-			
+
 			MsgServerSentOfferToAccept msgAccept = (MsgServerSentOfferToAccept) msg;
 			myOffers.add(new Offer(getOwnPlayer().getName(), msgAccept.target,
 					msgAccept.stockId, msgAccept.amount, msgAccept.price,
@@ -246,17 +248,17 @@ public class ClientExchangeGame extends ExchangeGame implements
 			sendingOffer = false;
 			for (IClientExchangeGameListener listener : listeners)
 				listener.onSentOfferAccepted(this);
-			
+
 		} else if (msg instanceof MsgServerSentOfferRefuse) {
-			
+
 			sendingOffer = false;
 			for (IClientExchangeGameListener listener : listeners)
 				listener.onSentOfferRefused(this);
-			
-		} else if(msg instanceof MsgServerStockIssueEnd) {
-			
+
+		} else if (msg instanceof MsgServerStockIssueEnd) {
+
 			stockIssue = false;
-			for(IClientExchangeGameListener listener : listeners)
+			for (IClientExchangeGameListener listener : listeners)
 				listener.onStockIssueEnded(this);
 		}
 	}
@@ -267,10 +269,10 @@ public class ClientExchangeGame extends ExchangeGame implements
 			listener.onConnLost(this);
 		resetFields();
 	}
-	
+
 	@Override
 	public void onConnectionFailed(NetClient net) {
-		for(IClientExchangeGameListener listener : listeners)
+		for (IClientExchangeGameListener listener : listeners)
 			listener.onConnFailed(this);
 	}
 

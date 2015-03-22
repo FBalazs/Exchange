@@ -26,6 +26,7 @@ public class ServerExchangeGame extends ExchangeGame implements
 	}
 
 	public static final ServerExchangeGame INSTANCE = new ServerExchangeGame();
+	public static final int COMMUNICATION_VERSION_CODE = 1;
 
 	private NetServer net;
 
@@ -96,11 +97,17 @@ public class ServerExchangeGame extends ExchangeGame implements
 			NetServerClient netClient, Msg msg) {
 		if (msg instanceof MsgClientConnRequest) {
 			MsgClientConnRequest msgConn = (MsgClientConnRequest) msg;
-			ServerPlayer player = getPlayerByName(msgConn.nickName);
+			
+			if(!checkVersionCode(msgConn.getVersionCode())) {
+				netClient.sendMsg(new MsgServerConnRefuse(MsgServerConnRefuse.INCOMPATIBLE_VERSION));
+				return;
+			}
+			
+			ServerPlayer player = getPlayerByName(msgConn.getNickName());
 			if (player == null)
 				if (!started) {
-					player = new ServerPlayer(this, msgConn.nickName,
-							msgConn.password, netClient.getId());
+					player = new ServerPlayer(this, msgConn.getNickName(),
+							msgConn.getPassword(), netClient.getId());
 					players.add(player);
 					netClient.sendMsg(new MsgServerConnAccept(gameMode, stocks,
 							player.getMoney(), player.getStocks()));
@@ -108,9 +115,9 @@ public class ServerExchangeGame extends ExchangeGame implements
 						netClient.sendMsg(new MsgServerBuyRequest());
 				} else {
 					netClient.sendMsg(new MsgServerConnRefuse(
-							MsgServerConnRefuse.NOT_0ROUND));
+							MsgServerConnRefuse.NOT_STOCK_ISSUE));
 				}
-			else if (getPassword(player).equals(msgConn.password)) {
+			else if (getPassword(player).equals(msgConn.getPassword())) {
 				player.netId = netClient.getId();
 				netClient.sendMsg(new MsgServerConnAccept(gameMode, stocks,
 						player.getMoney(), player.getStocks()));
@@ -162,7 +169,7 @@ public class ServerExchangeGame extends ExchangeGame implements
 
 	}
 
-	private static ServerStock[] loadStocks() {
-		return null;
+	private boolean checkVersionCode(int versionCode) {
+		return versionCode == COMMUNICATION_VERSION_CODE;
 	}
 }
