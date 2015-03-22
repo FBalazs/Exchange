@@ -6,7 +6,7 @@ public abstract class ExchangeGame {
 	private Stock[] mStocks;
 
 	public synchronized int getStockCount() {
-		return mStocks.length;
+		return mStocks == null ? 0 : mStocks.length;
 	}
 
 	public synchronized Stock getStock(int index) {

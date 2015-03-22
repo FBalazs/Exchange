@@ -111,6 +111,10 @@ public class ActivityStockIssue extends ActionBarActivity {
 		public void onStockIssueEnded(ClientExchangeGame exchange) {
 			ActivityStockIssue.this.finish();
 		}
+
+		@Override
+		public void onConnFailed(ClientExchangeGame exchange) {
+		}
 	};
 
 	private int COLOR_ILLEGAL = Color.RED;
@@ -263,10 +267,12 @@ public class ActivityStockIssue extends ActionBarActivity {
 				out = convertView;
 
 			Stock stock = getItem(position);
-			((TextView) out.findViewById(R.id.stock_name)).setText(stock.getName());
+			((TextView) out.findViewById(R.id.stock_name)).setText(stock
+					.getName());
 			((TextView) out.findViewById(R.id.main_tab_stocks_card_value))
 					.setText(getString(R.string.unit_price)
-							+ ActivityMain.DECIMAL_FORMAT.format(stock.getPrice()));
+							+ ActivityMain.DECIMAL_FORMAT.format(stock
+									.getPrice()));
 
 			final EditText valueEditText = ((EditText) out
 					.findViewById(R.id.stock_amount_value));

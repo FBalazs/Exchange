@@ -35,6 +35,8 @@ public class ClientExchangeGame extends ExchangeGame implements
 		public void onConnRefused(ClientExchangeGame exchange);
 
 		public void onConnLost(ClientExchangeGame exchange);
+		
+		public void onConnFailed(ClientExchangeGame exchange);
 
 		public void onShowBuy(ClientExchangeGame exchange);
 
@@ -264,6 +266,12 @@ public class ClientExchangeGame extends ExchangeGame implements
 		for (IClientExchangeGameListener listener : listeners)
 			listener.onConnLost(this);
 		resetFields();
+	}
+	
+	@Override
+	public void onConnectionFailed(NetClient net) {
+		for(IClientExchangeGameListener listener : listeners)
+			listener.onConnFailed(this);
 	}
 
 	public synchronized SingleEvent[] getActiveEvents() {

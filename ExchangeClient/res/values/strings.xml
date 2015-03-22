@@ -12,7 +12,8 @@
     <string name="textOfferSell">Részvény eladása</string>
     <string name="textOfferBuy">Részvény vásárlása</string>
     <string name="textOfferSend">Ajánlat küldése</string>
-    <string name="could_not_connect">Nem sikerült a kapcsolódás :(</string>
+    <string name="could_not_connect">Nem található a szerver :(</string>
+    <string name="connection_refused">Nem lehet most a szerverhez kapcsolódni :(</string>
     <string name="ok">OK</string>
     <string name="done">Kész!</string>
     <string name="money">Pénz</string>
