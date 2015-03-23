@@ -8,17 +8,17 @@ import hu.berzsenyi.exchange.Stock;
 import hu.berzsenyi.exchange.net.NetClient;
 import hu.berzsenyi.exchange.net.msg.Msg;
 import hu.berzsenyi.exchange.net.msg.MsgClientConnRequest;
-import hu.berzsenyi.exchange.net.msg.MsgClientOffer;
-import hu.berzsenyi.exchange.net.msg.MsgClientOfferTo;
+import hu.berzsenyi.exchange.net.msg.MsgClientOfferIndirect;
+import hu.berzsenyi.exchange.net.msg.MsgClientOfferDirect;
 import hu.berzsenyi.exchange.net.msg.MsgServerBuyAccept;
 import hu.berzsenyi.exchange.net.msg.MsgServerBuyRefuse;
 import hu.berzsenyi.exchange.net.msg.MsgServerConnAccept;
 import hu.berzsenyi.exchange.net.msg.MsgServerConnRefuse;
 import hu.berzsenyi.exchange.net.msg.MsgServerBuyRequest;
 import hu.berzsenyi.exchange.net.msg.MsgServerPlayers;
-import hu.berzsenyi.exchange.net.msg.MsgServerSentOfferAccept;
+import hu.berzsenyi.exchange.net.msg.MsgServerSentOfferIndirectAccept;
 import hu.berzsenyi.exchange.net.msg.MsgServerSentOfferRefuse;
-import hu.berzsenyi.exchange.net.msg.MsgServerSentOfferToAccept;
+import hu.berzsenyi.exchange.net.msg.MsgServerSentOfferDirectAccept;
 import hu.berzsenyi.exchange.net.msg.MsgServerStockOfferUpdate;
 import hu.berzsenyi.exchange.net.msg.MsgServerStockUpdate;
 
@@ -115,14 +115,14 @@ public class ClientExchange extends Exchange implements NetClient.INetClientList
 		if(sendingOffer)
 			new Exception("Already sending an offer!").printStackTrace();
 		sendingOffer = true;
-		net.sendMsg(new MsgClientOffer(stockId, amount, price, sell));
+		net.sendMsg(new MsgClientOfferIndirect(stockId, amount, price, sell));
 	}
 	
 	public synchronized void offerTo(int stockId, int amount, double price, boolean sell, int playerId) {
 		if(sendingOffer)
 			new Exception("Already sending an offer!").printStackTrace();
 		sendingOffer = true;
-		net.sendMsg(new MsgClientOfferTo(stockId, amount, price, sell, playerNames[playerId]));
+		net.sendMsg(new MsgClientOfferDirect(stockId, amount, price, sell, playerNames[playerId]));
 	}
 	
 	public synchronized void close() {
@@ -171,14 +171,14 @@ public class ClientExchange extends Exchange implements NetClient.INetClientList
 			stocks[msgUpdate.stockId].setMinMaxOffers(msgUpdate.minSellOffer, msgUpdate.maxBuyOffer);
 			for(IClientExchangeListener listener : listeners)
 				listener.onStocksChanged(this);
-		} else if(msg instanceof MsgServerSentOfferAccept) {
-			MsgServerSentOfferAccept msgAccept = (MsgServerSentOfferAccept) msg;
+		} else if(msg instanceof MsgServerSentOfferIndirectAccept) {
+			MsgServerSentOfferIndirectAccept msgAccept = (MsgServerSentOfferIndirectAccept) msg;
 			myOffers.add(new Offer(myName, null, msgAccept.stockId, msgAccept.amount, msgAccept.price, msgAccept.sell));
 			sendingOffer = false;
 			for(IClientExchangeListener listener : listeners)
 				listener.onSentOfferAccepted(this);
-		} else if(msg instanceof MsgServerSentOfferToAccept) {
-			MsgServerSentOfferToAccept msgAccept = (MsgServerSentOfferToAccept) msg;
+		} else if(msg instanceof MsgServerSentOfferDirectAccept) {
+			MsgServerSentOfferDirectAccept msgAccept = (MsgServerSentOfferDirectAccept) msg;
 			myOffers.add(new Offer(myName, msgAccept.target, msgAccept.stockId, msgAccept.amount, msgAccept.price, msgAccept.sell));
 			sendingOffer = false;
 			for(IClientExchangeListener listener : listeners)
