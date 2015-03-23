@@ -4,13 +4,15 @@ import java.util.Vector;
 
 import hu.berzsenyi.exchange.Offer;
 import hu.berzsenyi.exchange.Stock;
+import hu.berzsenyi.exchange.net.msg.MsgServerOfferToYou;
+import hu.berzsenyi.exchange.net.msg.MsgServerStockOfferUpdate;
 
 public class ServerStock extends Stock {
 	public static interface IOfferCallback {
 		public void onOffersPaired(Offer buyOffer, Offer sellOffer, double price, int amount);
 	}
 	
-	private final String id;
+	public final String id;
 	private long tradeAmount;
 	private double tradeMoney;
 	private Vector<Offer> offers;
@@ -20,6 +22,16 @@ public class ServerStock extends Stock {
 		this.id = id;
 		tradeAmount = 10;
 		tradeMoney = tradeAmount*price;
+	}
+	
+	private void calculateOfferValues() {
+		minSellOffer = maxBuyOffer = -1;
+		for(int i = 0; i < offers.size(); i++)
+			if(offers.get(i).sell) {
+				if(minSellOffer == -1 || offers.get(i).price < minSellOffer)
+					minSellOffer = offers.get(i).price;
+			} else if(maxBuyOffer == -1 || maxBuyOffer < offers.get(i).price)
+				maxBuyOffer = offers.get(i).price;
 	}
 	
 	public void updatePrice(double multiplier) {
@@ -65,6 +77,8 @@ public class ServerStock extends Stock {
 				callback.onOffersPaired(offerToAdd, offers.remove(bestI), bestPrice, bestAmount);
 		} else
 			offers.add(offerToAdd);
+		calculateOfferValues();
+		ServerExchange.INSTANCE.net.sendMsgToAll(new MsgServerStockOfferUpdate(stockId, minSellOffer, maxBuyOffer));
 	}
 	
 	public void addOfferTo(String sender, String target, int stockId, int amount, double price, boolean sell, IOfferCallback callback) {
@@ -86,5 +100,7 @@ public class ServerStock extends Stock {
 			}
 		}
 		offers.add(offerToAdd);
+		calculateOfferValues();
+		ServerExchange.INSTANCE.net.sendMsgToXY(new MsgServerOfferToYou(sender, stockId, amount, price, sell), ServerExchange.INSTANCE.getPlayerByName(target).netId);
 	}
 }

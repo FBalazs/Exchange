@@ -19,6 +19,7 @@ import hu.berzsenyi.exchange.net.msg.MsgServerPlayers;
 import hu.berzsenyi.exchange.net.msg.MsgServerSentOfferAccept;
 import hu.berzsenyi.exchange.net.msg.MsgServerSentOfferRefuse;
 import hu.berzsenyi.exchange.net.msg.MsgServerSentOfferToAccept;
+import hu.berzsenyi.exchange.net.msg.MsgServerStockOfferUpdate;
 import hu.berzsenyi.exchange.net.msg.MsgServerStockUpdate;
 
 public class ClientExchange extends Exchange implements NetClient.INetClientListener {
@@ -163,6 +164,11 @@ public class ClientExchange extends Exchange implements NetClient.INetClientList
 			MsgServerStockUpdate msgUpdate = (MsgServerStockUpdate)msg;
 			for(int i = 0; i < stocks.length; i++)
 				stocks[i].setPrice(msgUpdate.prices[i]);
+			for(IClientExchangeListener listener : listeners)
+				listener.onStocksChanged(this);
+		} else if(msg instanceof MsgServerStockOfferUpdate) {
+			MsgServerStockOfferUpdate msgUpdate = (MsgServerStockOfferUpdate)msg;
+			stocks[msgUpdate.stockId].setMinMaxOffers(msgUpdate.minSellOffer, msgUpdate.maxBuyOffer);
 			for(IClientExchangeListener listener : listeners)
 				listener.onStocksChanged(this);
 		} else if(msg instanceof MsgServerSentOfferAccept) {

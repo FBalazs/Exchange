@@ -4,20 +4,21 @@ import java.awt.Frame;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 
-public class ServerExchangeImpl implements ServerExchange.IServerExchangeListener, WindowListener {
+public class ServerExchangeImpl extends Frame implements ServerExchange.IServerExchangeListener, WindowListener {
+	private static final long serialVersionUID = 301475774323683701L;
+
 	public static void main(String[] args) {
 		new ServerExchangeImpl();
 	}
 	
 	private int port = 8080;
-	private Frame frame;
 	
 	public ServerExchangeImpl() {
-		frame = new Frame("Exchange");
-		frame.addWindowListener(this);
-		frame.setSize(800, 600);
-		frame.setLocationRelativeTo(null);
-		frame.setVisible(true);
+		super("Exchange");
+		addWindowListener(this);
+		setSize(800, 600);
+		setLocationRelativeTo(null);
+		setVisible(true);
 		ServerExchange.INSTANCE.addListener(this);
 		ServerExchange.INSTANCE.open(port);
 	}

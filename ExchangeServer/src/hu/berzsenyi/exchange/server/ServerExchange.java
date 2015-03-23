@@ -19,6 +19,7 @@ import hu.berzsenyi.exchange.net.msg.MsgServerConnRefuse;
 import hu.berzsenyi.exchange.net.msg.MsgServerPlayers;
 import hu.berzsenyi.exchange.net.msg.MsgServerSentOfferAccept;
 import hu.berzsenyi.exchange.net.msg.MsgServerSentOfferRefuse;
+import hu.berzsenyi.exchange.net.msg.MsgServerSentOfferToAccept;
 import hu.berzsenyi.exchange.server.ServerStock.IOfferCallback;
 
 public class ServerExchange extends Exchange implements NetServer.INetServerListener, IOfferCallback {
@@ -31,7 +32,7 @@ public class ServerExchange extends Exchange implements NetServer.INetServerList
 	
 	public static final ServerExchange INSTANCE = new ServerExchange();
 	
-	private NetServer net;
+	public NetServer net;
 	
 	private int gameMode;
 	private double startMoney;
@@ -180,9 +181,15 @@ public class ServerExchange extends Exchange implements NetServer.INetServerList
 		} else if(msg instanceof MsgClientOfferTo) {
 			if(gameMode == GAMEMODE_DIRECT) {
 				MsgClientOfferTo msgOffer = (MsgClientOfferTo)msg;
-				
+				ServerPlayer player = getPlayerByNetId(netClient.getId());
+				if((msgOffer.sell && msgOffer.amount <= player.stocks[msgOffer.stockId]) || (!msgOffer.sell && msgOffer.price*msgOffer.amount <= player.money)) {
+					netClient.sendMsg(new MsgServerSentOfferToAccept(msgOffer.player, msgOffer.stockId, msgOffer.amount, msgOffer.price, msgOffer.sell));
+					stocks[msgOffer.stockId].addOfferTo(player.name, msgOffer.player, msgOffer.stockId, msgOffer.amount, msgOffer.price, msgOffer.sell, this);
+				} else {
+					// TODO error, not enough money or stocks
+				}
 			} else {
-				// TODO error
+				// TODO error, wrong gamemode
 			}
 		}
 	}
