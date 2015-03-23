@@ -6,21 +6,7 @@ import hu.berzsenyi.exchange.Exchange;
 import hu.berzsenyi.exchange.Offer;
 import hu.berzsenyi.exchange.Stock;
 import hu.berzsenyi.exchange.net.NetClient;
-import hu.berzsenyi.exchange.net.msg.Msg;
-import hu.berzsenyi.exchange.net.msg.MsgClientConnRequest;
-import hu.berzsenyi.exchange.net.msg.MsgClientOfferIndirect;
-import hu.berzsenyi.exchange.net.msg.MsgClientOfferDirect;
-import hu.berzsenyi.exchange.net.msg.MsgServerBuyAccept;
-import hu.berzsenyi.exchange.net.msg.MsgServerBuyRefuse;
-import hu.berzsenyi.exchange.net.msg.MsgServerConnAccept;
-import hu.berzsenyi.exchange.net.msg.MsgServerConnRefuse;
-import hu.berzsenyi.exchange.net.msg.MsgServerBuyRequest;
-import hu.berzsenyi.exchange.net.msg.MsgServerPlayers;
-import hu.berzsenyi.exchange.net.msg.MsgServerSentOfferIndirectAccept;
-import hu.berzsenyi.exchange.net.msg.MsgServerSentOfferRefuse;
-import hu.berzsenyi.exchange.net.msg.MsgServerSentOfferDirectAccept;
-import hu.berzsenyi.exchange.net.msg.MsgServerStockOfferUpdate;
-import hu.berzsenyi.exchange.net.msg.MsgServerStockUpdate;
+import hu.berzsenyi.exchange.net.msg.*;
 
 public class ClientExchange extends Exchange implements NetClient.INetClientListener {
 	public static interface IClientExchangeListener {
@@ -187,6 +173,29 @@ public class ClientExchange extends Exchange implements NetClient.INetClientList
 			sendingOffer = false;
 			for(IClientExchangeListener listener : listeners)
 				listener.onSentOfferRefused(this);
+		} else if(msg instanceof MsgServerTradeDirect) {
+			MsgServerTradeDirect msgTrade = (MsgServerTradeDirect)msg;
+			myMoney += msgTrade.sell ? msgTrade.amount*msgTrade.price : -msgTrade.amount*msgTrade.price;
+			myStocks[msgTrade.stockId] += msgTrade.sell ? -msgTrade.amount : msgTrade.amount;
+			// TODO on direct trade
+			for(IClientExchangeListener listener : listeners)
+				listener.onMyMoneyChanged(this);
+			for(IClientExchangeListener listener : listeners)
+				listener.onMyStocksChanged(this);
+		} else if(msg instanceof MsgServerTradeIndirect) {
+			MsgServerTradeIndirect msgTrade = (MsgServerTradeIndirect)msg;
+			myMoney += msgTrade.sell ? msgTrade.amount*msgTrade.price : -msgTrade.amount*msgTrade.price;
+			myStocks[msgTrade.stockId] += msgTrade.sell ? -msgTrade.amount : msgTrade.amount;
+			// TODO on indirect trade
+			for(IClientExchangeListener listener : listeners)
+				listener.onMyMoneyChanged(this);
+			for(IClientExchangeListener listener : listeners)
+				listener.onMyStocksChanged(this);
+		} else if(msg instanceof MsgServerOfferToYou) {
+			MsgServerOfferToYou msgOffer = (MsgServerOfferToYou)msg;
+			incomingOffers.add(new Offer(msgOffer.sender, null, msgOffer.stockId, msgOffer.amount, msgOffer.price, msgOffer.sell));
+			for(IClientExchangeListener listener : listeners)
+				listener.onOfferCame(this);
 		}
 	}
 
