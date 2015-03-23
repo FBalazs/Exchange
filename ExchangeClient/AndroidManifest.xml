@@ -16,7 +16,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name="old.hu.berzsenyi.exchange.client.ActivityConnect"
+            android:name=".ui.ConnectActivity"
             android:configChanges="orientation|screenSize"
             android:label="@string/app_name" >
             <intent-filter>
@@ -30,7 +30,7 @@
             android:configChanges="orientation|screenSize"
             android:label="@string/app_name" />
         <activity
-            android:name="old.hu.berzsenyi.exchange.client.NewActivityMain"
+            android:name=".ui.MainActivity"
             android:configChanges="orientation|screenSize"
             android:label="@string/app_name" />
     </application>

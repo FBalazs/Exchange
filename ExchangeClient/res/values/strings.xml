@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">Tőzsde játék</string>
+    <string name="app_name">Tőzsdejáték</string>
     <string name="action_settings">Beállítások</string>
     <string name="btnConnect">Kapcsolódás</string>
     <string name="hintIP">Cím</string>
@@ -48,6 +48,7 @@
     <string name="tabOffer_bad_number_format">Egy számot adj meg egységárként!</string>
     <string name="tabOffer_for_sale">Eladó</string>
     <string name="tabOffer_to_buy">Vétel</string>
+    <string name="offer_stock_duplicate">Egy részvény – egy ajánlat</string>
     <!-- ActivityMain -->
     <string name="connection_lost">Megszakadt a kapcsolat :(</string>
     <!-- ActivityMain tabs -->
@@ -77,5 +78,17 @@
         <item>Veszek</item>
         <item>Eladok</item>
     </string-array>
-
+    <!-- ActionBar -->
+    <string name="action_bar_money">Pénz: %s$</string>
+    <string name="action_bar_stocks_value">Részvények: %s$</string>
+    <string name="hintPassword">Jelszó</string>
+    <string name="toast_trade_sell_0">Eladtál </string>
+	<string name="toast_trade_sell_1"> db </string>
+	<string name="toast_trade_sell_2"> részvényt, darabját </string>
+	<string name="toast_trade_sell_3">-ért.</string>
+	<string name="toast_trade_buy_0">Vettél </string>
+	<string name="toast_trade_buy_1"> db </string>
+	<string name="toast_trade_buy_2"> részvényt, darabját </string>
+	<string name="toast_trade_buy_3">-ért.</string>
+	<string name="error_connection_refused">A kapcsolat megtagadva! Biztosan jól adtad meg a felhasználóneved és jelszavad?</string>
 </resources>

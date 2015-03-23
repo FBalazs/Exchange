@@ -23,6 +23,10 @@
     <style name="ActionBarTitleStyle" parent="@style/TextAppearance.AppCompat.Widget.ActionBar.Title">
         <item name="android:textColor">@color/actionBarTitle</item>
     </style>
+    
+    <style name="ActionBarLabels" parent="@style/TextAppearance.AppCompat.Small">
+        <item name="android:textColor">@color/actionBarTitle</item>
+    </style>
 
     <style name="emphasized" parent="@android:style/TextAppearance.Medium"></style>
 

@@ -1,4 +1,4 @@
-package hu.berzsenyi.exchange.client;
+package hu.berzsenyi.exchange.client.game;
 
 import java.util.Vector;
 
@@ -82,6 +82,7 @@ public class ClientExchange extends Exchange implements NetClient.INetClientList
 	public synchronized double getStockPrice(int stockId) {
 		return stocks[stockId].getPrice();
 	}
+	
 	
 	public synchronized void connect(String host, int port, String nickName, String password) {
 		gameMode = -1;

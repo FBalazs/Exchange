@@ -7,10 +7,10 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="old.hu.berzsenyi.exchange.client.ActivityConnect" >
+    tools:context="hu.berzsenyi.exchange.client.ActivityConnect" >
     
     <EditText
-        android:id="@+id/editTextName"
+        android:id="@+id/connect_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
@@ -23,39 +23,40 @@
     </EditText>
     
     <EditText
-        android:id="@+id/editTextPass"
+        android:id="@+id/connect_password"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/editTextName"
+        android:layout_below="@+id/connect_name"
         android:layout_centerHorizontal="true"
         android:ems="10"
+        android:hint="@string/hintPassword"
         android:inputType="textPassword" />
     
     <EditText
-        android:id="@+id/editTextIP"
+        android:id="@+id/connect_ip"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/editTextPass"
+        android:layout_below="@+id/connect_password"
         android:layout_centerHorizontal="true"
         android:ems="10"
         android:hint="@string/hintIP"
         android:inputType="text|phone" />
     
     <EditText
-        android:id="@+id/editTextPort"
+        android:id="@+id/connect_port"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/editTextIP"
+        android:layout_below="@+id/connect_ip"
         android:layout_centerHorizontal="true"
         android:ems="10"
         android:hint="@string/hintPort"
         android:inputType="number" />
 
     <Button
-        android:id="@+id/buttonConnect"
+        android:id="@+id/connect_connectButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/editTextPort"
+        android:layout_below="@+id/connect_port"
         android:layout_centerHorizontal="true"
         android:text="@string/btnConnect" />
 
