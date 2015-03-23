@@ -6,20 +6,7 @@ import hu.berzsenyi.exchange.Exchange;
 import hu.berzsenyi.exchange.Offer;
 import hu.berzsenyi.exchange.net.NetServer;
 import hu.berzsenyi.exchange.net.NetServer.NetServerClient;
-import hu.berzsenyi.exchange.net.msg.Msg;
-import hu.berzsenyi.exchange.net.msg.MsgClientBuy;
-import hu.berzsenyi.exchange.net.msg.MsgClientConnRequest;
-import hu.berzsenyi.exchange.net.msg.MsgClientOffer;
-import hu.berzsenyi.exchange.net.msg.MsgClientOfferTo;
-import hu.berzsenyi.exchange.net.msg.MsgServerBuyAccept;
-import hu.berzsenyi.exchange.net.msg.MsgServerBuyRefuse;
-import hu.berzsenyi.exchange.net.msg.MsgServerBuyRequest;
-import hu.berzsenyi.exchange.net.msg.MsgServerConnAccept;
-import hu.berzsenyi.exchange.net.msg.MsgServerConnRefuse;
-import hu.berzsenyi.exchange.net.msg.MsgServerPlayers;
-import hu.berzsenyi.exchange.net.msg.MsgServerSentOfferAccept;
-import hu.berzsenyi.exchange.net.msg.MsgServerSentOfferRefuse;
-import hu.berzsenyi.exchange.net.msg.MsgServerSentOfferToAccept;
+import hu.berzsenyi.exchange.net.msg.*;
 import hu.berzsenyi.exchange.server.ServerStock.IOfferCallback;
 
 public class ServerExchange extends Exchange implements NetServer.INetServerListener, IOfferCallback {
@@ -164,13 +151,13 @@ public class ServerExchange extends Exchange implements NetServer.INetServerList
 					netClient.sendMsg(new MsgServerBuyRefuse());
 				}
 			}
-		} else if(msg instanceof MsgClientOffer) {
+		} else if(msg instanceof MsgClientOfferIndirect) {
 			if(gameMode == GAMEMODE_INDIRECT) {
-				MsgClientOffer msgOffer = (MsgClientOffer)msg;
+				MsgClientOfferIndirect msgOffer = (MsgClientOfferIndirect)msg;
 				ServerPlayer player = getPlayerByNetId(netClient.getId()); // TODO if connection not accepted, player could be null
 				if((msgOffer.sell && msgOffer.amount <= player.stocks[msgOffer.stockId])
 					|| (!msgOffer.sell && msgOffer.price*msgOffer.amount <= player.money)) {
-					netClient.sendMsg(new MsgServerSentOfferAccept(msgOffer.stockId, msgOffer.amount, msgOffer.price, msgOffer.sell));
+					netClient.sendMsg(new MsgServerSentOfferIndirectAccept(msgOffer.stockId, msgOffer.amount, msgOffer.price, msgOffer.sell));
 					stocks[msgOffer.stockId].addOffer(player.name, msgOffer.stockId, msgOffer.amount, msgOffer.price, msgOffer.sell, this);
 				} else {
 					netClient.sendMsg(new MsgServerSentOfferRefuse());
@@ -178,12 +165,12 @@ public class ServerExchange extends Exchange implements NetServer.INetServerList
 			} else {
 				// TODO error
 			}
-		} else if(msg instanceof MsgClientOfferTo) {
+		} else if(msg instanceof MsgClientOfferDirect) {
 			if(gameMode == GAMEMODE_DIRECT) {
-				MsgClientOfferTo msgOffer = (MsgClientOfferTo)msg;
+				MsgClientOfferDirect msgOffer = (MsgClientOfferDirect)msg;
 				ServerPlayer player = getPlayerByNetId(netClient.getId());
 				if((msgOffer.sell && msgOffer.amount <= player.stocks[msgOffer.stockId]) || (!msgOffer.sell && msgOffer.price*msgOffer.amount <= player.money)) {
-					netClient.sendMsg(new MsgServerSentOfferToAccept(msgOffer.player, msgOffer.stockId, msgOffer.amount, msgOffer.price, msgOffer.sell));
+					netClient.sendMsg(new MsgServerSentOfferDirectAccept(msgOffer.player, msgOffer.stockId, msgOffer.amount, msgOffer.price, msgOffer.sell));
 					stocks[msgOffer.stockId].addOfferTo(player.name, msgOffer.player, msgOffer.stockId, msgOffer.amount, msgOffer.price, msgOffer.sell, this);
 				} else {
 					// TODO error, not enough money or stocks
@@ -212,6 +199,12 @@ public class ServerExchange extends Exchange implements NetServer.INetServerList
 		playerBuyer.stocks[buyOffer.stockId] += amount;
 		playerSeller.money += amount*price;
 		playerBuyer.money -= amount*price;
-		// TODO comm
+		if(gameMode == GAMEMODE_DIRECT) {
+			net.sendMsgToXY(new MsgServerTradeDirect(playerSeller.name, buyOffer.stockId, amount, price, false), playerBuyer.netId);
+			net.sendMsgToXY(new MsgServerTradeDirect(playerBuyer.name, buyOffer.stockId, amount, price, true), playerSeller.netId);
+		} else {
+			net.sendMsgToXY(new MsgServerTradeIndirect(buyOffer.stockId, amount, price, false), playerBuyer.netId);
+			net.sendMsgToXY(new MsgServerTradeIndirect(buyOffer.stockId, amount, price, true), playerSeller.netId);
+		}
 	}
 }
