@@ -14,7 +14,7 @@ public class NetServer {
 		public void onClientConnected(NetServer net, NetServerClient netClient);
 		public void onObjectReceived(NetServer net, NetServerClient netClient, Msg msg);
 		public void onClientClosed(NetServer net, NetServerClient netClient);
-		public void onClosed(NetServer net);
+		public void onClosed(NetServer net, Exception e);
 	}
 	
 	public class NetServerClient {
@@ -119,7 +119,7 @@ public class NetServer {
 					}
 				} catch(Exception e) {
 					e.printStackTrace();
-					close();
+					close(e);
 				}
 		}
 	}
@@ -134,7 +134,7 @@ public class NetServer {
 				new ThreadListen().start();
 			} catch(Exception e) {
 				e.printStackTrace();
-				close();
+				close(e);
 			}
 		}
 	}
@@ -167,7 +167,7 @@ public class NetServer {
 	
 	public void open(int port) {
 		if(opened || opening)
-			close();
+			close(new Exception("Network line is already opened!"));
 		opening = true;
 		this.port = port;
 		new ThreadOpen().start();
@@ -205,7 +205,7 @@ public class NetServer {
 		}
 	}
 	
-	public void close() {
+	private void close(Exception e) {
 		if(!opened && !opening)
 			return;
 		for(NetServerClient client : clients)
@@ -215,10 +215,14 @@ public class NetServer {
 			try {
 				serverSocket.close();
 				serverSocket = null;
-			} catch(Exception e) {
-				e.printStackTrace();
+			} catch(Exception e1) {
+				e1.printStackTrace();
 			}
 		for(INetServerListener listener : listeners)
-			listener.onClosed(this);
+			listener.onClosed(this, e);
+	}
+	
+	public void close() {
+		close(null);
 	}
 }

@@ -13,7 +13,7 @@ public class NetClient {
 	public static interface INetClientListener {
 		public void onConnected(NetClient net);
 		public void onObjectReceived(NetClient net, Msg msg);
-		public void onClosed(NetClient net);
+		public void onClosed(NetClient net, Exception e);
 	}
 	
 	private class ThreadReceive extends Thread {
@@ -28,7 +28,7 @@ public class NetClient {
 					}
 				} catch(Exception e) {
 					e.printStackTrace();
-					close();
+					close(e);
 				}
 		}
 	}
@@ -48,7 +48,7 @@ public class NetClient {
 					listener.onConnected(NetClient.this);
 			} catch(Exception e) {
 				e.printStackTrace();
-				close();
+				close(e);
 			}
 		}
 	}
@@ -82,7 +82,7 @@ public class NetClient {
 	
 	public void connect(String host, int port) {
 		if(connected || connecting)
-			close();
+			close(new Exception("Network line is already opened!"));
 		connecting = true;
 		serverAddr = new InetSocketAddress(host, port);
 		new ThreadConnect().start();
@@ -94,36 +94,40 @@ public class NetClient {
 			oout.flush();
 		} catch(Exception e) {
 			e.printStackTrace();
-			close();
+			close(e);
 		}
 	}
 	
-	public void close() {
+	private void close(Exception e) {
 		if(!connected && !connecting)
 			return;
 		if(oin != null)
 			try {
 				oin.close();
 				oin = null;
-			} catch(Exception e) {
-				e.printStackTrace();
+			} catch(Exception e1) {
+				e1.printStackTrace();
 			}
 		if(oout != null)
 			try {
 				oout.close();
 				oout = null;
-			} catch(Exception e) {
-				e.printStackTrace();
+			} catch(Exception e1) {
+				e1.printStackTrace();
 			}
 		if(socket != null)
 			try {
 				socket.close();
 				socket = null;
-			} catch(Exception e) {
-				e.printStackTrace();
+			} catch(Exception e1) {
+				e1.printStackTrace();
 			}
 		connected = connecting = false;
 		for(INetClientListener listener : listeners)
-			listener.onClosed(this);
+			listener.onClosed(this, e);
+	}
+	
+	public void close() {
+		close(null);
 	}
 }
