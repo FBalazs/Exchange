@@ -13,7 +13,7 @@ public class NetServer {
 		public void onOpened(NetServer net);
 		public void onClientConnected(NetServer net, NetServerClient netClient);
 		public void onObjectReceived(NetServer net, NetServerClient netClient, Msg msg);
-		public void onClientClosed(NetServer net, NetServerClient netClient);
+		public void onClientClosed(NetServer net, NetServerClient netClient, Exception e);
 		public void onClosed(NetServer net, Exception e);
 	}
 	
@@ -30,7 +30,7 @@ public class NetServer {
 						}
 					} catch(Exception e) {
 						e.printStackTrace();
-						close();
+						close(e);
 					}
 			}
 		}
@@ -51,7 +51,7 @@ public class NetServer {
 				new ThreadReceive().start();
 			} catch(Exception e) {
 				e.printStackTrace();
-				close();
+				close(e);
 			}
 		}
 		
@@ -69,37 +69,41 @@ public class NetServer {
 				oout.flush();
 			} catch(Exception e) {
 				e.printStackTrace();
-				close();
+				close(e);
 			}
 		}
 		
 		public void close() {
+			close(null);
+		}
+		
+		private void close(Exception e) {
 			if(!connected)
 				return;
 			if(oin != null)
 				try {
 					oin.close();
 					oin = null;
-				} catch(Exception e) {
-					e.printStackTrace();
+				} catch(Exception e1) {
+					e1.printStackTrace();
 				}
 			if(oout != null)
 				try {
 					oout.close();
 					oout = null;
-				} catch(Exception e) {
-					e.printStackTrace();
+				} catch(Exception e1) {
+					e1.printStackTrace();
 				}
 			if(socket != null)
 				try {
 					socket.close();
 					socket = null;
-				} catch(Exception e) {
-					e.printStackTrace();
+				} catch(Exception e1) {
+					e1.printStackTrace();
 				}
 			connected = false;
 			for(INetServerListener listener : listeners)
-				listener.onClientClosed(NetServer.this, this);
+				listener.onClientClosed(NetServer.this, this, e);
 		}
 	}
 	
@@ -209,7 +213,7 @@ public class NetServer {
 		if(!opened && !opening)
 			return;
 		for(NetServerClient client : clients)
-			client.close();
+			client.close(e);
 		clients.clear();
 		if(serverSocket != null)
 			try {

@@ -3,8 +3,8 @@ package hu.berzsenyi.exchange.client.game;
 import java.util.Vector;
 
 import hu.berzsenyi.exchange.Exchange;
-import hu.berzsenyi.exchange.Offer;
-import hu.berzsenyi.exchange.Stock;
+import hu.berzsenyi.exchange.game.Offer;
+import hu.berzsenyi.exchange.game.Stock;
 import hu.berzsenyi.exchange.net.NetClient;
 import hu.berzsenyi.exchange.net.msg.*;
 

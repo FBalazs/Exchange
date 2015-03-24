@@ -6,9 +6,9 @@ import java.util.Formatter;
 
 import com.example.android.common.view.SlidingTabLayout;
 
-import hu.berzsenyi.exchange.Stock;
 import hu.berzsenyi.exchange.client.R;
 import hu.berzsenyi.exchange.client.game.ClientExchange;
+import hu.berzsenyi.exchange.game.Stock;
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.content.DialogInterface;

@@ -1,6 +1,9 @@
-package hu.berzsenyi.exchange.server;
+package hu.berzsenyi.exchange.server.ui;
+
+import hu.berzsenyi.exchange.server.game.ServerExchange;
 
 import java.awt.Frame;
+import java.awt.Graphics;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 
@@ -22,6 +25,13 @@ public class ServerExchangeImpl extends Frame implements ServerExchange.IServerE
 		ServerExchange.INSTANCE.addListener(this);
 		ServerExchange.INSTANCE.open(port);
 	}
+	
+	@Override
+	public void paint(Graphics g) {
+		
+		
+		super.paint(g);
+	}
 
 	@Override
 	public void windowOpened(WindowEvent e) {
@@ -31,7 +41,6 @@ public class ServerExchangeImpl extends Frame implements ServerExchange.IServerE
 	@Override
 	public void windowClosing(WindowEvent e) {
 		ServerExchange.INSTANCE.close();
-		System.exit(0);
 	}
 
 	@Override
@@ -61,21 +70,21 @@ public class ServerExchangeImpl extends Frame implements ServerExchange.IServerE
 
 	@Override
 	public void onOpened(ServerExchange exchange) {
-		
-	}
-
-	@Override
-	public void onConnAccepted(ServerExchange exchange) {
-		
+		invalidate();
 	}
 
 	@Override
 	public void onEvent(ServerExchange exchange) {
-		
+		invalidate();
+	}
+	
+	@Override
+	public void onMsgReceived(ServerExchange exchange) {
+		invalidate();
 	}
 
 	@Override
 	public void onClosed(ServerExchange exchange) {
-		
+		System.exit(0);
 	}
 }
