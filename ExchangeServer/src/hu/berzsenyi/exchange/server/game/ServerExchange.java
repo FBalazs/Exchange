@@ -51,6 +51,10 @@ public class ServerExchange extends Exchange implements NetServer.INetServerList
 		return stocks.length;
 	}
 	
+	public synchronized ServerStock getStock(int stockId) {
+		return stocks[stockId];
+	}
+	
 	public synchronized ServerPlayer getPlayerByName(String name) {
 		for(ServerPlayer player : players)
 			if(player.name.equals(name))
