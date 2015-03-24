@@ -15,50 +15,53 @@ public class CompStocks extends Component {
 	public void paint(Graphics g) {
 		super.paint(g);
 		Graphics2D g2 = (Graphics2D)g;
-		
-		double maxPrice = 0;
-		for (int s = 0; s < ServerExchange.INSTANCE.getStockNumber(); s++)
-			if (maxPrice < ServerExchange.INSTANCE.getStock(s).getPrice())
-				maxPrice = ServerExchange.INSTANCE.getStock(s).getPrice();
-		maxPrice *= 1.1;
-		
-		g2.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 12));
-		
-		int[] theights = new int[ServerExchange.INSTANCE.getStockNumber()];
-		for(int s = 0; s < theights.length; s++) {
-			theights[s] = (int) (this.getHeight() * ServerExchange.INSTANCE.getStock(s).getPrice() / maxPrice);
-			if(0 < s && Math.abs(theights[s-1]-theights[s]) < g2.getFont().getSize()*2) {
-				theights[s] = theights[s-1]+g2.getFont().getSize()*2;
-			}
-		}
-
-		for (int s = 0; s < theights.length; s++) {
-			int x = this.getWidth() * s / ServerExchange.INSTANCE.getStockNumber();
-			int w = this.getWidth() / ServerExchange.INSTANCE.getStockNumber() / 2;
-			int h = (int) (this.getHeight() * ServerExchange.INSTANCE.getStock(s).getPrice() / maxPrice);
-
-			g2.setColor(new Color(0.5F, 0.75F, 1F));
-			g2.fillRect(x, this.getHeight() - h, w, h);
-
-			g2.setColor(Color.black);
-			g2.drawRect(x, this.getHeight() - h, w, h);
-		}
-		
-		for (int s = 0; s < theights.length; s++) {
-			int x = this.getWidth() * s / ServerExchange.INSTANCE.getStockNumber();
-			int w = this.getWidth() / ServerExchange.INSTANCE.getStockNumber() / 2;
+		try {
+			double maxPrice = 0;
+			for (int s = 0; s < ServerExchange.INSTANCE.getStockNumber(); s++)
+				if (maxPrice < ServerExchange.INSTANCE.getStock(s).getPrice())
+					maxPrice = ServerExchange.INSTANCE.getStock(s).getPrice();
+			maxPrice *= 1.1;
 			
-			drawStringCentered(ServerExchange.INSTANCE.getStock(s).getName(), x + w / 2,
-					this.getHeight() - theights[s] - g2.getFontMetrics().getHeight(), g2);
-			drawStringCentered(
-					/*ServerDisplay.DECIMAL_FORMAT
-							.format(this.model.stocks[s].value)*/ServerExchange.INSTANCE.getStock(s).getPrice(),
-					x + w / 2, this.getHeight() - theights[s], g2);
+			g2.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 12));
+			
+			int[] theights = new int[ServerExchange.INSTANCE.getStockNumber()];
+			for(int s = 0; s < theights.length; s++) {
+				theights[s] = (int) (this.getHeight() * ServerExchange.INSTANCE.getStock(s).getPrice() / maxPrice);
+				if(0 < s && Math.abs(theights[s-1]-theights[s]) < g2.getFont().getSize()*2) {
+					theights[s] = theights[s-1]+g2.getFont().getSize()*2;
+				}
+			}
+	
+			for (int s = 0; s < theights.length; s++) {
+				int x = this.getWidth() * s / ServerExchange.INSTANCE.getStockNumber();
+				int w = this.getWidth() / ServerExchange.INSTANCE.getStockNumber() / 2;
+				int h = (int) (this.getHeight() * ServerExchange.INSTANCE.getStock(s).getPrice() / maxPrice);
+	
+				g2.setColor(new Color(0.5F, 0.75F, 1F));
+				g2.fillRect(x, this.getHeight() - h, w, h);
+	
+				g2.setColor(Color.black);
+				g2.drawRect(x, this.getHeight() - h, w, h);
+			}
+			
+			for (int s = 0; s < theights.length; s++) {
+				int x = this.getWidth() * s / ServerExchange.INSTANCE.getStockNumber();
+				int w = this.getWidth() / ServerExchange.INSTANCE.getStockNumber() / 2;
+				
+				GraphicsHelper.drawStringCentered(g2, ServerExchange.INSTANCE.getStock(s).getName(), x + w / 2,
+						this.getHeight() - theights[s] - g2.getFontMetrics().getHeight());
+				GraphicsHelper.drawStringCentered(g2, 
+						/*ServerDisplay.DECIMAL_FORMAT // TODO 
+								.format(this.model.stocks[s].value)*/""+ServerExchange.INSTANCE.getStock(s).getPrice(),
+						x + w / 2, this.getHeight() - theights[s]);
+			}
+	
+			g2.setColor(Color.black);
+			g2.drawLine(0, this.getHeight() - 1, this.getWidth(),
+					this.getHeight() - 1);
+			g2.drawLine(0, this.getHeight(), 0, 0);
+		} catch(Exception e) {
+			e.printStackTrace();
 		}
-
-		g2.setColor(Color.black);
-		g2.drawLine(0, this.getHeight() - 1, this.getWidth(),
-				this.getHeight() - 1);
-		g2.drawLine(0, this.getHeight(), 0, 0);
 	}
 }
