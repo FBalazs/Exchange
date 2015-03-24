@@ -16,6 +16,7 @@ public class ClientExchange extends Exchange implements NetClient.INetClientList
 		public void onShowBuy(ClientExchange exchange);
 		public void onBuyAccepted(ClientExchange exchange);
 		public void onBuyRefused(ClientExchange exchange);
+		public void onBuyEnd(ClientExchange exchange);
 		public void onStocksChanged(ClientExchange exchange);
 		public void onMyMoneyChanged(ClientExchange exchange);
 		public void onMyStocksChanged(ClientExchange exchange);
@@ -83,6 +84,9 @@ public class ClientExchange extends Exchange implements NetClient.INetClientList
 		return stocks[stockId].getPrice();
 	}
 	
+	public synchronized Stock getStock(int stockId) {
+		return stocks[stockId];
+	}
 	
 	public synchronized void connect(String host, int port, String nickName, String password) {
 		gameMode = -1;
@@ -127,8 +131,10 @@ public class ClientExchange extends Exchange implements NetClient.INetClientList
 			MsgServerConnAccept msgAccept = (MsgServerConnAccept)msg;
 			gameMode = msgAccept.gameMode;
 			stocks = new Stock[msgAccept.stockNames.length];
-			for(int i = 0; i < stocks.length; i++)
+			for(int i = 0; i < stocks.length; i++) {
 				stocks[i] = new Stock(msgAccept.stockNames[i], msgAccept.stockPrices[i]);
+				stocks[i].setIngame(msgAccept.stocksIngame[i]);
+			}
 			myMoney = msgAccept.playerMoney;
 			myStocks = msgAccept.playerStocks;
 			for(IClientExchangeListener listener : listeners)
@@ -145,6 +151,12 @@ public class ClientExchange extends Exchange implements NetClient.INetClientList
 		} else if(msg instanceof MsgServerBuyRefuse) {
 			for(IClientExchangeListener listener : listeners)
 				listener.onBuyRefused(this);
+		} else if(msg instanceof MsgServerBuyEnd) {
+			MsgServerBuyEnd msgEnd = (MsgServerBuyEnd)msg;
+			for(int i = 0; i < stocks.length; i++)
+				stocks[i].setIngame(msgEnd.stocksIngame[i]);
+			for(IClientExchangeListener listener : listeners)
+				listener.onBuyEnd(this);
 		} else if(msg instanceof MsgServerPlayers) {
 			playerNames = ((MsgServerPlayers) msg).playerNames;
 		} else if(msg instanceof MsgServerStockUpdate) {

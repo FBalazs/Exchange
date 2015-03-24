@@ -65,6 +65,18 @@ public class ServerExchange extends Exchange implements NetServer.INetServerList
 		return null;
 	}
 	
+	public synchronized void newEvent() {
+		// TODO newEvent function
+		if(!started) {
+			net.sendMsgToAll(new MsgServerBuyEnd(stocks));
+			started = true;
+		}
+		for(int i = 0; i < stocks.length; i++)
+			stocks[i].updatePrice(1);// TODO stock price multiplier from events
+		net.sendMsgToAll(new MsgServerStockUpdate(stocks));
+		// TODO add new events?
+	}
+	
 	public synchronized void load(String path) {
 		
 	}
