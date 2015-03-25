@@ -13,6 +13,7 @@
     <string name="textOfferBuy">Részvény vásárlása</string>
     <string name="textOfferSend">Ajánlat küldése</string>
     <string name="could_not_connect">Nem sikerült a kapcsolódás :(</string>
+    <string name="timeout">Időtúllépés</string>
     <string name="ok">OK</string>
     <string name="done">Kész!</string>
     <string name="money">Pénz</string>

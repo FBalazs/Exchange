@@ -12,17 +12,23 @@ import java.util.Vector;
 public class NetServer {
 	public static interface INetServerListener {
 		public void onOpened(NetServer net);
+
 		public void onClientConnected(NetServer net, NetServerClient netClient);
-		public void onObjectReceived(NetServer net, NetServerClient netClient, Msg msg);
-		public void onClientClosed(NetServer net, NetServerClient netClient, Exception e);
+
+		public void onObjectReceived(NetServer net, NetServerClient netClient,
+				Msg msg);
+
+		public void onClientClosed(NetServer net, NetServerClient netClient,
+				Exception e);
+
 		public void onClosed(NetServer net, Exception e);
 	}
-	
+
 	public class NetServerClient {
 		private class ThreadReceive extends Thread {
 			@Override
 			public void run() {
-				while(connected)
+				while (connected)
 					try {
 						Msg msg = (Msg)oin.readObject();
 						System.out.println("Received msg: "+msg);
@@ -36,28 +42,29 @@ public class NetServer {
 					}
 			}
 		}
-		
+
 		private Socket socket = null;
 		private String id = null;
 		private ObjectInputStream oin = null;
 		private ObjectOutputStream oout = null;
 		private boolean connected = false;
-		
+
 		private NetServerClient(Socket socket) {
 			try {
 				connected = true;
 				this.socket = socket;
-				id = socket.getInetAddress().toString()+":"+socket.getPort();
+				id = socket.getInetAddress().toString() + ":"
+						+ socket.getPort();
 				oout = new ObjectOutputStream(socket.getOutputStream());
 				oout.flush();
 				oin = new ObjectInputStream(socket.getInputStream());
 				new ThreadReceive().start();
-			} catch(Exception e) {
+			} catch (Exception e) {
 				e.printStackTrace();
 				close(e);
 			}
 		}
-		
+
 		public synchronized boolean isConnected() {
 			return connected;
 		}
@@ -71,7 +78,7 @@ public class NetServer {
 			try {
 				oout.writeObject(msg);
 				oout.flush();
-			} catch(Exception e) {
+			} catch (Exception e) {
 				e.printStackTrace();
 				close(e);
 			}
@@ -84,54 +91,54 @@ public class NetServer {
 		private synchronized void close(Exception e) {
 			if(!connected)
 				return;
-			if(oin != null)
+			if (oin != null)
 				try {
 					oin.close();
 					oin = null;
-				} catch(Exception e1) {
+				} catch (Exception e1) {
 					e1.printStackTrace();
 				}
-			if(oout != null)
+			if (oout != null)
 				try {
 					oout.close();
 					oout = null;
-				} catch(Exception e1) {
+				} catch (Exception e1) {
 					e1.printStackTrace();
 				}
-			if(socket != null)
+			if (socket != null)
 				try {
 					socket.close();
 					socket = null;
-				} catch(Exception e1) {
+				} catch (Exception e1) {
 					e1.printStackTrace();
 				}
 			connected = false;
-			for(INetServerListener listener : listeners)
+			for (INetServerListener listener : listeners)
 				listener.onClientClosed(NetServer.this, this, e);
 		}
 	}
-	
+
 	private class ThreadListen extends Thread {
 		@Override
 		public void run() {
-			while(opened)
+			while (opened)
 				try {
 					Socket socket = serverSocket.accept();
-					if(socket != null) {
+					if (socket != null) {
 						NetServerClient client = new NetServerClient(socket);
 						synchronized (clients) {
 							clients.add(client);
 						}
-						for(INetServerListener listener : listeners)
+						for (INetServerListener listener : listeners)
 							listener.onClientConnected(NetServer.this, client);
 					}
-				} catch(Exception e) {
+				} catch (Exception e) {
 					e.printStackTrace();
 					close(e);
 				}
 		}
 	}
-	
+
 	private class ThreadOpen extends Thread {
 		@Override
 		public void run() {
@@ -140,15 +147,15 @@ public class NetServer {
 				opened = true;
 				opening = false;
 				new ThreadListen().start();
-				for(INetServerListener listener : listeners)
+				for (INetServerListener listener : listeners)
 					listener.onOpened(NetServer.this);
-			} catch(Exception e) {
+			} catch (Exception e) {
 				e.printStackTrace();
 				close(e);
 			}
 		}
 	}
-	
+
 	private ServerSocket serverSocket = null;
 	private int port = -1;
 	private Vector<NetServerClient> clients = new Vector<>();
@@ -185,10 +192,10 @@ public class NetServer {
 	
 	public synchronized void sendMsgToXY(Msg msg, String id) {
 		synchronized (clients) {
-			for(int i = 0; i < clients.size(); i++)
-				if(clients.get(i).id.equals(id)) {
+			for (int i = 0; i < clients.size(); i++)
+				if (clients.get(i).id.equals(id)) {
 					clients.get(i).sendMsg(msg);
-					if(!clients.get(i).connected)
+					if (!clients.get(i).connected)
 						clients.remove(i--);
 				}
 		}
@@ -196,10 +203,10 @@ public class NetServer {
 	
 	public synchronized void sendMsgToAllExceptXY(Msg msg, String id) {
 		synchronized (clients) {
-			for(int i = 0; i < clients.size(); i++)
-				if(!clients.get(i).id.equals(id)) {
+			for (int i = 0; i < clients.size(); i++)
+				if (!clients.get(i).id.equals(id)) {
 					clients.get(i).sendMsg(msg);
-					if(!clients.get(i).connected)
+					if (!clients.get(i).connected)
 						clients.remove(i--);
 				}
 		}
@@ -207,9 +214,9 @@ public class NetServer {
 	
 	public synchronized void sendMsgToAll(Msg msg) {
 		synchronized (clients) {
-			for(int i = 0; i < clients.size(); i++) {
+			for (int i = 0; i < clients.size(); i++) {
 				clients.get(i).sendMsg(msg);
-				if(!clients.get(i).connected)
+				if (!clients.get(i).connected)
 					clients.remove(i--);
 			}
 		}
@@ -218,18 +225,18 @@ public class NetServer {
 	private synchronized void close(Exception e) {
 		if(!opened && !opening)
 			return;
-		for(NetServerClient client : clients)
+		for (NetServerClient client : clients)
 			client.close(e);
 		clients.clear();
-		if(serverSocket != null)
+		if (serverSocket != null)
 			try {
 				serverSocket.close();
 				serverSocket = null;
-			} catch(Exception e1) {
+			} catch (Exception e1) {
 				e1.printStackTrace();
 			}
 		opened = opening = false;
-		for(INetServerListener listener : listeners)
+		for (INetServerListener listener : listeners)
 			listener.onClosed(this, e);
 	}
 	
