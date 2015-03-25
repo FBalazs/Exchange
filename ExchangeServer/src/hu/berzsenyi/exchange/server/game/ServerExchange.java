@@ -286,6 +286,20 @@ public class ServerExchange extends Exchange implements
 			} else {
 				// TODO error, wrong gamemode
 			}
+		} else if(msg instanceof MsgClientOfferDeleteIndirect) {
+			if(gameMode == GAMEMODE_INDIRECT) {
+				MsgClientOfferDeleteIndirect msgOfferDelete = (MsgClientOfferDeleteIndirect)msg;
+				stocks[msgOfferDelete.stockId].removeOffer(getPlayerByNetId(netClient.getId()).name, msgOfferDelete.amount, msgOfferDelete.price, msgOfferDelete.sell);
+			} else {
+				// TODO error, wrong gamemode
+			}
+		} else if(msg instanceof MsgClientOfferDeleteDirect) {
+			if(gameMode == GAMEMODE_INDIRECT) {
+				MsgClientOfferDeleteDirect msgOfferDelete = (MsgClientOfferDeleteDirect)msg;
+				stocks[msgOfferDelete.stockId].removeOfferTo(msgOfferDelete.player, getPlayerByNetId(netClient.getId()).name, msgOfferDelete.amount, msgOfferDelete.price, msgOfferDelete.sell);
+			} else {
+				// TODO error, wrong gamemode
+			}
 		}
 	}
 

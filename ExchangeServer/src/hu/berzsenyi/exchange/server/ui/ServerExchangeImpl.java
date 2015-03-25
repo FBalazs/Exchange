@@ -148,6 +148,7 @@ public class ServerExchangeImpl extends JFrame implements ServerExchange.IServer
 		SwingHelper.splitComponentsVertical(new Rectangle(barX, barY+by/3, barWidth/6, barHeight-by/3), 0.25, btnNewEvent, btnStockUpdate);
 		SwingHelper.setButtonTextSizeToFill(btnNewEvent);
 		SwingHelper.setButtonTextSizeToFill(btnStockUpdate);
+		// TODO same font size
 		
 		SwingHelper.splitComponentsVertical(new Rectangle(barX+barWidth/6+bx/2, barY+by/3, barWidth/8, barHeight-by/3), 0.25,
 				radioTabStocks, radioTabPlayers, radioTabEvents);
