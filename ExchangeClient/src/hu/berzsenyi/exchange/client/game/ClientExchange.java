@@ -2,7 +2,7 @@ package hu.berzsenyi.exchange.client.game;
 
 import java.util.Vector;
 
-import hu.berzsenyi.exchange.Exchange;
+import hu.berzsenyi.exchange.game.Exchange;
 import hu.berzsenyi.exchange.game.Offer;
 import hu.berzsenyi.exchange.game.Stock;
 import hu.berzsenyi.exchange.net.NetClient;
@@ -74,6 +74,13 @@ public class ClientExchange extends Exchange implements NetClient.INetClientList
 	
 	public synchronized int getStockAmount(int stockId) {
 		return myStocks[stockId];
+	}
+	
+	public synchronized double getStocksValue() {
+		double ret = 0;
+		for(int i = 0; i < stocks.length; i++)
+			ret += stocks[i].getPrice()*myStocks[i];
+		return ret;
 	}
 	
 	public synchronized String getStockName(int stockId) {
