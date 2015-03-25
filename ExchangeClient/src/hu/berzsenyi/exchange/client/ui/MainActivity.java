@@ -10,11 +10,13 @@ import com.example.android.common.view.SlidingTabLayout;
 
 import hu.berzsenyi.exchange.client.R;
 import hu.berzsenyi.exchange.client.game.ClientExchange;
+import hu.berzsenyi.exchange.client.game.ClientExchange.IClientExchangeListener;
 import hu.berzsenyi.exchange.game.Offer;
 import hu.berzsenyi.exchange.game.Stock;
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.view.PagerAdapter;
@@ -36,6 +38,7 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class MainActivity extends ActionBarActivity {
 
@@ -59,6 +62,150 @@ public class MainActivity extends ActionBarActivity {
 	private StockAdapter mStockAdapter;
 	private TextView moneyTextView1, stocksValueTextView1, moneyTextView2,
 			stocksValueTextView2;
+
+	private IClientExchangeListener mListener = new IClientExchangeListener() {
+
+		@Override
+		public void onTrade(ClientExchange exchange) {
+
+			final boolean sell = true; // TODO
+			final int amount = 100, stockId = 0;
+			final double price = 101.02;
+
+			runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					if (sell)
+						Toast.makeText(
+								getApplicationContext(),
+								getString(R.string.toast_trade_sell_0)
+										+ amount
+										+ getString(R.string.toast_trade_sell_1)
+										+ mClient.getStockName(stockId)
+										+ getString(R.string.toast_trade_sell_2)
+										+ price
+										+ getString(R.string.toast_trade_sell_3),
+								Toast.LENGTH_LONG).show();
+					else
+						Toast.makeText(
+								getApplicationContext(),
+								getString(R.string.toast_trade_buy_0) + amount
+										+ getString(R.string.toast_trade_buy_1)
+										+ mClient.getStockName(stockId)
+										+ getString(R.string.toast_trade_buy_2)
+										+ price
+										+ getString(R.string.toast_trade_buy_3),
+								Toast.LENGTH_LONG).show();
+				}
+			});
+		}
+
+		@Override
+		public void onStocksChanged(ClientExchange exchange) {
+			runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+
+					if (mStockAdapter != null)
+						mStockAdapter.notifyDataSetChanged();
+					if (mNewOfferStockAdapter != null)
+						mNewOfferStockAdapter.notifyDataSetChanged();
+					updateStocksValueTextViews();
+				}
+			});
+		}
+
+		@Override
+		public void onShowBuy(ClientExchange exchange) {
+			runOnUiThread(new Runnable() {
+
+				@Override
+				public void run() {
+					startActivity(new Intent(MainActivity.this,
+							StockBuyActivity.class));
+				}
+			});
+		}
+
+		@Override
+		public void onSentOfferRefused(ClientExchange exchange) {
+			// TODO Auto-generated method stub
+
+		}
+
+		@Override
+		public void onSentOfferAccepted(ClientExchange exchange) {
+			// TODO Auto-generated method stub
+
+		}
+
+		@Override
+		public void onOfferCame(ClientExchange exchange) {
+			// TODO Auto-generated method stub
+
+		}
+
+		@Override
+		public void onMyStocksChanged(ClientExchange exchange) {
+
+			runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					if (mStockAdapter != null)
+						mStockAdapter.notifyDataSetChanged();
+					updateStocksValueTextViews();
+				}
+			});
+		}
+
+		@Override
+		public void onMyMoneyChanged(ClientExchange exchange) {
+			runOnUiThread(new Runnable() {
+
+				@Override
+				public void run() {
+
+					updateMoneyTextViews();
+				}
+			});
+		}
+
+		@Override
+		public void onConnRefused(ClientExchange exchange) {
+			// TODO Auto-generated method stub
+
+		}
+
+		@Override
+		public void onConnLost(ClientExchange exchange) {
+			// TODO Auto-generated method stub
+
+		}
+
+		@Override
+		public void onConnAccepted(ClientExchange exchange) {
+			// TODO Auto-generated method stub
+
+		}
+
+		@Override
+		public void onBuyRefused(ClientExchange exchange) {
+			// TODO Auto-generated method stub
+
+		}
+
+		@Override
+		public void onBuyEnd(ClientExchange exchange) {
+			// TODO Auto-generated method stub
+
+		}
+
+		@Override
+		public void onBuyAccepted(ClientExchange exchange) {
+			// TODO Auto-generated method stub
+
+		}
+	};
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -173,7 +320,8 @@ public class MainActivity extends ActionBarActivity {
 
 				ListView offerList = (ListView) view
 						.findViewById(R.id.main_tab_exchange_list);
-				mOutgoingOfferAdapter = new OfferAdapter(mClient.getOutgoingOffers());
+				mOutgoingOfferAdapter = new OfferAdapter(
+						mClient.getOutgoingOffers());
 				offerList.setAdapter(mOutgoingOfferAdapter);
 				offerList.setOnItemClickListener(new OnItemClickListener() {
 
@@ -337,14 +485,13 @@ public class MainActivity extends ActionBarActivity {
 			setOffers(offers);
 		}
 
-
 		public void setOffers(Offer[] offers) {
-			if(offers == null)
+			if (offers == null)
 				throw new NullPointerException();
 			mOffers = offers;
 			notifyDataSetChanged();
 		}
-		
+
 		@Override
 		public int getCount() {
 			return mOffers.length + 1;
@@ -425,8 +572,9 @@ public class MainActivity extends ActionBarActivity {
 						@Override
 						public void onItemSelected(AdapterView<?> parent,
 								View view, int position, long id) {
-							price.setText(DECIMAL_FORMAT.format(((Stock) parent
-									.getAdapter().getItem(position)).getPrice()));
+							price.setText(DECIMAL_FORMAT.format(mClient
+									.getStockPrice((int) parent.getAdapter()
+											.getItemId(position))));
 							amount.setText(1 + "");
 						}
 
