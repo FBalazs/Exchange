@@ -50,7 +50,7 @@ public class ServerStock extends Stock {
 				if(sell && price <= offer.price && (bestI == -1 || bestPrice < tradePrice)) {
 					ServerPlayer playerSeller = ServerExchange.INSTANCE.getPlayerByName(player);
 					ServerPlayer playerBuyer = ServerExchange.INSTANCE.getPlayerByName(offer.sender);
-					int tradeAmount = Math.min(Math.min(offer.amount, amount), Math.min(playerSeller.stocks[stockId], (int)Math.floor(playerBuyer.money/tradePrice)));
+					int tradeAmount = Math.min(Math.min(offer.amount, amount), Math.min(playerSeller.getStockAmount(stockId), (int)Math.floor(playerBuyer.getMoney()/tradePrice)));
 					if(0 < tradeAmount) {
 						bestI = i;
 						bestPrice = tradePrice;
@@ -59,7 +59,7 @@ public class ServerStock extends Stock {
 				} else if(!sell && offer.price <= price && (bestI == -1 || tradePrice < bestPrice)) {
 					ServerPlayer playerSeller = ServerExchange.INSTANCE.getPlayerByName(offer.sender);
 					ServerPlayer playerBuyer = ServerExchange.INSTANCE.getPlayerByName(player);
-					int tradeAmount = Math.min(Math.min(offer.amount, amount), Math.min(playerSeller.stocks[stockId], (int)Math.floor(playerBuyer.money/tradePrice)));
+					int tradeAmount = Math.min(Math.min(offer.amount, amount), Math.min(playerSeller.getStockAmount(stockId), (int)Math.floor(playerBuyer.getMoney()/tradePrice)));
 					if(0 < tradeAmount) {
 						bestI = i;
 						bestPrice = tradePrice;
@@ -101,6 +101,6 @@ public class ServerStock extends Stock {
 		}
 		offers.add(offerToAdd);
 		calculateOfferValues();
-		ServerExchange.INSTANCE.net.sendMsgToXY(new MsgServerOfferToYou(sender, stockId, amount, price, sell), ServerExchange.INSTANCE.getPlayerByName(target).netId);
+		ServerExchange.INSTANCE.net.sendMsgToXY(new MsgServerOfferToYou(sender, stockId, amount, price, sell), ServerExchange.INSTANCE.getPlayerByName(target).getNetId());
 	}
 }

@@ -8,7 +8,7 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 
-public class CompStocks extends Component {
+public class CompTabStocks extends Component {
 	private static final long serialVersionUID = 3320516758880742920L;
 	
 	@Override
@@ -33,8 +33,8 @@ public class CompStocks extends Component {
 			}
 	
 			for (int s = 0; s < theights.length; s++) {
-				int x = this.getWidth() * s / ServerExchange.INSTANCE.getStockNumber();
-				int w = this.getWidth() / ServerExchange.INSTANCE.getStockNumber() / 2;
+				int w = this.getWidth() / (ServerExchange.INSTANCE.getStockNumber()+1)/2;
+				int x = (int)(this.getWidth() * (s+0.5) / (ServerExchange.INSTANCE.getStockNumber()+1));
 				int h = (int) (this.getHeight() * ServerExchange.INSTANCE.getStock(s).getPrice() / maxPrice);
 	
 				g2.setColor(new Color(0.5F, 0.75F, 1F));
@@ -45,13 +45,13 @@ public class CompStocks extends Component {
 			}
 			
 			for (int s = 0; s < theights.length; s++) {
-				int x = this.getWidth() * s / ServerExchange.INSTANCE.getStockNumber();
-				int w = this.getWidth() / ServerExchange.INSTANCE.getStockNumber() / 2;
+				int w = this.getWidth() / (ServerExchange.INSTANCE.getStockNumber()+1)/2;
+				int x = (int)(this.getWidth() * (s+0.5) / (ServerExchange.INSTANCE.getStockNumber()+1));
 				
 				GraphicsHelper.drawStringCentered(g2, ServerExchange.INSTANCE.getStock(s).getName(), x + w / 2,
 						this.getHeight() - theights[s] - g2.getFontMetrics().getHeight());
 				GraphicsHelper.drawStringCentered(g2, 
-						/*ServerDisplay.DECIMAL_FORMAT // TODO 
+						/*ServerDisplay.DECIMAL_FORMAT // TODO format
 								.format(this.model.stocks[s].value)*/""+ServerExchange.INSTANCE.getStock(s).getPrice(),
 						x + w / 2, this.getHeight() - theights[s]);
 			}
@@ -61,7 +61,7 @@ public class CompStocks extends Component {
 					this.getHeight() - 1);
 			g2.drawLine(0, this.getHeight(), 0, 0);
 		} catch(Exception e) {
-			e.printStackTrace();
+			//e.printStackTrace();
 		}
 	}
 }

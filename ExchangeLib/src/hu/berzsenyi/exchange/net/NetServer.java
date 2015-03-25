@@ -136,6 +136,8 @@ public class NetServer {
 				opened = true;
 				opening = false;
 				new ThreadListen().start();
+				for(INetServerListener listener : listeners)
+					listener.onOpened(NetServer.this);
 			} catch(Exception e) {
 				e.printStackTrace();
 				close(e);
@@ -222,6 +224,7 @@ public class NetServer {
 			} catch(Exception e1) {
 				e1.printStackTrace();
 			}
+		opened = opening = false;
 		for(INetServerListener listener : listeners)
 			listener.onClosed(this, e);
 	}

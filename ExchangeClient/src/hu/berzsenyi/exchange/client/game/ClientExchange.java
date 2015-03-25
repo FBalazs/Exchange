@@ -89,7 +89,14 @@ public class ClientExchange extends Exchange implements
 	public synchronized int getStockAmount(int stockId) {
 		return myStocks[stockId];
 	}
-
+	
+	public synchronized double getStocksValue() {
+		double ret = 0;
+		for(int i = 0; i < stocks.length; i++)
+			ret += stocks[i].getPrice()*myStocks[i];
+		return ret;
+	}
+	
 	public synchronized String getStockName(int stockId) {
 		return stocks[stockId].getName();
 	}
@@ -257,9 +264,5 @@ public class ClientExchange extends Exchange implements
 		// TODO switch based on exception
 		for (IClientExchangeListener listener : listeners)
 			listener.onConnLost(this);
-	}
-
-	public synchronized double getStocksValue() {
-		return -1.0; // TODO
 	}
 }
