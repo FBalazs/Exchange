@@ -108,6 +108,10 @@ public class ClientExchange extends Exchange implements
 	public synchronized Stock getStock(int stockId) {
 		return stocks[stockId];
 	}
+	
+	public synchronized String[] getEvents() {
+		return new String[0]; // TODO events
+	}
 
 	public synchronized Offer[] getOutgoingOffers() {
 		return myOffers.toArray(new Offer[myOffers.size()]);

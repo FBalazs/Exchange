@@ -519,10 +519,7 @@ public class MainActivity extends ActionBarActivity {
 		}
 
 		private void init() {
-			SingleEvent[] events = mClient.getEvents();
-			mNews = new String[events.length];
-			for (int i = 0; i < events.length; i++)
-				mNews[i] = events[i].getDescription();
+			mNews = mClient.getEvents();
 		}
 
 		@Override
