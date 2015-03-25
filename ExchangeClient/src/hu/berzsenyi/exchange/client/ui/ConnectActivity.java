@@ -75,6 +75,22 @@ public class ConnectActivity extends ActionBarActivity {
 		}
 
 		@Override
+		public void onConnLost(ClientExchange exchange) {
+			mClient.removeListener(this);
+			runOnUiThread(new Runnable() {
+
+				@Override
+				public void run() {
+					mDialog.dismiss();
+					new AlertDialog.Builder(ConnectActivity.this)
+							.setMessage(R.string.timeout)
+							.setPositiveButton(R.string.ok, null).create()
+							.show();
+				}
+			});
+		}
+
+		@Override
 		public void onTrade(ClientExchange exchange) {
 		}
 
@@ -104,10 +120,6 @@ public class ConnectActivity extends ActionBarActivity {
 
 		@Override
 		public void onMyMoneyChanged(ClientExchange exchange) {
-		}
-
-		@Override
-		public void onConnLost(ClientExchange exchange) {
 		}
 
 		@Override

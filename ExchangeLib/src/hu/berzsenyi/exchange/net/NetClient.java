@@ -38,6 +38,7 @@ public class NetClient {
 		public void run() {
 			try {
 				socket = new Socket();
+				socket.setSoTimeout(TIMEOUT);
 				socket.connect(serverAddr);
 				oin = new ObjectInputStream(socket.getInputStream());
 				oout = new ObjectOutputStream(socket.getOutputStream());
@@ -52,6 +53,7 @@ public class NetClient {
 			}
 		}
 	}
+	private static final int TIMEOUT = 3000;
 	
 	private Socket socket = null;
 	private SocketAddress serverAddr = null;
