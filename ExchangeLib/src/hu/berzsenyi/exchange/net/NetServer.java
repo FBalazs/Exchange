@@ -2,6 +2,7 @@ package hu.berzsenyi.exchange.net;
 
 import hu.berzsenyi.exchange.net.msg.Msg;
 
+import java.io.EOFException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
@@ -23,11 +24,12 @@ public class NetServer {
 			public void run() {
 				while(connected)
 					try {
-						if(0 < oin.available()) {
-							Msg msg = (Msg)oin.readObject();
-							for(INetServerListener listener : listeners)
-								listener.onObjectReceived(NetServer.this, NetServerClient.this, msg);
-						}
+						Msg msg = (Msg)oin.readObject();
+						System.out.println("Received msg: "+msg);
+						for(INetServerListener listener : listeners)
+							listener.onObjectReceived(NetServer.this, NetServerClient.this, msg);
+					} catch(EOFException e) {
+						
 					} catch(Exception e) {
 						e.printStackTrace();
 						close(e);
@@ -47,6 +49,7 @@ public class NetServer {
 				this.socket = socket;
 				id = socket.getInetAddress().toString()+":"+socket.getPort();
 				oout = new ObjectOutputStream(socket.getOutputStream());
+				oout.flush();
 				oin = new ObjectInputStream(socket.getInputStream());
 				new ThreadReceive().start();
 			} catch(Exception e) {
@@ -55,15 +58,16 @@ public class NetServer {
 			}
 		}
 		
-		public boolean isConnected() {
+		public synchronized boolean isConnected() {
 			return connected;
 		}
 		
-		public String getId() {
+		public synchronized String getId() {
 			return id;
 		}
 		
-		public void sendMsg(Msg msg) {
+		public synchronized void sendMsg(Msg msg) {
+			System.out.println("Sending msg: "+msg);
 			try {
 				oout.writeObject(msg);
 				oout.flush();
@@ -73,11 +77,11 @@ public class NetServer {
 			}
 		}
 		
-		public void close() {
+		public synchronized void close() {
 			close(null);
 		}
 		
-		private void close(Exception e) {
+		private synchronized void close(Exception e) {
 			if(!connected)
 				return;
 			if(oin != null)
@@ -151,27 +155,27 @@ public class NetServer {
 	private boolean opened = false, opening = false;
 	private Vector<INetServerListener> listeners = new Vector<>();
 	
-	public boolean isOpened() {
+	public synchronized boolean isOpened() {
 		return opened;
 	}
 	
-	public boolean isOpening() {
+	public synchronized boolean isOpening() {
 		return opening;
 	}
 	
-	public int getPort() {
+	public synchronized int getPort() {
 		return this.port;
 	}
 	
-	public void addListener(INetServerListener listener) {
+	public synchronized void addListener(INetServerListener listener) {
 		listeners.add(listener);
 	}
 	
-	public void removeListener(INetServerListener listener) {
+	public synchronized void removeListener(INetServerListener listener) {
 		listeners.remove(listener);
 	}
 	
-	public void open(int port) {
+	public synchronized void open(int port) {
 		if(opened || opening)
 			close(new Exception("Network line is already opened!"));
 		opening = true;
@@ -179,7 +183,7 @@ public class NetServer {
 		new ThreadOpen().start();
 	}
 	
-	public void sendMsgToXY(Msg msg, String id) {
+	public synchronized void sendMsgToXY(Msg msg, String id) {
 		synchronized (clients) {
 			for(int i = 0; i < clients.size(); i++)
 				if(clients.get(i).id.equals(id)) {
@@ -190,7 +194,7 @@ public class NetServer {
 		}
 	}
 	
-	public void sendMsgToAllExceptXY(Msg msg, String id) {
+	public synchronized void sendMsgToAllExceptXY(Msg msg, String id) {
 		synchronized (clients) {
 			for(int i = 0; i < clients.size(); i++)
 				if(!clients.get(i).id.equals(id)) {
@@ -201,7 +205,7 @@ public class NetServer {
 		}
 	}
 	
-	public void sendMsgToAll(Msg msg) {
+	public synchronized void sendMsgToAll(Msg msg) {
 		synchronized (clients) {
 			for(int i = 0; i < clients.size(); i++) {
 				clients.get(i).sendMsg(msg);
@@ -211,7 +215,7 @@ public class NetServer {
 		}
 	}
 	
-	private void close(Exception e) {
+	private synchronized void close(Exception e) {
 		if(!opened && !opening)
 			return;
 		for(NetServerClient client : clients)
@@ -229,7 +233,7 @@ public class NetServer {
 			listener.onClosed(this, e);
 	}
 	
-	public void close() {
+	public synchronized void close() {
 		close(null);
 	}
 }

@@ -2,6 +2,7 @@ package hu.berzsenyi.exchange.net;
 
 import hu.berzsenyi.exchange.net.msg.Msg;
 
+import java.io.EOFException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.InetSocketAddress;
@@ -21,11 +22,12 @@ public class NetClient {
 		public void run() {
 			while(connected)
 				try {
-					if(0 < oin.available()) {
-						Msg msg = (Msg)oin.readObject();
-						for(INetClientListener listener : listeners)
-							listener.onObjectReceived(NetClient.this, msg);
-					}
+					Msg msg = (Msg)oin.readObject();
+					System.out.println("Received msg: "+msg);
+					for(INetClientListener listener : listeners)
+						listener.onObjectReceived(NetClient.this, msg);
+				} catch(EOFException e) {
+					
 				} catch(Exception e) {
 					e.printStackTrace();
 					close(e);
@@ -38,9 +40,10 @@ public class NetClient {
 		public void run() {
 			try {
 				socket = new Socket();
-				socket.connect(serverAddr);
-				oin = new ObjectInputStream(socket.getInputStream());
+				socket.connect(serverAddr, 3000);
 				oout = new ObjectOutputStream(socket.getOutputStream());
+				oout.flush();
+				oin = new ObjectInputStream(socket.getInputStream());
 				connected = true;
 				connecting = false;
 				new ThreadReceive().start();
@@ -60,27 +63,27 @@ public class NetClient {
 	private boolean connected = false, connecting = false;
 	private Vector<INetClientListener> listeners = new Vector<>();
 	
-	public void addListener(INetClientListener listener) {
+	public synchronized void addListener(INetClientListener listener) {
 		listeners.add(listener);
 	}
 	
-	public void removeListener(INetClientListener listener) {
+	public synchronized void removeListener(INetClientListener listener) {
 		listeners.remove(listener);
 	}
 	
-	public boolean isConnected() {
+	public synchronized boolean isConnected() {
 		return connected;
 	}
 	
-	public boolean isConnecting() {
+	public synchronized boolean isConnecting() {
 		return connecting;
 	}
 	
-	public SocketAddress getServerAddr() {
+	public synchronized SocketAddress getServerAddr() {
 		return serverAddr;
 	}
 	
-	public void connect(String host, int port) {
+	public synchronized void connect(String host, int port) {
 		if(connected || connecting)
 			close(new Exception("Network line is already opened!"));
 		connecting = true;
@@ -88,7 +91,8 @@ public class NetClient {
 		new ThreadConnect().start();
 	}
 	
-	public void sendMsg(Msg msg) {
+	public synchronized void sendMsg(Msg msg) {
+		System.out.println("Sending msg: "+msg);
 		try {
 			oout.writeObject(msg);
 			oout.flush();
@@ -98,7 +102,7 @@ public class NetClient {
 		}
 	}
 	
-	private void close(Exception e) {
+	private synchronized void close(Exception e) {
 		if(!connected && !connecting)
 			return;
 		if(oin != null)
@@ -127,7 +131,7 @@ public class NetClient {
 			listener.onClosed(this, e);
 	}
 	
-	public void close() {
+	public synchronized void close() {
 		close(null);
 	}
 }

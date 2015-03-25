@@ -18,7 +18,7 @@ import android.widget.TextView;
 
 public class ConnectActivity extends ActionBarActivity {
 
-	private static final String DEFAULT_IP = "192.168.0.26",
+	private static final String DEFAULT_IP = "192.168.0.12",
 			DEFAULT_PORT = "8080";
 
 	private TextView mName, mPassword, mIp, mPort;
@@ -46,7 +46,7 @@ public class ConnectActivity extends ActionBarActivity {
 
 		@Override
 		public void onConnRefused(ClientExchange exchange) {
-			mClient.removeListener(this);
+			//mClient.removeListener(this); - nope
 			runOnUiThread(new Runnable() {
 
 				@Override
@@ -108,6 +108,18 @@ public class ConnectActivity extends ActionBarActivity {
 
 		@Override
 		public void onConnLost(ClientExchange exchange) {
+			//mClient.removeListener(this); - nope
+			runOnUiThread(new Runnable() {
+
+				@Override
+				public void run() {
+					mDialog.dismiss();
+					new AlertDialog.Builder(ConnectActivity.this)
+							.setMessage(R.string.could_not_connect)
+							.setPositiveButton(R.string.ok, null).create()
+							.show();
+				}
+			});
 		}
 
 		@Override
@@ -155,8 +167,15 @@ public class ConnectActivity extends ActionBarActivity {
 				connect();
 			}
 		});
-
+		
+		System.out.println("adding listener");
 		mClient.addListener(mListener);
+	}
+	
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		mClient.close();
 	}
 
 	private void refreshButtonState() {

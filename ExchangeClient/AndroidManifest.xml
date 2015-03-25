@@ -26,10 +26,6 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="old.hu.berzsenyi.exchange.client.ActivityZerothRound"
-            android:configChanges="orientation|screenSize"
-            android:label="@string/app_name" />
-        <activity
             android:name=".ui.MainActivity"
             android:configChanges="orientation|screenSize"
             android:label="@string/app_name" />
