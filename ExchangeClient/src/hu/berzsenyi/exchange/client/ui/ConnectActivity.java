@@ -117,6 +117,10 @@ public class ConnectActivity extends ActionBarActivity {
 		@Override
 		public void onBuyAccepted(ClientExchange exchange) {
 		}
+
+		@Override
+		public void onBuyEnd(ClientExchange exchange) {
+		}
 	};
 
 	@Override
@@ -151,7 +155,7 @@ public class ConnectActivity extends ActionBarActivity {
 				connect();
 			}
 		});
-		
+
 		mClient.addListener(mListener);
 	}
 

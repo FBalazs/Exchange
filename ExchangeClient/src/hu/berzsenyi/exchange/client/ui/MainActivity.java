@@ -1,6 +1,8 @@
 package hu.berzsenyi.exchange.client.ui;
 
 import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Formatter;
 
@@ -8,6 +10,7 @@ import com.example.android.common.view.SlidingTabLayout;
 
 import hu.berzsenyi.exchange.client.R;
 import hu.berzsenyi.exchange.client.game.ClientExchange;
+import hu.berzsenyi.exchange.game.Offer;
 import hu.berzsenyi.exchange.game.Stock;
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
@@ -22,11 +25,16 @@ import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 public class MainActivity extends ActionBarActivity {
@@ -46,7 +54,7 @@ public class MainActivity extends ActionBarActivity {
 
 	private ClientExchange mClient = ClientExchange.INSTANCE;
 	private NewsAdapter mNewsAdapter;
-	private OutgoingOfferAdapter mOutgoingOfferAdapter;
+	private OfferAdapter mOutgoingOfferAdapter, mIncomingOfferAdapter; // TODO
 	private NewOfferStockAdapter mNewOfferStockAdapter;
 	private StockAdapter mStockAdapter;
 	private TextView moneyTextView1, stocksValueTextView1, moneyTextView2,
@@ -97,8 +105,7 @@ public class MainActivity extends ActionBarActivity {
 		Formatter formatter = new Formatter();
 
 		String string = formatter.format(getString(R.string.action_bar_money),
-				DECIMAL_FORMAT.format(mClient.getMoney()))
-				.toString();
+				DECIMAL_FORMAT.format(mClient.getMoney())).toString();
 		formatter.close();
 
 		if (moneyTextView1 != null)
@@ -112,8 +119,7 @@ public class MainActivity extends ActionBarActivity {
 		Formatter formatter = new Formatter();
 		String string = formatter.format(
 				getString(R.string.action_bar_stocks_value),
-				DECIMAL_FORMAT.format(mClient.getOwnTeam()
-						.calculateStocksValue())).toString();
+				DECIMAL_FORMAT.format(mClient.getStocksValue())).toString();
 		formatter.close();
 
 		if (stocksValueTextView1 != null)
@@ -167,7 +173,7 @@ public class MainActivity extends ActionBarActivity {
 
 				ListView offerList = (ListView) view
 						.findViewById(R.id.main_tab_exchange_list);
-				mOutgoingOfferAdapter = new OutgoingOfferAdapter();
+				mOutgoingOfferAdapter = new OfferAdapter(mClient.getOutgoingOffers());
 				offerList.setAdapter(mOutgoingOfferAdapter);
 				offerList.setOnItemClickListener(new OnItemClickListener() {
 
@@ -185,7 +191,7 @@ public class MainActivity extends ActionBarActivity {
 											public void onClick(
 													DialogInterface dialog,
 													int which) {
-												mClient.deleteOffer((MsgOffer) parent
+												mClient.deleteOffer((Offer) parent
 														.getItemAtPosition(position));
 											}
 
@@ -224,11 +230,6 @@ public class MainActivity extends ActionBarActivity {
 		@Override
 		public int getCount() {
 			return mClient.getStocksNumber() + 2;
-		}
-
-		@Override
-		public void notifyDataSetChanged() {
-			super.notifyDataSetChanged();
 		}
 
 		@Override
@@ -328,111 +329,180 @@ public class MainActivity extends ActionBarActivity {
 		}
 	}
 
-	/*
-	 * private class OutgoingOfferAdapter extends BaseAdapter {
-	 * 
-	 * private MsgOffer[] mOffers;
-	 * 
-	 * public OutgoingOfferAdapter() { init(); }
-	 * 
-	 * private void init() { mOffers = mClient.getOutgoingOffers(); }
-	 * 
-	 * @Override public void notifyDataSetChanged() { init();
-	 * super.notifyDataSetChanged(); }
-	 * 
-	 * @Override public int getCount() { return mOffers.length + 1; }
-	 * 
-	 * @Override public int getItemViewType(int position) { return position == 0
-	 * ? 0 : 1; }
-	 * 
-	 * @Override public int getViewTypeCount() { return 2; }
-	 * 
-	 * @Override public MsgOffer getItem(int position) { if (position == 0)
-	 * return null; return mOffers[position - 1]; }
-	 * 
-	 * @Override public long getItemId(int position) { return position - 1; }
-	 * 
-	 * @Override public View getView(int position, View convertView, ViewGroup
-	 * parent) { View view; if (position == 0) { // New offer
-	 * 
-	 * if (convertView != null) view = convertView; else { view =
-	 * getLayoutInflater().inflate(
-	 * R.layout.activity_main_tab_exchange_new_offer_card, parent, false);
-	 * 
-	 * // ================== New offer =================== // The View objects
-	 * final Spinner stocks = (Spinner) view
-	 * .findViewById(R.id.main_tab_exchange_new_offer_stock); final Spinner type
-	 * = (Spinner) view .findViewById(R.id.main_tab_exchange_new_offer_type);
-	 * final TextView price = (TextView) view
-	 * .findViewById(R.id.main_tab_exchange_new_offer_price); final TextView
-	 * amount = (TextView) view
-	 * .findViewById(R.id.main_tab_exchange_new_offer_amount); Button sendButton
-	 * = (Button) view .findViewById(R.id.main_tab_exchange_new_offer_send);
-	 * 
-	 * // Type Spinner type.setAdapter(new
-	 * ArrayAdapter<String>(ActivityMain.this,
-	 * android.R.layout.simple_spinner_dropdown_item, android.R.id.text1,
-	 * getResources().getStringArray(
-	 * R.array.main_tab_exchange_new_offer_type)));
-	 * type.setOnItemSelectedListener(new OnItemSelectedListener() {
-	 * 
-	 * @Override public void onItemSelected(AdapterView<?> parent, View view,
-	 * int position, long id) {
-	 * 
-	 * ((NewOfferStockAdapter) stocks.getAdapter()) .setSell(position ==
-	 * POSITION_OFFER_TYPE_SELL); }
-	 * 
-	 * @Override public void onNothingSelected(AdapterView<?> parent) { } });
-	 * 
-	 * // Stocks Spinner mNewOfferStockAdapter = new
-	 * NewOfferStockAdapter(false); stocks.setAdapter(mNewOfferStockAdapter);
-	 * stocks.setOnItemSelectedListener(new OnItemSelectedListener() {
-	 * 
-	 * @Override public void onItemSelected(AdapterView<?> parent, View view,
-	 * int position, long id) { price.setText(DECIMAL_FORMAT.format(((Stock)
-	 * parent .getAdapter().getItem(position)).value)); amount.setText(1 + "");
-	 * }
-	 * 
-	 * @Override public void onNothingSelected(AdapterView<?> parent) { } });
-	 * 
-	 * // Send Button sendButton.setOnClickListener(new OnClickListener() {
-	 * 
-	 * @Override public void onClick(View v) { try { mClient.sendOffer( (int)
-	 * stocks.getSelectedItemId(), Integer.parseInt(amount.getText()
-	 * .toString()), NumberFormat .getInstance() .parse(price.getText()
-	 * .toString()) .doubleValue(), type.getSelectedItemPosition() ==
-	 * POSITION_OFFER_TYPE_SELL); } catch (NumberFormatException e) {
-	 * e.printStackTrace(); } catch (ParseException e) { e.printStackTrace(); }
-	 * } }); }
-	 * 
-	 * } else { // Outgoing offer
-	 * 
-	 * if (convertView != null) view = convertView; else view =
-	 * getLayoutInflater().inflate( R.layout.activity_main_tab_exchange_card,
-	 * parent, false); MsgOffer offer = getItem(position);
-	 * 
-	 * ((TextView) view.findViewById(R.id.main_tab_exchange_card_type))
-	 * .setText(offer.sell ? R.string.main_tab_exchange_offer_type_sell :
-	 * R.string.main_tab_exchange_offer_type_buy);
-	 * 
-	 * Formatter formatter = new Formatter(); ((TextView)
-	 * view.findViewById(R.id.main_tab_exchange_card_name)) .setText(formatter
-	 * .format(getString(R.string.main_tab_exchange_offer_stock_name),
-	 * mClient.getModel().stocks[offer.stockId].name) .toString());
-	 * formatter.close();
-	 * 
-	 * formatter = new Formatter(); ((TextView) view
-	 * .findViewById(R.id.main_tab_exchange_card_price)) .setText(formatter
-	 * .format(getString(R.string.main_tab_exchange_offer_price),
-	 * DECIMAL_FORMAT.format(offer.price)) .toString()); formatter.close();
-	 * 
-	 * formatter = new Formatter(); ((TextView) view
-	 * .findViewById(R.id.main_tab_exchange_card_amount)) .setText(formatter
-	 * .format(getString(R.string.main_tab_exchange_offer_amount),
-	 * offer.stockAmount).toString()); formatter.close();
-	 * 
-	 * } return view; } }
-	 */
+	private class OfferAdapter extends BaseAdapter {
+
+		private Offer[] mOffers;
+
+		public OfferAdapter(Offer[] offers) {
+			setOffers(offers);
+		}
+
+
+		public void setOffers(Offer[] offers) {
+			if(offers == null)
+				throw new NullPointerException();
+			mOffers = offers;
+			notifyDataSetChanged();
+		}
+		
+		@Override
+		public int getCount() {
+			return mOffers.length + 1;
+		}
+
+		@Override
+		public int getItemViewType(int position) {
+			return position == 0 ? 0 : 1;
+		}
+
+		@Override
+		public int getViewTypeCount() {
+			return 2;
+		}
+
+		@Override
+		public Offer getItem(int position) {
+			if (position == 0)
+				return null;
+			return mOffers[position - 1];
+		}
+
+		@Override
+		public long getItemId(int position) {
+			return position - 1;
+		}
+
+		@Override
+		public View getView(int position, View convertView, ViewGroup parent) {
+			View view;
+			if (position == 0) { // New offer
+
+				if (convertView != null)
+					view = convertView;
+				else {
+					view = getLayoutInflater().inflate(
+							R.layout.activity_main_tab_exchange_new_offer_card,
+							parent, false);
+
+					// ================== New offer ===================
+					// The View objects
+					final Spinner stocks = (Spinner) view
+							.findViewById(R.id.main_tab_exchange_new_offer_stock);
+					final Spinner type = (Spinner) view
+							.findViewById(R.id.main_tab_exchange_new_offer_type);
+					final TextView price = (TextView) view
+							.findViewById(R.id.main_tab_exchange_new_offer_price);
+					final TextView amount = (TextView) view
+							.findViewById(R.id.main_tab_exchange_new_offer_amount);
+					Button sendButton = (Button) view
+							.findViewById(R.id.main_tab_exchange_new_offer_send);
+
+					// Type Spinner
+					type.setAdapter(new ArrayAdapter<String>(MainActivity.this,
+							android.R.layout.simple_spinner_dropdown_item,
+							android.R.id.text1, getResources().getStringArray(
+									R.array.main_tab_exchange_new_offer_type)));
+					type.setOnItemSelectedListener(new OnItemSelectedListener() {
+
+						@Override
+						public void onItemSelected(AdapterView<?> parent,
+								View view, int position, long id) {
+
+							((NewOfferStockAdapter) stocks.getAdapter())
+									.setSell(position == POSITION_OFFER_TYPE_SELL);
+						}
+
+						@Override
+						public void onNothingSelected(AdapterView<?> parent) {
+						}
+					});
+
+					// Stocks Spinner
+					mNewOfferStockAdapter = new NewOfferStockAdapter(false);
+					stocks.setAdapter(mNewOfferStockAdapter);
+					stocks.setOnItemSelectedListener(new OnItemSelectedListener() {
+
+						@Override
+						public void onItemSelected(AdapterView<?> parent,
+								View view, int position, long id) {
+							price.setText(DECIMAL_FORMAT.format(((Stock) parent
+									.getAdapter().getItem(position)).getPrice()));
+							amount.setText(1 + "");
+						}
+
+						@Override
+						public void onNothingSelected(AdapterView<?> parent) {
+						}
+					});
+
+					// Send Button
+					sendButton.setOnClickListener(new OnClickListener() {
+
+						@Override
+						public void onClick(View v) {
+							try {
+								mClient.offer(
+										(int) stocks.getSelectedItemId(),
+										Integer.parseInt(amount.getText()
+												.toString()),
+										NumberFormat
+												.getInstance()
+												.parse(price.getText()
+														.toString())
+												.doubleValue(),
+										type.getSelectedItemPosition() == POSITION_OFFER_TYPE_SELL);
+							} catch (NumberFormatException e) {
+								e.printStackTrace();
+							} catch (ParseException e) {
+								e.printStackTrace();
+							}
+						}
+					});
+				}
+
+			} else { // Outgoing offer
+
+				if (convertView != null)
+					view = convertView;
+				else
+					view = getLayoutInflater().inflate(
+							R.layout.activity_main_tab_exchange_card, parent,
+							false);
+				Offer offer = getItem(position);
+
+				((TextView) view.findViewById(R.id.main_tab_exchange_card_type))
+						.setText(offer.sell ? R.string.main_tab_exchange_offer_type_sell
+								: R.string.main_tab_exchange_offer_type_buy);
+
+				Formatter formatter = new Formatter();
+				((TextView) view.findViewById(R.id.main_tab_exchange_card_name))
+						.setText(formatter
+								.format(getString(R.string.main_tab_exchange_offer_stock_name),
+										mClient.getStockName(offer.stockId))
+								.toString());
+				formatter.close();
+
+				formatter = new Formatter();
+				((TextView) view
+						.findViewById(R.id.main_tab_exchange_card_price))
+						.setText(formatter
+								.format(getString(R.string.main_tab_exchange_offer_price),
+										DECIMAL_FORMAT.format(offer.price))
+								.toString());
+				formatter.close();
+
+				formatter = new Formatter();
+				((TextView) view
+						.findViewById(R.id.main_tab_exchange_card_amount))
+						.setText(formatter
+								.format(getString(R.string.main_tab_exchange_offer_amount),
+										offer.amount).toString());
+				formatter.close();
+
+			}
+			return view;
+		}
+	}
 
 	private class NewsAdapter extends BaseAdapter {
 
