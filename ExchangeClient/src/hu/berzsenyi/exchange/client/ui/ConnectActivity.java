@@ -46,7 +46,6 @@ public class ConnectActivity extends ActionBarActivity {
 
 		@Override
 		public void onConnRefused(ClientExchange exchange) {
-			//mClient.removeListener(this); - nope
 			runOnUiThread(new Runnable() {
 
 				@Override
@@ -62,7 +61,6 @@ public class ConnectActivity extends ActionBarActivity {
 
 		@Override
 		public void onConnAccepted(ClientExchange exchange) {
-			mClient.removeListener(this);
 			runOnUiThread(new Runnable() {
 
 				@Override
@@ -108,7 +106,6 @@ public class ConnectActivity extends ActionBarActivity {
 
 		@Override
 		public void onConnLost(ClientExchange exchange) {
-			//mClient.removeListener(this); - nope
 			runOnUiThread(new Runnable() {
 
 				@Override
@@ -167,9 +164,18 @@ public class ConnectActivity extends ActionBarActivity {
 				connect();
 			}
 		});
-		
-		System.out.println("adding listener");
+	}
+	
+	@Override
+	protected void onStart() {
+		super.onStart();
 		mClient.addListener(mListener);
+	}
+	
+	@Override
+	protected void onStop() {
+		super.onStop();
+		mClient.removeListener(mListener);
 	}
 	
 	@Override

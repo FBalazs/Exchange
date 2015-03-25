@@ -31,7 +31,7 @@ public class NetServer {
 				while (connected)
 					try {
 						Msg msg = (Msg)oin.readObject();
-						System.out.println("Received msg: "+msg);
+						System.out.println(getClass().getName()+": Received msg: "+msg);
 						for(INetServerListener listener : listeners)
 							listener.onObjectReceived(NetServer.this, NetServerClient.this, msg);
 					} catch(EOFException e) {
@@ -74,7 +74,7 @@ public class NetServer {
 		}
 		
 		public synchronized void sendMsg(Msg msg) {
-			System.out.println("Sending msg: "+msg);
+			System.out.println(getClass().getName()+": Sending msg: "+msg);
 			try {
 				oout.writeObject(msg);
 				oout.flush();

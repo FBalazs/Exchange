@@ -23,7 +23,7 @@ public class NetClient {
 			while(connected)
 				try {
 					Msg msg = (Msg)oin.readObject();
-					System.out.println("Received msg: "+msg);
+					System.out.println(getClass().getName()+": Received msg: "+msg);
 					for(INetClientListener listener : listeners)
 						listener.onObjectReceived(NetClient.this, msg);
 				} catch(EOFException e) {
@@ -92,7 +92,7 @@ public class NetClient {
 	}
 	
 	public synchronized void sendMsg(Msg msg) {
-		System.out.println("Sending msg: "+msg);
+		System.out.println(getClass().getName()+": Sending msg: "+msg);
 		try {
 			oout.writeObject(msg);
 			oout.flush();
