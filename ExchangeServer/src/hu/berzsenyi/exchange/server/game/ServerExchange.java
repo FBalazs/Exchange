@@ -16,11 +16,8 @@ public class ServerExchange extends Exchange implements
 		NetServer.INetServerListener, IOfferCallback {
 	public static interface IServerExchangeListener {
 		public void onOpened(ServerExchange exchange);
-
 		public void onEvent(ServerExchange exchange);
-
 		public void onMsgReceived(ServerExchange exchange);
-
 		public void onClosed(ServerExchange exchange);
 	}
 
@@ -301,6 +298,9 @@ public class ServerExchange extends Exchange implements
 				// TODO error, wrong gamemode
 			}
 		}
+		
+		for(IServerExchangeListener listener : listeners)
+			listener.onMsgReceived(this);
 	}
 
 	@Override

@@ -63,10 +63,12 @@ public class ClientExchange extends Exchange implements
 	}
 
 	public synchronized void addListener(IClientExchangeListener listener) {
+		System.out.println(getClass().getName()+": Adding listener: "+listener);
 		listeners.add(listener);
 	}
 
 	public synchronized void removeListener(IClientExchangeListener listener) {
+		System.out.println(getClass().getName()+": Removing listener: "+listener);
 		listeners.remove(listener);
 	}
 
@@ -266,7 +268,8 @@ public class ClientExchange extends Exchange implements
 	@Override
 	public synchronized void onClosed(NetClient net, Exception e) {
 		// TODO switch based on exception
-		for (IClientExchangeListener listener : listeners)
-			listener.onConnLost(this);
+		if(e != null)
+			for (IClientExchangeListener listener : listeners)
+				listener.onConnLost(this);
 	}
 }
