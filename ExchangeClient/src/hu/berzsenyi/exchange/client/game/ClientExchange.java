@@ -40,6 +40,8 @@ public class ClientExchange extends Exchange implements
 		public void onTradeDirect(ClientExchange exchange, String partner, int stockId, int amount, double price, boolean sold);
 		
 		public void onTradeIndirect(ClientExchange exchange, int stockId, int amount, double price, boolean sold);
+		
+		public void onEventsChanged(ClientExchange exchange);
 	}
 
 	public static final ClientExchange INSTANCE = new ClientExchange();
@@ -53,6 +55,7 @@ public class ClientExchange extends Exchange implements
 	private Stock[] stocks;
 	private String[] playerNames;
 	private Vector<Offer> incomingOffers, myOffers;
+	private String[] events;
 
 	private boolean sendingOffer;
 
@@ -114,7 +117,7 @@ public class ClientExchange extends Exchange implements
 	}
 	
 	public synchronized String[] getEvents() {
-		return new String[0]; // TODO events
+		return events;
 	}
 
 	public synchronized Offer[] getOutgoingOffers() {
@@ -205,6 +208,10 @@ public class ClientExchange extends Exchange implements
 				listener.onBuyEnd(this);
 		} else if (msg instanceof MsgServerPlayers) {
 			playerNames = ((MsgServerPlayers) msg).playerNames;
+		} else if(msg instanceof MsgServerEvents) {
+			events = ((MsgServerEvents) msg).events;
+			for(IClientExchangeListener listener : listeners)
+				listener.onEventsChanged(this);
 		} else if (msg instanceof MsgServerStockUpdate) {
 			MsgServerStockUpdate msgUpdate = (MsgServerStockUpdate) msg;
 			for (int i = 0; i < stocks.length; i++)

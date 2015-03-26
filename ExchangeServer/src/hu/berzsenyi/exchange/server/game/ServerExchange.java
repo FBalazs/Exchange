@@ -118,7 +118,10 @@ public class ServerExchange extends Exchange implements
 		}
 		currentEvents.add(events[shuffledEvents[(nextEventNumber++)%events.length]]);
 		
-		// TODO send data from events
+		String[] eventDescs = new String[currentEvents.size()];
+		for(int i = 0; i < currentEvents.size(); i++)
+			eventDescs[i] = currentEvents.get(i).getDescription();
+		net.sendMsgToAll(new MsgServerEvents(eventDescs));
 		net.sendMsgToAll(new MsgServerStockUpdate(stocks));
 		for (IServerExchangeListener listener : listeners)
 			listener.onEvent(this);
