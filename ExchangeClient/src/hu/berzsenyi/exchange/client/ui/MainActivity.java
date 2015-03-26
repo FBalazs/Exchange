@@ -15,6 +15,7 @@ import hu.berzsenyi.exchange.game.Offer;
 import hu.berzsenyi.exchange.game.Stock;
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
@@ -63,8 +64,10 @@ public class MainActivity extends ActionBarActivity {
 	private TextView moneyTextView1, stocksValueTextView1, moneyTextView2,
 			stocksValueTextView2;
 
+	private ProgressDialog mSendingOfferDialog;
+
 	private IClientExchangeListener mListener = new IClientExchangeListener() {
-		
+
 		@Override
 		public void onTradeDirect(ClientExchange exchange, String partner,
 				int stockId, int amount, double price, boolean sold) {
@@ -102,41 +105,6 @@ public class MainActivity extends ActionBarActivity {
 				}
 			});
 		}
-		
-//		@Override
-//		public void onTrade(ClientExchange exchange) {
-//
-//			final boolean sell = true; // TODO
-//			final int amount = 100, stockId = 0;
-//			final double price = 101.02;
-//
-//			runOnUiThread(new Runnable() {
-//				@Override
-//				public void run() {
-//					if (sell)
-//						Toast.makeText(
-//								getApplicationContext(),
-//								getString(R.string.toast_trade_sell_0)
-//										+ amount
-//										+ getString(R.string.toast_trade_sell_1)
-//										+ mClient.getStockName(stockId)
-//										+ getString(R.string.toast_trade_sell_2)
-//										+ price
-//										+ getString(R.string.toast_trade_sell_3),
-//								Toast.LENGTH_LONG).show();
-//					else
-//						Toast.makeText(
-//								getApplicationContext(),
-//								getString(R.string.toast_trade_buy_0) + amount
-//										+ getString(R.string.toast_trade_buy_1)
-//										+ mClient.getStockName(stockId)
-//										+ getString(R.string.toast_trade_buy_2)
-//										+ price
-//										+ getString(R.string.toast_trade_buy_3),
-//								Toast.LENGTH_LONG).show();
-//				}
-//			});
-//		}
 
 		@Override
 		public void onStocksChanged(ClientExchange exchange) {
@@ -167,14 +135,26 @@ public class MainActivity extends ActionBarActivity {
 
 		@Override
 		public void onSentOfferRefused(ClientExchange exchange) {
-			// TODO Auto-generated method stub
-
+			runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					mSendingOfferDialog.dismiss();
+					new AlertDialog.Builder(MainActivity.this)
+							.setMessage(R.string.not_enough_money_or_stock)
+							.setPositiveButton(R.string.ok, null).create()
+							.show();
+				}
+			});
 		}
 
 		@Override
 		public void onSentOfferAccepted(ClientExchange exchange) {
-			// TODO Auto-generated method stub
-
+			runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					mSendingOfferDialog.dismiss();
+				}
+			});
 		}
 
 		@Override
@@ -210,44 +190,55 @@ public class MainActivity extends ActionBarActivity {
 
 		@Override
 		public void onConnRefused(ClientExchange exchange) {
-			// TODO Auto-generated method stub
-
 		}
 
 		@Override
 		public void onConnLost(ClientExchange exchange) {
-			// TODO Auto-generated method stub
+			runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					new AlertDialog.Builder(MainActivity.this)
+							.setMessage(R.string.connection_lost)
+							.setPositiveButton(R.string.ok,
+									new DialogInterface.OnClickListener() {
 
+										@Override
+										public void onClick(
+												DialogInterface dialog,
+												int which) {
+											finish();
+										}
+
+									}).create().show();
+				}
+			});
 		}
 
 		@Override
 		public void onConnAccepted(ClientExchange exchange) {
-			// TODO Auto-generated method stub
-
 		}
 
 		@Override
 		public void onBuyRefused(ClientExchange exchange) {
-			// TODO Auto-generated method stub
-
 		}
 
 		@Override
 		public void onBuyEnd(ClientExchange exchange) {
-			// TODO Auto-generated method stub
-
 		}
 
 		@Override
 		public void onBuyAccepted(ClientExchange exchange) {
-			// TODO Auto-generated method stub
-
 		}
 
 		@Override
 		public void onEventsChanged(ClientExchange exchange) {
-			// TODO Auto-generated method stub
-			
+			runOnUiThread(new Runnable() {
+
+				@Override
+				public void run() {
+					mNewsAdapter.notifyDataSetChanged();
+				}
+			});
 		}
 	};
 
@@ -283,15 +274,14 @@ public class MainActivity extends ActionBarActivity {
 				R.color.tabIndicator));
 		setElevation(slidingTabLayout,
 				getResources().getDimension(R.dimen.actionBar_elevation));
-		
-		mClient.addListener(mListener);
-		if(mClient.isBuyRequested()) {
 
-			startActivity(new Intent(MainActivity.this,
-					StockBuyActivity.class));
+		mClient.addListener(mListener);
+		if (mClient.isBuyRequested()) {
+
+			startActivity(new Intent(MainActivity.this, StockBuyActivity.class));
 		}
 	}
-	
+
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
@@ -546,7 +536,13 @@ public class MainActivity extends ActionBarActivity {
 			if (offers == null)
 				throw new NullPointerException();
 			mOffers = offers;
-			notifyDataSetChanged();
+			runOnUiThread(new Runnable() {
+
+				@Override
+				public void run() {
+					notifyDataSetChanged();
+				}
+			});
 		}
 
 		@Override
@@ -646,6 +642,10 @@ public class MainActivity extends ActionBarActivity {
 						@Override
 						public void onClick(View v) {
 							try {
+								mSendingOfferDialog = ProgressDialog.show(
+										MainActivity.this, null,
+										getString(R.string.sending_offer),
+										true, false);
 								mClient.offer(
 										(int) stocks.getSelectedItemId(),
 										Integer.parseInt(amount.getText()

@@ -32,7 +32,6 @@
     <string name="price_must_be_positive">Pozitív árat adj meg!</string>
     <string name="game_has_started">A játék már korábban elkezdődött :(</string>
     <string name="name_duplicate">Már van egy ilyen nevű játékos!</string>
-    <string name="not_enough_money_or_stock">Nincs elég pénz vagy részvény a csere végrehajtásához</string>
     <string name="exit_question">Biztosan kilépsz?</string>
     <string name="exit_message">Később nem tudsz visszajönni!</string>
     <string name="offer_toast_buy1">Megvettél</string>
@@ -79,6 +78,8 @@
     <string name="main_tab_exchange_new_offer_price">Ár:</string>
     <string name="main_tab_exchange_new_offer_amount">Mennyiség:</string>
     <string name="main_tab_exchange_new_offer_send">Küldés</string>
+    <string name="not_enough_money_or_stock">Nincs elég pénz vagy részvény a csere végrehajtásához</string>
+    <string name="sending_offer">Ajánlat küldése</string>
 
     <string-array name="main_tab_exchange_new_offer_type">
         <item>Veszek</item>
