@@ -64,18 +64,21 @@ public class MainActivity extends ActionBarActivity {
 			stocksValueTextView2;
 
 	private IClientExchangeListener mListener = new IClientExchangeListener() {
+		
+		@Override
+		public void onTradeDirect(ClientExchange exchange, String partner,
+				int stockId, int amount, double price, boolean sold) {
+			// TODO write out partner's name?
+			onTradeIndirect(exchange, stockId, amount, price, sold);
+		}
 
 		@Override
-		public void onTrade(ClientExchange exchange) {
-
-			final boolean sell = true; // TODO
-			final int amount = 100, stockId = 0;
-			final double price = 101.02;
-
+		public void onTradeIndirect(ClientExchange exchange, final int stockId,
+				final int amount, final double price, final boolean sold) {
 			runOnUiThread(new Runnable() {
 				@Override
 				public void run() {
-					if (sell)
+					if (sold)
 						Toast.makeText(
 								getApplicationContext(),
 								getString(R.string.toast_trade_sell_0)
@@ -99,6 +102,41 @@ public class MainActivity extends ActionBarActivity {
 				}
 			});
 		}
+		
+//		@Override
+//		public void onTrade(ClientExchange exchange) {
+//
+//			final boolean sell = true; // TODO
+//			final int amount = 100, stockId = 0;
+//			final double price = 101.02;
+//
+//			runOnUiThread(new Runnable() {
+//				@Override
+//				public void run() {
+//					if (sell)
+//						Toast.makeText(
+//								getApplicationContext(),
+//								getString(R.string.toast_trade_sell_0)
+//										+ amount
+//										+ getString(R.string.toast_trade_sell_1)
+//										+ mClient.getStockName(stockId)
+//										+ getString(R.string.toast_trade_sell_2)
+//										+ price
+//										+ getString(R.string.toast_trade_sell_3),
+//								Toast.LENGTH_LONG).show();
+//					else
+//						Toast.makeText(
+//								getApplicationContext(),
+//								getString(R.string.toast_trade_buy_0) + amount
+//										+ getString(R.string.toast_trade_buy_1)
+//										+ mClient.getStockName(stockId)
+//										+ getString(R.string.toast_trade_buy_2)
+//										+ price
+//										+ getString(R.string.toast_trade_buy_3),
+//								Toast.LENGTH_LONG).show();
+//				}
+//			});
+//		}
 
 		@Override
 		public void onStocksChanged(ClientExchange exchange) {

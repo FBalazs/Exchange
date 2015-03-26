@@ -37,7 +37,9 @@ public class ClientExchange extends Exchange implements
 
 		public void onOfferCame(ClientExchange exchange);
 
-		public void onTrade(ClientExchange exchange);
+		public void onTradeDirect(ClientExchange exchange, String partner, int stockId, int amount, double price, boolean sold);
+		
+		public void onTradeIndirect(ClientExchange exchange, int stockId, int amount, double price, boolean sold);
 	}
 
 	public static final ClientExchange INSTANCE = new ClientExchange();
@@ -239,7 +241,8 @@ public class ClientExchange extends Exchange implements
 					: -msgTrade.amount * msgTrade.price;
 			myStocks[msgTrade.stockId] += msgTrade.sell ? -msgTrade.amount
 					: msgTrade.amount;
-			// TODO on direct trade
+			for(IClientExchangeListener listener : listeners)
+				listener.onTradeDirect(this, msgTrade.partner, msgTrade.stockId, msgTrade.amount, msgTrade.price, msgTrade.sell);
 			for (IClientExchangeListener listener : listeners)
 				listener.onMyMoneyChanged(this);
 			for (IClientExchangeListener listener : listeners)
@@ -250,7 +253,8 @@ public class ClientExchange extends Exchange implements
 					: -msgTrade.amount * msgTrade.price;
 			myStocks[msgTrade.stockId] += msgTrade.sell ? -msgTrade.amount
 					: msgTrade.amount;
-			// TODO on indirect trade
+			for(IClientExchangeListener listener : listeners)
+				listener.onTradeIndirect(this, msgTrade.stockId, msgTrade.amount, msgTrade.price, msgTrade.sell);
 			for (IClientExchangeListener listener : listeners)
 				listener.onMyMoneyChanged(this);
 			for (IClientExchangeListener listener : listeners)

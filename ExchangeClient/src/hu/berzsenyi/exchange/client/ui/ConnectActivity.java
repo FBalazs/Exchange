@@ -73,10 +73,6 @@ public class ConnectActivity extends ActionBarActivity {
 		}
 
 		@Override
-		public void onTrade(ClientExchange exchange) {
-		}
-
-		@Override
 		public void onStocksChanged(ClientExchange exchange) {
 		}
 
@@ -129,6 +125,18 @@ public class ConnectActivity extends ActionBarActivity {
 
 		@Override
 		public void onBuyEnd(ClientExchange exchange) {
+		}
+
+		@Override
+		public void onTradeDirect(ClientExchange exchange, String partner,
+				int stockId, int amount, double price, boolean sold) {
+			
+		}
+
+		@Override
+		public void onTradeIndirect(ClientExchange exchange, int stockId,
+				int amount, double price, boolean sold) {
+			
 		}
 	};
 
