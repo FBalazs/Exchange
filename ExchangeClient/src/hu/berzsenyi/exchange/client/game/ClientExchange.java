@@ -142,6 +142,11 @@ public class ClientExchange extends Exchange implements
 		sendingOffer = false;
 		net.connect(host, port);
 	}
+	
+	public synchronized void doBuy(int[] stocks) {
+		myStocks = stocks;
+		net.sendMsg(new MsgClientBuy(stocks));
+	}
 
 	public synchronized void offer(int stockId, int amount, double price,
 			boolean sell) {
