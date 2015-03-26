@@ -283,6 +283,19 @@ public class MainActivity extends ActionBarActivity {
 				R.color.tabIndicator));
 		setElevation(slidingTabLayout,
 				getResources().getDimension(R.dimen.actionBar_elevation));
+		
+		mClient.addListener(mListener);
+		if(mClient.isBuyRequested()) {
+
+			startActivity(new Intent(MainActivity.this,
+					StockBuyActivity.class));
+		}
+	}
+	
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		mClient.removeListener(mListener);
 	}
 
 	@TargetApi(Build.VERSION_CODES.LOLLIPOP)

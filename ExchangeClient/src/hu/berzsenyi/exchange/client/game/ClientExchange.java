@@ -37,10 +37,12 @@ public class ClientExchange extends Exchange implements
 
 		public void onOfferCame(ClientExchange exchange);
 
-		public void onTradeDirect(ClientExchange exchange, String partner, int stockId, int amount, double price, boolean sold);
-		
-		public void onTradeIndirect(ClientExchange exchange, int stockId, int amount, double price, boolean sold);
-		
+		public void onTradeDirect(ClientExchange exchange, String partner,
+				int stockId, int amount, double price, boolean sold);
+
+		public void onTradeIndirect(ClientExchange exchange, int stockId,
+				int amount, double price, boolean sold);
+
 		public void onEventsChanged(ClientExchange exchange);
 	}
 
@@ -55,9 +57,10 @@ public class ClientExchange extends Exchange implements
 	private Stock[] stocks;
 	private String[] playerNames;
 	private Vector<Offer> incomingOffers, myOffers;
-	private String[] events;
+	private String[] events = new String[0];
 
 	private boolean sendingOffer;
+	private boolean buyRequested;
 
 	private Vector<IClientExchangeListener> listeners;
 
@@ -68,12 +71,14 @@ public class ClientExchange extends Exchange implements
 	}
 
 	public synchronized void addListener(IClientExchangeListener listener) {
-		System.out.println(getClass().getName()+": Adding listener: "+listener);
+		System.out.println(getClass().getName() + ": Adding listener: "
+				+ listener);
 		listeners.add(listener);
 	}
 
 	public synchronized void removeListener(IClientExchangeListener listener) {
-		System.out.println(getClass().getName()+": Removing listener: "+listener);
+		System.out.println(getClass().getName() + ": Removing listener: "
+				+ listener);
 		listeners.remove(listener);
 	}
 
@@ -96,14 +101,14 @@ public class ClientExchange extends Exchange implements
 	public synchronized int getStockAmount(int stockId) {
 		return myStocks[stockId];
 	}
-	
+
 	public synchronized double getStocksValue() {
 		double ret = 0;
-		for(int i = 0; i < stocks.length; i++)
-			ret += stocks[i].getPrice()*myStocks[i];
+		for (int i = 0; i < stocks.length; i++)
+			ret += stocks[i].getPrice() * myStocks[i];
 		return ret;
 	}
-	
+
 	public synchronized String getStockName(int stockId) {
 		return stocks[stockId].getName();
 	}
@@ -115,7 +120,7 @@ public class ClientExchange extends Exchange implements
 	public synchronized Stock getStock(int stockId) {
 		return stocks[stockId];
 	}
-	
+
 	public synchronized String[] getEvents() {
 		return events;
 	}
@@ -126,6 +131,10 @@ public class ClientExchange extends Exchange implements
 
 	public synchronized Offer[] getIncomingOffers() {
 		return myOffers.toArray(new Offer[myOffers.size()]);
+	}
+	
+	public synchronized boolean isBuyRequested() {
+		return buyRequested;
 	}
 
 	public synchronized void connect(String host, int port, String nickName,
@@ -140,9 +149,10 @@ public class ClientExchange extends Exchange implements
 		incomingOffers = new Vector<Offer>();
 		myOffers = new Vector<Offer>();
 		sendingOffer = false;
+		buyRequested = false;
 		net.connect(host, port);
 	}
-	
+
 	public synchronized void doBuy(int[] stocks) {
 		myStocks = stocks;
 		net.sendMsg(new MsgClientBuy(stocks));
@@ -164,12 +174,14 @@ public class ClientExchange extends Exchange implements
 		net.sendMsg(new MsgClientOfferDirect(stockId, amount, price, sell,
 				playerNames[playerId]));
 	}
-	
+
 	public synchronized void deleteOffer(Offer offer) {
-		if(gameMode == GAMEMODE_DIRECT)
-			net.sendMsg(new MsgClientOfferDeleteDirect(offer.stockId, offer.amount, offer.price, offer.sell, offer.sender));
+		if (gameMode == GAMEMODE_DIRECT)
+			net.sendMsg(new MsgClientOfferDeleteDirect(offer.stockId,
+					offer.amount, offer.price, offer.sell, offer.sender));
 		else
-			net.sendMsg(new MsgClientOfferIndirect(offer.stockId, offer.amount, offer.price, offer.sell));
+			net.sendMsg(new MsgClientOfferIndirect(offer.stockId, offer.amount,
+					offer.price, offer.sell));
 	}
 
 	public synchronized void close() {
@@ -200,6 +212,7 @@ public class ClientExchange extends Exchange implements
 			for (IClientExchangeListener listener : listeners)
 				listener.onConnRefused(this);
 		} else if (msg instanceof MsgServerBuyRequest) {
+			buyRequested = true;
 			for (IClientExchangeListener listener : listeners)
 				listener.onShowBuy(this);
 		} else if (msg instanceof MsgServerBuyAccept) {
@@ -209,6 +222,7 @@ public class ClientExchange extends Exchange implements
 			for (IClientExchangeListener listener : listeners)
 				listener.onBuyRefused(this);
 		} else if (msg instanceof MsgServerBuyEnd) {
+			buyRequested = false;
 			MsgServerBuyEnd msgEnd = (MsgServerBuyEnd) msg;
 			for (int i = 0; i < stocks.length; i++)
 				stocks[i].setIngame(msgEnd.stocksIngame[i]);
@@ -216,9 +230,11 @@ public class ClientExchange extends Exchange implements
 				listener.onBuyEnd(this);
 		} else if (msg instanceof MsgServerPlayers) {
 			playerNames = ((MsgServerPlayers) msg).playerNames;
-		} else if(msg instanceof MsgServerEvents) {
+		} else if (msg instanceof MsgServerEvents) {
 			events = ((MsgServerEvents) msg).events;
-			for(IClientExchangeListener listener : listeners)
+			if (events == null)
+				events = new String[0];
+			for (IClientExchangeListener listener : listeners)
 				listener.onEventsChanged(this);
 		} else if (msg instanceof MsgServerStockUpdate) {
 			MsgServerStockUpdate msgUpdate = (MsgServerStockUpdate) msg;
@@ -256,8 +272,10 @@ public class ClientExchange extends Exchange implements
 					: -msgTrade.amount * msgTrade.price;
 			myStocks[msgTrade.stockId] += msgTrade.sell ? -msgTrade.amount
 					: msgTrade.amount;
-			for(IClientExchangeListener listener : listeners)
-				listener.onTradeDirect(this, msgTrade.partner, msgTrade.stockId, msgTrade.amount, msgTrade.price, msgTrade.sell);
+			for (IClientExchangeListener listener : listeners)
+				listener.onTradeDirect(this, msgTrade.partner,
+						msgTrade.stockId, msgTrade.amount, msgTrade.price,
+						msgTrade.sell);
 			for (IClientExchangeListener listener : listeners)
 				listener.onMyMoneyChanged(this);
 			for (IClientExchangeListener listener : listeners)
@@ -268,8 +286,9 @@ public class ClientExchange extends Exchange implements
 					: -msgTrade.amount * msgTrade.price;
 			myStocks[msgTrade.stockId] += msgTrade.sell ? -msgTrade.amount
 					: msgTrade.amount;
-			for(IClientExchangeListener listener : listeners)
-				listener.onTradeIndirect(this, msgTrade.stockId, msgTrade.amount, msgTrade.price, msgTrade.sell);
+			for (IClientExchangeListener listener : listeners)
+				listener.onTradeIndirect(this, msgTrade.stockId,
+						msgTrade.amount, msgTrade.price, msgTrade.sell);
 			for (IClientExchangeListener listener : listeners)
 				listener.onMyMoneyChanged(this);
 			for (IClientExchangeListener listener : listeners)
@@ -287,17 +306,17 @@ public class ClientExchange extends Exchange implements
 	@Override
 	public synchronized void onClosed(NetClient net, Exception e) {
 		// TODO switch based on exception
-		if(e != null)
+		if (e != null)
 			for (IClientExchangeListener listener : listeners)
 				listener.onConnLost(this);
 	}
 
 	public synchronized double calculateMoneyAfterPurchase(int[] amounts) {
-		if(amounts.length != getStocksNumber())
+		if (amounts.length != getStocksNumber())
 			throw new IllegalArgumentException("Bad length");
 		double out = getMoney();
-		for(int i=0;i<getStocksNumber();i++)
-			out -= amounts[i]*getStockPrice(i);
+		for (int i = 0; i < getStocksNumber(); i++)
+			out -= amounts[i] * getStockPrice(i);
 		return out;
 	}
 }

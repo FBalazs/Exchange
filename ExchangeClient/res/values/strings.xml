@@ -50,18 +50,22 @@
     <string name="tabOffer_for_sale">Eladó</string>
     <string name="tabOffer_to_buy">Vétel</string>
     <string name="offer_stock_duplicate">Egy részvény – egy ajánlat</string>
+
     <!-- ActivityMain -->
     <string name="connection_lost">Megszakadt a kapcsolat :(</string>
+
     <!-- ActivityMain tabs -->
     <string name="main_tab_label_newsfeed">Hírfolyam</string>
     <string name="main_tab_label_stocks">Részvények</string>
     <string name="main_tab_label_exchange">Kereskedelem</string>
     <string name="main_tab_label_stats">Statisztika</string>
+
     <!-- ActivityMain Stocks tab -->
     <string name="main_tab_stocks_currency_start">Árfolyam: %s$ (</string>
     <string name="main_tab_stocks_currency_end">)</string>
     <string name="main_tab_stocks_circulated">Forgalomban: %s db</string>
     <string name="main_tab_stocks_possessed">Saját részvényeim: %s db</string>
+
     <!-- ActivityMain Exchange tab -->
     <string name="main_tab_exchange_offer_type_sell">Eladok</string>
     <string name="main_tab_exchange_offer_type_buy">Veszek</string>
@@ -69,6 +73,7 @@
     <string name="main_tab_exchange_offer_price">Ár: %s$</string>
     <string name="main_tab_exchange_offer_amount">Mennyiség: %d db</string>
     <string name="main_tab_exchange_cancel_offer">Visszavonod az ajánlatot?</string>
+
     <!-- ActivityMain Exchange tab new offer -->
     <string name="main_tab_exchange_new_offer_stock_name">Részvény:</string>
     <string name="main_tab_exchange_new_offer_price">Ár:</string>
@@ -79,17 +84,22 @@
         <item>Veszek</item>
         <item>Eladok</item>
     </string-array>
+
     <!-- ActionBar -->
     <string name="action_bar_money">Pénz: %s$</string>
     <string name="action_bar_stocks_value">Részvények: %s$</string>
     <string name="hintPassword">Jelszó</string>
     <string name="toast_trade_sell_0">Eladtál </string>
-	<string name="toast_trade_sell_1"> db </string>
-	<string name="toast_trade_sell_2"> részvényt, darabját </string>
-	<string name="toast_trade_sell_3">-ért.</string>
-	<string name="toast_trade_buy_0">Vettél </string>
-	<string name="toast_trade_buy_1"> db </string>
-	<string name="toast_trade_buy_2"> részvényt, darabját </string>
-	<string name="toast_trade_buy_3">-ért.</string>
-	<string name="error_connection_refused">A kapcsolat megtagadva! Biztosan jól adtad meg a felhasználóneved és jelszavad?</string>
+    <string name="toast_trade_sell_1"> db </string>
+    <string name="toast_trade_sell_2"> részvényt, darabját </string>
+    <string name="toast_trade_sell_3">-ért.</string>
+    <string name="toast_trade_buy_0">Vettél </string>
+    <string name="toast_trade_buy_1"> db </string>
+    <string name="toast_trade_buy_2"> részvényt, darabját </string>
+    <string name="toast_trade_buy_3">-ért.</string>
+    <string name="error_connection_refused">A kapcsolat megtagadva! Biztosan jól adtad meg a felhasználóneved és jelszavad?</string>
+
+    <!-- StockBuyActivity -->
+    <string name="waiting_for_response">Várakozás a visszaigazolásra</string>
+
 </resources>

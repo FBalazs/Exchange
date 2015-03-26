@@ -4,12 +4,9 @@ import hu.berzsenyi.exchange.client.R;
 import hu.berzsenyi.exchange.client.game.ClientExchange;
 import hu.berzsenyi.exchange.client.game.ClientExchange.IClientExchangeListener;
 
-import java.io.IOException;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.DialogInterface;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -36,6 +33,7 @@ public class StockBuyActivity extends ActionBarActivity {
 	private StockAdapter mAdapter;
 	private ListView mListView;
 	private ProgressDialog mProgressDialog;
+	private ProgressDialog mSendingDialog;
 
 	private int[] mAmounts;
 	private int[] mEditTextValues;
@@ -44,6 +42,9 @@ public class StockBuyActivity extends ActionBarActivity {
 	private String[] mStockNames;
 	private double[] mStockPrices;
 	private int mCount;
+
+	private boolean sent = false;
+	private Object mSentLock = new Object();
 
 	private IClientExchangeListener mListener = new IClientExchangeListener() {
 
@@ -105,6 +106,20 @@ public class StockBuyActivity extends ActionBarActivity {
 
 		@Override
 		public void onBuyRefused(ClientExchange exchange) {
+			synchronized (mSentLock) {
+				if (sent) {
+					runOnUiThread(new Runnable() {
+						public void run() {
+							mSendingDialog.dismiss();
+							new AlertDialog.Builder(StockBuyActivity.this)
+									.setMessage(R.string.dont_have_enough_money)
+									.setPositiveButton(R.string.ok, null)
+									.create().show();
+						}
+					});
+
+				}
+			}
 		}
 
 		@Override
@@ -114,6 +129,22 @@ public class StockBuyActivity extends ActionBarActivity {
 
 		@Override
 		public void onBuyAccepted(ClientExchange exchange) {
+			synchronized (mSentLock) {
+				if (sent) {
+					runOnUiThread(new Runnable() {
+						@Override
+						public void run() {
+							setResult(Activity.RESULT_OK);
+							mProgressDialog = ProgressDialog
+									.show(StockBuyActivity.this,
+											null,
+											getString(R.string.waiting_for_the_first_round),
+											true, false);
+						}
+					});
+
+				}
+			}
 		}
 	};
 	private int COLOR_ILLEGAL = Color.RED;
@@ -133,7 +164,7 @@ public class StockBuyActivity extends ActionBarActivity {
 
 		setResult(Activity.RESULT_CANCELED);
 
-		setContentView(R.layout.activity_zeroth_round);
+		setContentView(R.layout.activity_stock_buy);
 
 		TextView money = ((TextView) findViewById(R.id.money));
 		money.setText(MainActivity.DECIMAL_FORMAT.format(mClient.getMoney()));
@@ -168,17 +199,11 @@ public class StockBuyActivity extends ActionBarActivity {
 	private void onDoneButtonClick() {
 		if (!checkEditTexts())
 			return;
-		if (mClient.doBuy(mAmounts)) { // OK
-			setResult(Activity.RESULT_OK);
-			// ((Button)
-			// findViewById(R.id.activity_zeroth_round_done)).setEnabled(false);
-			mProgressDialog = ProgressDialog.show(this, null,
-					getString(R.string.waiting_for_the_first_round), true,
-					false);
-		} else {
-			new AlertDialog.Builder(this)
-					.setMessage(R.string.dont_have_enough_money)
-					.setPositiveButton(R.string.ok, null).create().show();
+		synchronized (mSentLock) {
+			sent = true;
+			mClient.doBuy(mAmounts);
+			mSendingDialog = ProgressDialog.show(this, null,
+					getString(R.string.waiting_for_response), true, false);
 		}
 	}
 
@@ -210,26 +235,36 @@ public class StockBuyActivity extends ActionBarActivity {
 		}
 
 		private void init() {
-			mCount = mClient.getStocksNumber();
-			mAmounts = new int[mCount];
-			mEditTextValues = new int[mCount];
-			synchronized (mMaxes) {
-				mMaxes = new int[mCount];
-			}
 			synchronized (mClient) {
-				mStockNames = new String[mCount];
-				mStockPrices = new double[mCount];
+				mCount = mClient.getStocksNumber();
+				mAmounts = new int[mCount];
+				mEditTextValues = new int[mCount];
+				mMaxes = new int[mCount];
+
+				synchronized (mClient) {
+					mStockNames = new String[mCount];
+					mStockPrices = new double[mCount];
+					for (int i = 0; i < mCount; i++) {
+						mStockNames[i] = mClient.getStockName(i);
+						mStockPrices[i] = mClient.getStockPrice(i);
+					}
+				}
+				refreshMaxes();
 			}
-			refreshMaxes();
 		}
 
 		private void refreshMaxes() {
 			try {
-				synchronized (mMaxes) {
+				synchronized (mClient) {
 					double remaining = mClient
 							.calculateMoneyAfterPurchase(mAmounts);
 					for (int i = 0; i < mCount; i++)
-						mMaxes[i] = (int) (remaining / mStockPrices[i]);
+						mMaxes[i] = mAmounts[i]
+								+ (int) (remaining / mStockPrices[i]);
+				}
+				if (mAdapter != null) {
+					mAdapter.notifyDataSetChanged();
+					mListView.invalidate();
 				}
 			} catch (IllegalArgumentException e) {
 				e.printStackTrace();
@@ -238,7 +273,9 @@ public class StockBuyActivity extends ActionBarActivity {
 
 		@Override
 		public int getCount() {
-			return mCount;
+			synchronized (mClient) {
+				return mCount;
+			}
 		}
 
 		@Override
@@ -257,7 +294,7 @@ public class StockBuyActivity extends ActionBarActivity {
 			final View out;
 			if (convertView == null) {
 				out = getLayoutInflater().inflate(
-						R.layout.activity_zeroth_round_stock, parent, false);
+						R.layout.activity_stock_buy_stock, parent, false);
 			} else
 				out = convertView;
 
@@ -265,83 +302,91 @@ public class StockBuyActivity extends ActionBarActivity {
 					.setText(mStockNames[position]);
 			((TextView) out.findViewById(R.id.main_tab_stocks_card_value))
 					.setText(getString(R.string.unit_price)
-							+ MainActivity.DECIMAL_FORMAT.format(mStockPrices));
+							+ MainActivity.DECIMAL_FORMAT
+									.format(mStockPrices[position]));
 
 			final EditText valueEditText = ((EditText) out
 					.findViewById(R.id.stock_amount_value));
 			valueEditText.setTag(Integer.valueOf(position));
 
-			// Android may call SeekBar.setProgress(SeekBar.getMax()) on amount,
-			// causing mAmounts to be modified. So first save mAmounts[position]
-			// and then load it back, using setProgress(currentAmount)
-			int currentAmount = mAmounts[position];
+			synchronized (mClient) {
+				// Android may call SeekBar.setProgress(SeekBar.getMax()) on
+				// amount,
+				// causing mAmounts to be modified. So first save
+				// mAmounts[position]
+				// and then load it back, using setProgress(currentAmount)
+				int currentAmount = mAmounts[position];
 
-			final SeekBar amount = (SeekBar) out
-					.findViewById(R.id.stock_amount_seekbar);
-			amount.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
-
-				@Override
-				public void onStopTrackingTouch(SeekBar seekBar) {
-				}
-
-				@Override
-				public void onStartTrackingTouch(SeekBar seekBar) {
-				}
-
-				@Override
-				public void onProgressChanged(SeekBar seekBar, int progress,
-						boolean fromUser) {
-					if (fromUser) {
-						((TextView) out.findViewById(R.id.stock_amount_value))
-								.setText(progress + "");
-					}
-					mAmounts[position] = progress;
-
-					double currentMoney = mClient
-							.calculateMoneyAfterPurchase(mAmounts);
-					TextView tv = ((TextView) findViewById(R.id.money));
-					if (currentMoney < 0)
-						tv.setTextColor(COLOR_ILLEGAL);
-					else
-						tv.setTextColor(colorDefault);
-					tv.setText(MainActivity.DECIMAL_FORMAT.format(currentMoney));
-				}
-			});
-			synchronized (mMaxes) {
-				amount.setMax(mMaxes[position]);
-			}
-			amount.setProgress(currentAmount);
-
-			valueEditText.setText(amount.getProgress() + "");
-			if (convertView == null) {
-				valueEditText.addTextChangedListener(new TextWatcher() {
+				final SeekBar amount = (SeekBar) out
+						.findViewById(R.id.stock_amount_seekbar);
+				amount.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
 
 					@Override
-					public void onTextChanged(CharSequence s, int start,
-							int before, int count) {
-						int position = (Integer) valueEditText.getTag();
-						try {
-							int value = Integer.parseInt(s.toString());
-							amount.setProgress(value);
-							mEditTextValues[position] = value;
-						} catch (NumberFormatException e) {
-							amount.setProgress(0);
-							mEditTextValues[position] = -1;
+					public void onStopTrackingTouch(SeekBar seekBar) {
+						refreshMaxes();
+					}
+
+					@Override
+					public void onStartTrackingTouch(SeekBar seekBar) {
+					}
+
+					@Override
+					public void onProgressChanged(SeekBar seekBar,
+							int progress, boolean fromUser) {
+						if (fromUser) {
+							((TextView) out
+									.findViewById(R.id.stock_amount_value))
+									.setText(progress + "");
 						}
-					}
+						mAmounts[position] = progress;
 
-					@Override
-					public void beforeTextChanged(CharSequence s, int start,
-							int count, int after) {
-					}
-
-					@Override
-					public void afterTextChanged(Editable s) {
+						double currentMoney = mClient
+								.calculateMoneyAfterPurchase(mAmounts);
+						TextView tv = ((TextView) findViewById(R.id.money));
+						if (currentMoney < 0)
+							tv.setTextColor(COLOR_ILLEGAL);
+						else
+							tv.setTextColor(colorDefault);
+						tv.setText(MainActivity.DECIMAL_FORMAT
+								.format(currentMoney));
 					}
 				});
-			}
+				synchronized (mClient) {
+					amount.setMax(mMaxes[position]);
+				}
+				amount.setProgress(currentAmount);
 
-			return out;
+				valueEditText.setText(amount.getProgress() + "");
+				if (convertView == null) {
+					valueEditText.addTextChangedListener(new TextWatcher() {
+
+						@Override
+						public void onTextChanged(CharSequence s, int start,
+								int before, int count) {
+							int position = (Integer) valueEditText.getTag();
+							try {
+								int value = Integer.parseInt(s.toString());
+								amount.setProgress(value);
+								mEditTextValues[position] = value;
+							} catch (NumberFormatException e) {
+								amount.setProgress(0);
+								mEditTextValues[position] = -1;
+							}
+						}
+
+						@Override
+						public void beforeTextChanged(CharSequence s,
+								int start, int count, int after) {
+						}
+
+						@Override
+						public void afterTextChanged(Editable s) {
+						}
+					});
+				}
+
+				return out;
+			}
 		}
 
 		public void updateStocks() {
