@@ -15,7 +15,7 @@ public class ServerStock extends Stock {
 	public final String id;
 	private long tradeAmount;
 	private double tradeMoney;
-	private Vector<Offer> offers;
+	private Vector<Offer> offers = new Vector<Offer>();
 	
 	public ServerStock(String id, String name, double price) {
 		super(name, price);

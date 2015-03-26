@@ -153,6 +153,8 @@ public class MainActivity extends ActionBarActivity {
 				@Override
 				public void run() {
 					mSendingOfferDialog.dismiss();
+					mOutgoingOfferAdapter
+							.setOffers(mClient.getOutgoingOffers());
 				}
 			});
 		}
