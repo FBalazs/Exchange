@@ -49,7 +49,7 @@ public class ServerExchangeImpl extends JFrame implements ServerExchange.IServer
 			tabStocks = new CompTabStocks(); 
 			tabPlayers = new CompTabPlayers();
 			tabPlayers.setVisible(false);
-			// TODO
+			// TODO tabEvents
 			
 			btnNewEvent = new JButton("New event");
 			btnNewEvent.addActionListener(new ActionListener() {
@@ -73,7 +73,7 @@ public class ServerExchangeImpl extends JFrame implements ServerExchange.IServer
 				public void actionPerformed(ActionEvent e) {
 					tabStocks.setVisible(true);
 					tabPlayers.setVisible(false);
-					// TODO
+					// TODO tabEvents
 				}
 			});
 			radioTabPlayers = new JRadioButton("Players");
@@ -82,7 +82,7 @@ public class ServerExchangeImpl extends JFrame implements ServerExchange.IServer
 				public void actionPerformed(ActionEvent e) {
 					tabStocks.setVisible(false);
 					tabPlayers.setVisible(true);
-					// TODO
+					// TODO tabEvents
 				}
 			});
 			radioTabEvents = new JRadioButton("Events");
@@ -91,7 +91,7 @@ public class ServerExchangeImpl extends JFrame implements ServerExchange.IServer
 				public void actionPerformed(ActionEvent e) {
 					tabStocks.setVisible(false);
 					tabPlayers.setVisible(false);
-					// TODO
+					// TODO tabEvents
 				}
 			});
 			
@@ -102,7 +102,7 @@ public class ServerExchangeImpl extends JFrame implements ServerExchange.IServer
 			
 			contentPane.add(tabStocks);
 			contentPane.add(tabPlayers);
-			// TODO
+			// TODO tabEvents
 			
 			contentPane.add(btnNewEvent);
 			contentPane.add(btnStockUpdate);
@@ -148,15 +148,13 @@ public class ServerExchangeImpl extends JFrame implements ServerExchange.IServer
 		SwingHelper.splitComponentsVertical(new Rectangle(barX, barY+by/3, barWidth/6, barHeight-by/3), 0.25, btnNewEvent, btnStockUpdate);
 		SwingHelper.setButtonTextSizeToFill(btnNewEvent);
 		SwingHelper.setButtonTextSizeToFill(btnStockUpdate);
-		// TODO same font size
+		if(btnNewEvent.getFont().getSize() < btnStockUpdate.getFont().getSize())
+			btnStockUpdate.setFont(btnNewEvent.getFont());
+		else
+			btnNewEvent.setFont(btnStockUpdate.getFont());
 		
 		SwingHelper.splitComponentsVertical(new Rectangle(barX+barWidth/6+bx/2, barY+by/3, barWidth/8, barHeight-by/3), 0.25,
 				radioTabStocks, radioTabPlayers, radioTabEvents);
-	}
-	
-	@Override
-	public void paint(Graphics g) {
-		super.paint(g);
 	}
 
 	@Override
@@ -197,17 +195,17 @@ public class ServerExchangeImpl extends JFrame implements ServerExchange.IServer
 	@Override
 	public void onOpened(ServerExchange exchange) {
 		onResize();
-		invalidate();
+		repaint();
 	}
 
 	@Override
 	public void onEvent(ServerExchange exchange) {
-		invalidate();
+		repaint();
 	}
 	
 	@Override
 	public void onMsgReceived(ServerExchange exchange) {
-		invalidate();
+		repaint();
 	}
 
 	@Override
@@ -233,6 +231,6 @@ public class ServerExchangeImpl extends JFrame implements ServerExchange.IServer
 	@Override
 	public void componentResized(ComponentEvent event) {
 		onResize();
-		invalidate();
+		repaint();
 	}
 }
