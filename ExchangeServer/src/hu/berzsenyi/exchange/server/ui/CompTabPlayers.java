@@ -44,7 +44,7 @@ public class CompTabPlayers extends Component {
 						ServerExchange.INSTANCE.getPlayer(p).name,
 						x + w / 2,
 						this.getHeight() - h1 - h2 - g.getFontMetrics().getHeight());
-				GraphicsHelper.drawStringCentered(g2, ""+ServerExchange.INSTANCE.getPlayer(p).getMoney() + ServerExchange.INSTANCE.getPlayer(p).getStocksValue(),
+				GraphicsHelper.drawStringCentered(g2, ""+(ServerExchange.INSTANCE.getPlayer(p).getMoney() + ServerExchange.INSTANCE.getPlayer(p).getStocksValue()),
 						x + w / 2, this.getHeight() - h1 - h2);
 			}
 
