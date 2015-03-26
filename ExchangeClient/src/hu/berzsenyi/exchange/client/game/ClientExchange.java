@@ -10,6 +10,8 @@ import hu.berzsenyi.exchange.net.msg.*;
 
 public class ClientExchange extends Exchange implements
 		NetClient.INetClientListener {
+	private static final String TAG = "["+ClientExchange.class.getSimpleName()+"] ";
+	
 	public static interface IClientExchangeListener {
 		public void onConnAccepted(ClientExchange exchange);
 
@@ -71,13 +73,13 @@ public class ClientExchange extends Exchange implements
 	}
 
 	public synchronized void addListener(IClientExchangeListener listener) {
-		System.out.println(getClass().getName() + ": Adding listener: "
+		System.out.println(TAG+"Adding listener: "
 				+ listener);
 		listeners.add(listener);
 	}
 
 	public synchronized void removeListener(IClientExchangeListener listener) {
-		System.out.println(getClass().getName() + ": Removing listener: "
+		System.out.println(TAG+"Removing listener: "
 				+ listener);
 		listeners.remove(listener);
 	}
@@ -160,16 +162,20 @@ public class ClientExchange extends Exchange implements
 
 	public synchronized void offer(int stockId, int amount, double price,
 			boolean sell) {
-		if (sendingOffer)
+		if (sendingOffer) {
 			new Exception("Already sending an offer!").printStackTrace();
+			return;
+		}
 		sendingOffer = true;
 		net.sendMsg(new MsgClientOfferIndirect(stockId, amount, price, sell));
 	}
 
 	public synchronized void offerTo(int stockId, int amount, double price,
 			boolean sell, int playerId) {
-		if (sendingOffer)
+		if (sendingOffer) {
 			new Exception("Already sending an offer!").printStackTrace();
+			return;
+		}
 		sendingOffer = true;
 		net.sendMsg(new MsgClientOfferDirect(stockId, amount, price, sell,
 				playerNames[playerId]));
@@ -236,6 +242,10 @@ public class ClientExchange extends Exchange implements
 				events = new String[0];
 			for (IClientExchangeListener listener : listeners)
 				listener.onEventsChanged(this);
+		} else if(msg instanceof MsgServerPlayerMoney) {
+			myMoney = ((MsgServerPlayerMoney) msg).money;
+			for(IClientExchangeListener listener : listeners)
+				listener.onMyMoneyChanged(this);
 		} else if (msg instanceof MsgServerStockUpdate) {
 			MsgServerStockUpdate msgUpdate = (MsgServerStockUpdate) msg;
 			for (int i = 0; i < stocks.length; i++)

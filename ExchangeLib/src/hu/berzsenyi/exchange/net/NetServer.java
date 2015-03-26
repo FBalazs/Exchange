@@ -10,6 +10,8 @@ import java.net.Socket;
 import java.util.Vector;
 
 public class NetServer {
+	private static final String TAG = "["+NetServer.class.getSimpleName()+"] ";
+	
 	public static interface INetServerListener {
 		public void onOpened(NetServer net);
 
@@ -31,7 +33,7 @@ public class NetServer {
 				while (connected)
 					try {
 						Msg msg = (Msg)oin.readObject();
-						System.out.println(getClass().getName()+": Received msg: "+msg);
+						System.out.println(TAG+"Received msg: "+msg);
 						for(INetServerListener listener : listeners)
 							listener.onObjectReceived(NetServer.this, NetServerClient.this, msg);
 					} catch(EOFException e) {
@@ -74,7 +76,7 @@ public class NetServer {
 		}
 		
 		public synchronized void sendMsg(Msg msg) {
-			System.out.println(getClass().getName()+": Sending msg: "+msg);
+			System.out.println(TAG+"Sending msg: "+msg);
 			try {
 				oout.writeObject(msg);
 				oout.flush();
@@ -125,10 +127,12 @@ public class NetServer {
 				try {
 					Socket socket = serverSocket.accept();
 					if (socket != null) {
+						socket.setKeepAlive(true);
 						NetServerClient client = new NetServerClient(socket);
 						synchronized (clients) {
 							clients.add(client);
 						}
+						System.out.println(TAG+"Added client with id: "+client.id);
 						for (INetServerListener listener : listeners)
 							listener.onClientConnected(NetServer.this, client);
 					}
@@ -143,13 +147,16 @@ public class NetServer {
 		@Override
 		public void run() {
 			try {
+				System.out.println(TAG+"Opening on port "+port);
 				serverSocket = new ServerSocket(port);
 				opened = true;
 				opening = false;
 				new ThreadListen().start();
+				System.out.println(TAG+"Opened!");
 				for (INetServerListener listener : listeners)
 					listener.onOpened(NetServer.this);
 			} catch (Exception e) {
+				System.out.println(TAG+"Open failed!");
 				e.printStackTrace();
 				close(e);
 			}
@@ -225,6 +232,7 @@ public class NetServer {
 	private synchronized void close(Exception e) {
 		if(!opened && !opening)
 			return;
+		System.out.println(TAG+"Closing...");
 		for (NetServerClient client : clients)
 			client.close(e);
 		clients.clear();

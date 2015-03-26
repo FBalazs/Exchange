@@ -241,6 +241,7 @@ public class ServerExchange extends Exchange implements
 						player.setStocks(msgBuy.stocks);
 						player.setMoney(player.getMoney() - money);
 						netClient.sendMsg(new MsgServerBuyAccept());
+						netClient.sendMsg(new MsgServerPlayerMoney(player.getMoney()));
 					} else {
 						netClient.sendMsg(new MsgServerBuyRefuse());
 					}

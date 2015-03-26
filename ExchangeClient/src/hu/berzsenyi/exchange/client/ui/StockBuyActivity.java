@@ -153,7 +153,7 @@ public class StockBuyActivity extends ActionBarActivity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		Log.d(getClass().getName(), "onCreate() started");
+		Log.d(getClass().getSimpleName(), "onCreate() started");
 
 		ActionBar actionBar = getSupportActionBar();
 		actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME
@@ -262,10 +262,15 @@ public class StockBuyActivity extends ActionBarActivity {
 						mMaxes[i] = mAmounts[i]
 								+ (int) (remaining / mStockPrices[i]);
 				}
-				if (mAdapter != null) {
-					mAdapter.notifyDataSetChanged();
-					mListView.invalidate();
-				}
+				runOnUiThread(new Runnable() {
+					@Override
+					public void run() {
+						if (mAdapter != null) {
+							mAdapter.notifyDataSetChanged();
+							mListView.invalidate();
+						}
+					}
+				});
 			} catch (IllegalArgumentException e) {
 				e.printStackTrace();
 			}

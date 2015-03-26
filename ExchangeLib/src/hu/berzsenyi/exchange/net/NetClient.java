@@ -11,6 +11,8 @@ import java.net.SocketAddress;
 import java.util.Vector;
 
 public class NetClient {
+	private static final String TAG = "["+NetClient.class.getSimpleName()+"] ";
+	
 	public static interface INetClientListener {
 		public void onConnected(NetClient net);
 		public void onObjectReceived(NetClient net, Msg msg);
@@ -23,7 +25,7 @@ public class NetClient {
 			while(connected)
 				try {
 					Msg msg = (Msg)oin.readObject();
-					System.out.println(getClass().getName()+": Received msg: "+msg);
+					System.out.println(TAG+"Received msg: "+msg);
 					for(INetClientListener listener : listeners)
 						listener.onObjectReceived(NetClient.this, msg);
 				} catch(EOFException e) {
@@ -39,17 +41,21 @@ public class NetClient {
 		@Override
 		public void run() {
 			try {
+				System.out.println(TAG+"Connecting to "+serverAddr);
 				socket = new Socket();
+				socket.setKeepAlive(true);
 				socket.connect(serverAddr, 3000);
 				oout = new ObjectOutputStream(socket.getOutputStream());
 				oout.flush();
 				oin = new ObjectInputStream(socket.getInputStream());
 				connected = true;
 				connecting = false;
+				System.out.println(TAG+"Connected!");
 				new ThreadReceive().start();
 				for(INetClientListener listener : listeners)
 					listener.onConnected(NetClient.this);
 			} catch(Exception e) {
+				System.out.println(TAG+"Connection failed!");
 				e.printStackTrace();
 				close(e);
 			}
@@ -92,7 +98,7 @@ public class NetClient {
 	}
 	
 	public synchronized void sendMsg(Msg msg) {
-		System.out.println(getClass().getName()+": Sending msg: "+msg);
+		System.out.println(TAG+"Sending msg: "+msg);
 		try {
 			oout.writeObject(msg);
 			oout.flush();
@@ -105,6 +111,7 @@ public class NetClient {
 	private synchronized void close(Exception e) {
 		if(!connected && !connecting)
 			return;
+		System.out.println(TAG+"Closing...");
 		if(oin != null)
 			try {
 				oin.close();
