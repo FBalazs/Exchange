@@ -46,19 +46,28 @@ public class MainActivity extends ActionBarActivity {
 	protected static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat(
 			"#0.00");
 
-	private static final int[] LABEL_IDS = { R.string.main_tab_label_newsfeed,
-			R.string.main_tab_label_stocks, R.string.main_tab_label_exchange,
+	private static final int[] LABEL_IDS_INDIRECT = {
+			R.string.main_tab_label_newsfeed, R.string.main_tab_label_stocks,
+			R.string.main_tab_label_exchange, R.string.main_tab_label_stats };
+	private static final int[] LABEL_IDS_DIRECT = {
+			R.string.main_tab_label_newsfeed, R.string.main_tab_label_stocks,
+			R.string.main_tab_label_outgoing, R.string.main_tab_label_incoming,
 			R.string.main_tab_label_stats };
 
-	private static final int POSITION_TAB_NEWS_FEED = 0,
-			POSITION_TAB_STOCKS = 1, POSITION_TAB_EXCHANGE = 2,
-			POSITION_TAB_STATS = 3;
+	private static final int POSITION_INDIRECT_TAB_NEWS_FEED = 0,
+			POSITION_INDIRECT_TAB_STOCKS = 1,
+			POSITION_INDIRECT_TAB_EXCHANGE = 2,
+			POSITION_INDIRECT_TAB_STATS = 3;
 
-	private static final int POSITION_OFFER_TYPE_SELL = 1;
+	private static final int POSITION_DIRECT_TAB_NEWS_FEED = 0,
+			POSITION_DIRECT_TAB_STOCKS = 1, POSITION_DIRECT_TAB_OUTGOING = 2,
+			POSITION_DIRECT_TAB_INCOMING = 3, POSITION_DIRECT_TAB_STATS = 4;
+
+	private static final int POSITION_INDIRECT_OFFER_TYPE_SELL = 1;
 
 	private ClientExchange mClient = ClientExchange.INSTANCE;
 	private NewsAdapter mNewsAdapter;
-	private OfferAdapter mOutgoingOfferAdapter, mIncomingOfferAdapter; // TODO
+	private OutgoingOfferAdapter mOutgoingOfferAdapter, mIncomingOfferAdapter; // TODO
 	private NewOfferStockAdapter mNewOfferStockAdapter;
 	private StockAdapter mStockAdapter;
 	private TextView moneyTextView1, stocksValueTextView1, moneyTextView2,
@@ -153,8 +162,8 @@ public class MainActivity extends ActionBarActivity {
 				@Override
 				public void run() {
 					mSendingOfferDialog.dismiss();
-					mOutgoingOfferAdapter
-							.setOffers(mClient.getOutgoingOffers());
+					mOutgoingOfferAdapter.notifyDataSetChanged();
+					;
 				}
 			});
 		}
@@ -328,7 +337,7 @@ public class MainActivity extends ActionBarActivity {
 
 		@Override
 		public int getCount() {
-			return LABEL_IDS.length;
+			return getStringResourceArray().length;
 		}
 
 		@Override
@@ -338,77 +347,45 @@ public class MainActivity extends ActionBarActivity {
 
 		@Override
 		public CharSequence getPageTitle(int position) {
-			return getString(LABEL_IDS[position]);
+			return getString(getStringResourceArray()[position]);
 		}
 
 		@Override
 		public Object instantiateItem(ViewGroup container, int position) {
 			View view = null;
 
-			switch (position) {
-			case POSITION_TAB_NEWS_FEED:
-				view = getLayoutInflater().inflate(
-						R.layout.activity_main_tab_news, container, false);
-				ListView newsList = (ListView) view
-						.findViewById(R.id.main_tab_news_list);
-				mNewsAdapter = new NewsAdapter();
-				newsList.setAdapter(mNewsAdapter);
-				break;
-			case POSITION_TAB_STOCKS:
-				view = getLayoutInflater().inflate(
-						R.layout.activity_main_tab_stocks, container, false);
-
-				ListView stockList = (ListView) view
-						.findViewById(R.id.main_tab_stocks_list);
-				mStockAdapter = new StockAdapter();
-				stockList.setAdapter(mStockAdapter);
-				break;
-			case POSITION_TAB_EXCHANGE:
-				view = getLayoutInflater().inflate(
-						R.layout.activity_main_tab_exchange, container, false);
-
-				ListView offerList = (ListView) view
-						.findViewById(R.id.main_tab_exchange_list);
-				mOutgoingOfferAdapter = new OfferAdapter(
-						mClient.getOutgoingOffers());
-				offerList.setAdapter(mOutgoingOfferAdapter);
-				offerList.setOnItemClickListener(new OnItemClickListener() {
-
-					@Override
-					public void onItemClick(final AdapterView<?> parent,
-							View view, final int position, long id) {
-						new AlertDialog.Builder(MainActivity.this)
-								.setMessage(
-										R.string.main_tab_exchange_cancel_offer)
-								.setNegativeButton(R.string.no, null)
-								.setPositiveButton(R.string.yes,
-										new DialogInterface.OnClickListener() {
-
-											@Override
-											public void onClick(
-													DialogInterface dialog,
-													int which) {
-												mClient.deleteOffer((Offer) parent
-														.getItemAtPosition(position));
-											}
-
-										}).create().show();
-					}
-				});
-
-				break;
-			case POSITION_TAB_STATS:
-				view = getLayoutInflater().inflate(
-						R.layout.activity_main_tab_stats, container, false);
-				((TextView) view.findViewById(R.id.main_tab_stats_team_name))
-						.setText(mClient.getName());
-				moneyTextView2 = (TextView) view
-						.findViewById(R.id.main_tab_stats_money);
-				stocksValueTextView2 = (TextView) view
-						.findViewById(R.id.main_tab_stats_stocks_value);
-				updateMoneyTextViews();
-				updateStocksValueTextViews();
-				break;
+			if (mClient.getGameMode() == ClientExchange.GAMEMODE_DIRECT) {
+				switch (position) {
+				case POSITION_DIRECT_TAB_NEWS_FEED:
+					view = newsFeed(container);
+					break;
+				case POSITION_DIRECT_TAB_STOCKS:
+					view = stocks(container);
+					break;
+				case POSITION_DIRECT_TAB_OUTGOING:
+					view = outgoingOffers(container);
+					break;
+				case POSITION_DIRECT_TAB_INCOMING:
+					view = incomingOffers(container);
+					break;
+				case POSITION_DIRECT_TAB_STATS:
+					view = stats(container);
+				}
+			} else {
+				switch (position) {
+				case POSITION_INDIRECT_TAB_NEWS_FEED:
+					view = newsFeed(container);
+					break;
+				case POSITION_INDIRECT_TAB_STOCKS:
+					view = stocks(container);
+					break;
+				case POSITION_INDIRECT_TAB_EXCHANGE:
+					view = outgoingOffers(container);
+					break;
+				case POSITION_INDIRECT_TAB_STATS:
+					view = stats(container);
+					break;
+				}
 			}
 
 			if (view != null)
@@ -419,6 +396,113 @@ public class MainActivity extends ActionBarActivity {
 		@Override
 		public void destroyItem(ViewGroup container, int position, Object object) {
 			container.removeView((View) object);
+		}
+
+		private int[] getStringResourceArray() {
+			return mClient.getGameMode() == ClientExchange.GAMEMODE_DIRECT ? LABEL_IDS_DIRECT
+					: LABEL_IDS_INDIRECT;
+		}
+
+		private View newsFeed(ViewGroup container) {
+			View view = getLayoutInflater().inflate(
+					R.layout.activity_main_tab_news, container, false);
+			ListView newsList = (ListView) view
+					.findViewById(R.id.main_tab_news_list);
+			mNewsAdapter = new NewsAdapter();
+			newsList.setAdapter(mNewsAdapter);
+			return view;
+		}
+
+		private View stocks(ViewGroup container) {
+			View view = getLayoutInflater().inflate(
+					R.layout.activity_main_tab_stocks, container, false);
+
+			ListView stockList = (ListView) view
+					.findViewById(R.id.main_tab_stocks_list);
+			mStockAdapter = new StockAdapter();
+			stockList.setAdapter(mStockAdapter);
+			return view;
+		}
+
+		private View outgoingOffers(ViewGroup container) {
+			View view = getLayoutInflater().inflate(
+					R.layout.activity_main_tab_exchange, container, false);
+
+			ListView offerList = (ListView) view
+					.findViewById(R.id.main_tab_exchange_list);
+			mOutgoingOfferAdapter = new OutgoingOfferAdapter();
+			offerList.setAdapter(mOutgoingOfferAdapter);
+			offerList.setOnItemClickListener(new OnItemClickListener() {
+
+				@Override
+				public void onItemClick(final AdapterView<?> parent, View view,
+						final int position, long id) {
+					new AlertDialog.Builder(MainActivity.this)
+							.setMessage(R.string.main_tab_exchange_cancel_offer)
+							.setNegativeButton(R.string.no, null)
+							.setPositiveButton(R.string.yes,
+									new DialogInterface.OnClickListener() {
+
+										@Override
+										public void onClick(
+												DialogInterface dialog,
+												int which) {
+											mClient.deleteOffer((Offer) parent
+													.getItemAtPosition(position));
+										}
+
+									}).create().show();
+				}
+			});
+			return view;
+		}
+		
+		private View incomingOffers(ViewGroup container) {
+			View view = getLayoutInflater().inflate(
+					R.layout.activity_main_tab_exchange, container, false);
+
+			ListView offerList = (ListView) view
+					.findViewById(R.id.main_tab_exchange_list);
+			mIncomingOfferAdapter = new OutgoingOfferAdapter();
+			offerList.setAdapter(mIncomingOfferAdapter);
+			offerList.setOnItemClickListener(new OnItemClickListener() {
+
+				@Override
+				public void onItemClick(final AdapterView<?> parent, View view,
+						final int position, long id) {
+					new AlertDialog.Builder(MainActivity.this)
+							.setMessage(R.string.main_tab_exchange_accept_offer)
+							.setNegativeButton(R.string.no, null)
+							.setPositiveButton(R.string.yes,
+									new DialogInterface.OnClickListener() {
+
+										@Override
+										public void onClick(
+												DialogInterface dialog,
+												int which) {
+											mClient.acceptOffer((Offer) parent
+													.getItemAtPosition(position));
+										}
+
+									}).create().show();
+				}
+			});
+			return view;
+		}
+
+		private View stats(ViewGroup container) {
+
+			View view = getLayoutInflater().inflate(
+					R.layout.activity_main_tab_stats, container, false);
+			((TextView) view.findViewById(R.id.main_tab_stats_team_name))
+					.setText(mClient.getName());
+			moneyTextView2 = (TextView) view
+					.findViewById(R.id.main_tab_stats_money);
+			stocksValueTextView2 = (TextView) view
+					.findViewById(R.id.main_tab_stats_stocks_value);
+			updateMoneyTextViews();
+			updateStocksValueTextViews();
+			return view;
 		}
 	}
 
@@ -526,25 +610,18 @@ public class MainActivity extends ActionBarActivity {
 		}
 	}
 
-	private class OfferAdapter extends BaseAdapter {
+	private class OutgoingOfferAdapter extends BaseAdapter {
 
 		private Offer[] mOffers;
 
-		public OfferAdapter(Offer[] offers) {
-			setOffers(offers);
+		public OutgoingOfferAdapter() {
+			mOffers = mClient.getOutgoingOffers();
 		}
 
-		public void setOffers(Offer[] offers) {
-			if (offers == null)
-				throw new NullPointerException();
-			mOffers = offers;
-			runOnUiThread(new Runnable() {
-
-				@Override
-				public void run() {
-					notifyDataSetChanged();
-				}
-			});
+		@Override
+		public void notifyDataSetChanged() {
+			mOffers = mClient.getOutgoingOffers();
+			super.notifyDataSetChanged();
 		}
 
 		@Override
@@ -611,7 +688,7 @@ public class MainActivity extends ActionBarActivity {
 								View view, int position, long id) {
 
 							((NewOfferStockAdapter) stocks.getAdapter())
-									.setSell(position == POSITION_OFFER_TYPE_SELL);
+									.setSell(position == POSITION_INDIRECT_OFFER_TYPE_SELL);
 						}
 
 						@Override
@@ -657,7 +734,7 @@ public class MainActivity extends ActionBarActivity {
 												.parse(price.getText()
 														.toString())
 												.doubleValue(),
-										type.getSelectedItemPosition() == POSITION_OFFER_TYPE_SELL);
+										type.getSelectedItemPosition() == POSITION_INDIRECT_OFFER_TYPE_SELL);
 							} catch (NumberFormatException e) {
 								e.printStackTrace();
 							} catch (ParseException e) {
