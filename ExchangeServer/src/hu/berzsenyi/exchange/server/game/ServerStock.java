@@ -101,7 +101,7 @@ public class ServerStock extends Stock {
 		}
 		offers.add(offerToAdd);
 		calculateOfferValues();
-		ServerExchange.INSTANCE.net.sendMsgToXY(new MsgServerOfferToYou(sender, stockId, amount, price, sell), ServerExchange.INSTANCE.getPlayerByName(target).getNetId());
+		ServerExchange.INSTANCE.net.sendMsgToXY(new MsgServerOfferToYou(sender, stockId, amount, price, !sell), ServerExchange.INSTANCE.getPlayerByName(target).getNetId());
 	}
 	
 	public boolean removeOffer(String sender, int amount, double price, boolean sell) {

@@ -1,9 +1,13 @@
 package hu.berzsenyi.exchange.server.game;
 
 import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.Random;
 import java.util.Vector;
 
@@ -134,8 +138,24 @@ public class ServerExchange extends Exchange implements
 	public synchronized void load(String path) {
 		try {
 			DataInputStream din = new DataInputStream(new FileInputStream(path));
-			
-			din.close();
+			ObjectInputStream oin = new ObjectInputStream(din);
+			gameMode = din.readInt();
+			startMoney = din.readDouble();
+			int n = din.readInt();
+			for(int p = 0; p < n; p++) {
+				ServerPlayer player = new ServerPlayer(din.readUTF(), din.readUTF(), null);
+				player.setMoney(din.readDouble());
+				for(int s = 0; s < stocks.length; s++)
+					player.setStockAmount(s, din.readInt());
+			}
+			started = din.readBoolean();
+			for(int e = 0; e < events.length; e++)
+				shuffledEvents[e] = din.readInt();
+			n = din.readInt();
+			for(int e = 0; e < n; e++)
+				currentEvents.add((EventQueue)oin.readObject());
+			nextEventNumber = din.readInt();
+			oin.close();
 		} catch(Exception e) {
 			System.err.println(TAG+"Failed to load from file: "+path);
 			e.printStackTrace();
@@ -143,7 +163,27 @@ public class ServerExchange extends Exchange implements
 	}
 
 	public synchronized void save(String path) {
-		
+		try {
+			DataOutputStream dout = new DataOutputStream(new FileOutputStream(path));
+			ObjectOutputStream oout = new ObjectOutputStream(dout);
+			dout.writeInt(gameMode);
+			dout.writeDouble(startMoney);
+			dout.writeInt(players.size());
+			for(int p = 0; p < players.size(); p++) {
+				dout.writeUTF(players.get(p).name);
+				dout.writeUTF(players.get(p).password);
+				dout.writeDouble(players.get(p).getMoney());
+				for(int s = 0; s < stocks.length; s++)
+					dout.writeInt(players.get(p).getStockAmount(s));
+			}
+			dout.writeBoolean(started);
+			for(int e = 0; e < events.length; e++)
+				
+			oout.close();
+		} catch(Exception e) {
+			System.err.println(TAG+"Failed to save to file: "+path);
+			e.printStackTrace();
+		}
 	}
 
 	public synchronized void loadStocks(String stockFolder) {
