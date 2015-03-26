@@ -130,13 +130,17 @@ public class ConnectActivity extends ActionBarActivity {
 		@Override
 		public void onTradeDirect(ClientExchange exchange, String partner,
 				int stockId, int amount, double price, boolean sold) {
-			
+
 		}
 
 		@Override
 		public void onTradeIndirect(ClientExchange exchange, int stockId,
 				int amount, double price, boolean sold) {
-			
+
+		}
+
+		@Override
+		public void onEventsChanged(ClientExchange exchange) {
 		}
 	};
 
@@ -173,19 +177,19 @@ public class ConnectActivity extends ActionBarActivity {
 			}
 		});
 	}
-	
+
 	@Override
 	protected void onStart() {
 		super.onStart();
 		mClient.addListener(mListener);
 	}
-	
+
 	@Override
 	protected void onStop() {
 		super.onStop();
 		mClient.removeListener(mListener);
 	}
-	
+
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();

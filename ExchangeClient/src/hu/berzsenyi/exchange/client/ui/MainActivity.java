@@ -243,6 +243,12 @@ public class MainActivity extends ActionBarActivity {
 			// TODO Auto-generated method stub
 
 		}
+
+		@Override
+		public void onEventsChanged(ClientExchange exchange) {
+			// TODO Auto-generated method stub
+			
+		}
 	};
 
 	@Override

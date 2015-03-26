@@ -286,4 +286,13 @@ public class ClientExchange extends Exchange implements
 			for (IClientExchangeListener listener : listeners)
 				listener.onConnLost(this);
 	}
+
+	public synchronized double calculateMoneyAfterPurchase(int[] amounts) {
+		if(amounts.length != getStocksNumber())
+			throw new IllegalArgumentException("Bad length");
+		double out = getMoney();
+		for(int i=0;i<getStocksNumber();i++)
+			out -= amounts[i]*getStockPrice(i);
+		return out;
+	}
 }

@@ -1,10 +1,8 @@
 package hu.berzsenyi.exchange.client.ui;
 
-import hu.berzsenyi.exchange.SingleEvent;
-import hu.berzsenyi.exchange.Stock;
-import hu.berzsenyi.exchange.Team;
+import hu.berzsenyi.exchange.client.R;
 import hu.berzsenyi.exchange.client.game.ClientExchange;
-import hu.berzsenyi.exchange.net.TCPClient;
+import hu.berzsenyi.exchange.client.game.ClientExchange.IClientExchangeListener;
 
 import java.io.IOException;
 
@@ -41,73 +39,83 @@ public class StockBuyActivity extends ActionBarActivity {
 
 	private int[] mAmounts;
 	private int[] mEditTextValues;
-	private Stock[] mStocks;
 	private int[] mMaxes;
-	private Object mLock = new Object();
-	private IClientListener mListener = new IClientListener() {
+
+	private String[] mStockNames;
+	private double[] mStockPrices;
+	private int mCount;
+
+	private IClientExchangeListener mListener = new IClientExchangeListener() {
 
 		@Override
-		public void onConnectionFail(TCPClient client, IOException exception) {
+		public void onTradeIndirect(ClientExchange exchange, int stockId,
+				int amount, double price, boolean sold) {
 		}
 
 		@Override
-		public void onConnect(TCPClient client) {
+		public void onTradeDirect(ClientExchange exchange, String partner,
+				int stockId, int amount, double price, boolean sold) {
 		}
 
 		@Override
-		public void onClose(TCPClient client) {
+		public void onStocksChanged(ClientExchange exchange) {
+			mAdapter.updateStocks();
+		}
+
+		@Override
+		public void onShowBuy(ClientExchange exchange) {
+		}
+
+		@Override
+		public void onSentOfferRefused(ClientExchange exchange) {
+		}
+
+		@Override
+		public void onSentOfferAccepted(ClientExchange exchange) {
+		}
+
+		@Override
+		public void onOfferCame(ClientExchange exchange) {
+		}
+
+		@Override
+		public void onMyStocksChanged(ClientExchange exchange) {
+		}
+
+		@Override
+		public void onMyMoneyChanged(ClientExchange exchange) {
+		}
+
+		@Override
+		public void onEventsChanged(ClientExchange exchange) {
+		}
+
+		@Override
+		public void onConnRefused(ClientExchange exchange) {
+		}
+
+		@Override
+		public void onConnLost(ClientExchange exchange) {
 			StockBuyActivity.this.finish();
 		}
 
 		@Override
-		public void onTeamsCommand(ExchangeClient client) {
+		public void onConnAccepted(ClientExchange exchange) {
 		}
 
 		@Override
-		public void onStocksCommand(ExchangeClient client) {
-			mAdapter.updateStocks(client.getModel().stocks);
+		public void onBuyRefused(ClientExchange exchange) {
 		}
 
 		@Override
-		public void onNewRound(SingleEvent[] events) {
+		public void onBuyEnd(ClientExchange exchange) {
 			StockBuyActivity.this.finish();
 		}
 
 		@Override
-		public void onMoneyChanged(Team ownTeam) {
+		public void onBuyAccepted(ClientExchange exchange) {
 		}
-
-		@Override
-		public void onStocksChanged(Team ownTeam, int position) {
-		}
-
-		@Override
-		public void onOutgoingOffersChanged() {
-
-		}
-
-		@Override
-		public void onOfferFailed() {
-			
-		}
-
-		@Override
-		public void onTradeComplete(int stockId, int amount, double price, boolean sell) {
-			
-		}
-
-		@Override
-		public void onConnectionRefused() {
-			new AlertDialog.Builder(StockBuyActivity.this).setMessage(R.string.error_connection_refused).setNeutralButton("OK", new DialogInterface.OnClickListener() {
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					finish();
-				}
-			}).create().show();
-		}
-
 	};
-
 	private int COLOR_ILLEGAL = Color.RED;
 	private ColorStateList colorDefault;
 
@@ -128,16 +136,14 @@ public class StockBuyActivity extends ActionBarActivity {
 		setContentView(R.layout.activity_zeroth_round);
 
 		TextView money = ((TextView) findViewById(R.id.money));
-		money.setText(ActivityMain.DECIMAL_FORMAT.format(mClient.getModel().startMoney));
+		money.setText(MainActivity.DECIMAL_FORMAT.format(mClient.getMoney()));
 		colorDefault = money.getTextColors();
 
 		// TODO Unregister listener
-		mClient.addIClientListener(mListener);
-		if (!mClient.isConnected())
-			finish();
+		mClient.addListener(mListener);
 
 		mListView = (ListView) findViewById(R.id.stocks);
-		mAdapter = new StockAdapter(mClient.getModel().stocks);
+		mAdapter = new StockAdapter();
 		mListView.setAdapter(mAdapter);
 
 		((Button) findViewById(R.id.activity_zeroth_round_done))
@@ -154,7 +160,7 @@ public class StockBuyActivity extends ActionBarActivity {
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
-		mClient.removeIClientListener(mListener);
+		mClient.removeListener(mListener);
 		if (mProgressDialog != null)
 			mProgressDialog.dismiss();
 	}
@@ -177,65 +183,67 @@ public class StockBuyActivity extends ActionBarActivity {
 	}
 
 	private boolean checkEditTexts() {
-		synchronized (mLock) {
-			for (int i = 0; i < mAmounts.length; i++) {
-				if (mAmounts[i] != mEditTextValues[i]) {
-					AlertDialog.Builder builder = new AlertDialog.Builder(this);
-					builder.setPositiveButton(R.string.ok, null);
-					if (mEditTextValues[i] == -1) {
-						builder.setMessage(String
-								.format(getString(R.string.zeroth_round_bad_number_format),
-										mStocks[i].name).toString());
-					} else {
-						builder.setMessage(String
-								.format(getString(R.string.zeroth_round_cannot_buy_as_many_stocks),
-										mMaxes[i], mStocks[i].name).toString());
-					}
-					builder.create().show();
-					return false;
+		for (int i = 0; i < mAmounts.length; i++) {
+			if (mAmounts[i] != mEditTextValues[i]) {
+				AlertDialog.Builder builder = new AlertDialog.Builder(this);
+				builder.setPositiveButton(R.string.ok, null);
+				if (mEditTextValues[i] == -1) {
+					builder.setMessage(String.format(
+							getString(R.string.zeroth_round_bad_number_format),
+							mStockNames[i]).toString());
+				} else {
+					builder.setMessage(String
+							.format(getString(R.string.zeroth_round_cannot_buy_as_many_stocks),
+									mMaxes[i], mStockNames[i]).toString());
 				}
+				builder.create().show();
+				return false;
 			}
 		}
 		return true;
 	}
 
-	private void calculateMaxes() {
-		synchronized (mLock) {
-			for (int i = 0; i < mStocks.length; i++)
-				mMaxes[i] = (int) (mClient.getModel().startMoney / mStocks[i].value);
-		}
-	}
-
 	private class StockAdapter extends BaseAdapter {
 
-		public StockAdapter(Stock[] stocks) {
-			init(stocks);
+		public StockAdapter() {
+			init();
 		}
 
-		private void init(Stock[] stocks) {
-			synchronized (mLock) {
-				mStocks = stocks == null ? new Stock[0] : stocks; // stocks can
-																	// be
-																	// null!
-				mAmounts = new int[mStocks.length];
-				mEditTextValues = new int[mStocks.length];
-				mMaxes = new int[mStocks.length];
-				calculateMaxes();
+		private void init() {
+			mCount = mClient.getStocksNumber();
+			mAmounts = new int[mCount];
+			mEditTextValues = new int[mCount];
+			synchronized (mMaxes) {
+				mMaxes = new int[mCount];
+			}
+			synchronized (mClient) {
+				mStockNames = new String[mCount];
+				mStockPrices = new double[mCount];
+			}
+			refreshMaxes();
+		}
+
+		private void refreshMaxes() {
+			try {
+				synchronized (mMaxes) {
+					double remaining = mClient
+							.calculateMoneyAfterPurchase(mAmounts);
+					for (int i = 0; i < mCount; i++)
+						mMaxes[i] = (int) (remaining / mStockPrices[i]);
+				}
+			} catch (IllegalArgumentException e) {
+				e.printStackTrace();
 			}
 		}
 
 		@Override
 		public int getCount() {
-			synchronized (mLock) {
-				return mStocks.length;
-			}
+			return mCount;
 		}
 
 		@Override
-		public Stock getItem(int position) {
-			synchronized (mLock) {
-				return mStocks[position];
-			}
+		public Object getItem(int position) {
+			return null;
 		}
 
 		@Override
@@ -253,12 +261,11 @@ public class StockBuyActivity extends ActionBarActivity {
 			} else
 				out = convertView;
 
-			Stock stock = getItem(position);
-			((TextView) out.findViewById(R.id.stock_name)).setText(stock.name);
+			((TextView) out.findViewById(R.id.stock_name))
+					.setText(mStockNames[position]);
 			((TextView) out.findViewById(R.id.main_tab_stocks_card_value))
 					.setText(getString(R.string.unit_price)
-							+ ActivityMain.DECIMAL_FORMAT
-									.format(stock.value));
+							+ MainActivity.DECIMAL_FORMAT.format(mStockPrices));
 
 			final EditText valueEditText = ((EditText) out
 					.findViewById(R.id.stock_amount_value));
@@ -290,18 +297,19 @@ public class StockBuyActivity extends ActionBarActivity {
 					}
 					mAmounts[position] = progress;
 
-					double currentMoney = mClient.getModel()
+					double currentMoney = mClient
 							.calculateMoneyAfterPurchase(mAmounts);
 					TextView tv = ((TextView) findViewById(R.id.money));
 					if (currentMoney < 0)
 						tv.setTextColor(COLOR_ILLEGAL);
 					else
 						tv.setTextColor(colorDefault);
-					tv.setText(ActivityMain.DECIMAL_FORMAT
-							.format(currentMoney));
+					tv.setText(MainActivity.DECIMAL_FORMAT.format(currentMoney));
 				}
 			});
-			amount.setMax(mMaxes[position]);
+			synchronized (mMaxes) {
+				amount.setMax(mMaxes[position]);
+			}
 			amount.setProgress(currentAmount);
 
 			valueEditText.setText(amount.getProgress() + "");
@@ -336,8 +344,8 @@ public class StockBuyActivity extends ActionBarActivity {
 			return out;
 		}
 
-		public void updateStocks(Stock[] stocks) {
-			init(stocks);
+		public void updateStocks() {
+			init();
 			runOnUiThread(new Runnable() {
 				@Override
 				public void run() {
