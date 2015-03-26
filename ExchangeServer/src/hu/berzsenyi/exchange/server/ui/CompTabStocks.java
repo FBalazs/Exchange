@@ -50,9 +50,7 @@ public class CompTabStocks extends Component {
 				
 				GraphicsHelper.drawStringCentered(g2, ServerExchange.INSTANCE.getStock(s).getName(), x + w / 2,
 						this.getHeight() - theights[s] - g2.getFontMetrics().getHeight());
-				GraphicsHelper.drawStringCentered(g2, 
-						/*ServerDisplay.DECIMAL_FORMAT // TODO format
-								.format(this.model.stocks[s].value)*/""+ServerExchange.INSTANCE.getStock(s).getPrice(),
+				GraphicsHelper.drawStringCentered(g2, ""+Math.round(ServerExchange.INSTANCE.getStock(s).getPrice()*100)/100D,
 						x + w / 2, this.getHeight() - theights[s]);
 			}
 	

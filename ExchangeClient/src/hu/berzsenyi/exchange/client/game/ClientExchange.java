@@ -182,12 +182,19 @@ public class ClientExchange extends Exchange implements
 	}
 
 	public synchronized void deleteOffer(Offer offer) {
-		if (gameMode == GAMEMODE_DIRECT)
-			net.sendMsg(new MsgClientOfferDeleteDirect(offer.stockId,
-					offer.amount, offer.price, offer.sell, offer.sender));
-		else
-			net.sendMsg(new MsgClientOfferIndirect(offer.stockId, offer.amount,
-					offer.price, offer.sell));
+		if(gameMode == GAMEMODE_DIRECT) {
+			new Exception("Wrong gamemode!").printStackTrace();
+			return;
+		}
+		net.sendMsg(new MsgClientOfferIndirect(offer.stockId, offer.amount, offer.price, offer.sell));
+	}
+	
+	public synchronized void denyOffer(Offer offer) {
+		if(gameMode == GAMEMODE_INDIRECT) {
+			new Exception("Wrong gamemode!").printStackTrace();
+			return;
+		}
+		net.sendMsg(new MsgClientOfferDeleteDirect(offer.stockId, offer.amount, offer.price, offer.sell, offer.sender));
 	}
 
 	public synchronized void close() {
