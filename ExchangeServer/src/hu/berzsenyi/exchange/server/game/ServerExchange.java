@@ -1,6 +1,8 @@
 package hu.berzsenyi.exchange.server.game;
 
+import java.io.DataInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.util.Random;
 import java.util.Vector;
@@ -14,6 +16,8 @@ import hu.berzsenyi.exchange.server.game.ServerStock.IOfferCallback;
 
 public class ServerExchange extends Exchange implements
 		NetServer.INetServerListener, IOfferCallback {
+	private static final String TAG = "["+ServerExchange.class.getSimpleName()+"] ";
+	
 	public static interface IServerExchangeListener {
 		public void onOpened(ServerExchange exchange);
 		public void onEvent(ServerExchange exchange);
@@ -128,11 +132,18 @@ public class ServerExchange extends Exchange implements
 	}
 
 	public synchronized void load(String path) {
-
+		try {
+			DataInputStream din = new DataInputStream(new FileInputStream(path));
+			
+			din.close();
+		} catch(Exception e) {
+			System.err.println(TAG+"Failed to load from file: "+path);
+			e.printStackTrace();
+		}
 	}
 
 	public synchronized void save(String path) {
-
+		
 	}
 
 	public synchronized void loadStocks(String stockFolder) {

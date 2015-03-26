@@ -186,7 +186,7 @@ public class ClientExchange extends Exchange implements
 			new Exception("Wrong gamemode!").printStackTrace();
 			return;
 		}
-		net.sendMsg(new MsgClientOfferIndirect(offer.stockId, offer.amount, offer.price, offer.sell));
+		net.sendMsg(new MsgClientOfferDeleteIndirect(offer.stockId, offer.amount, offer.price, offer.sell));
 	}
 	
 	public synchronized void denyOffer(Offer offer) {
