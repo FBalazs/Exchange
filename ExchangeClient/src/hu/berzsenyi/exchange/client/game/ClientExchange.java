@@ -161,7 +161,10 @@ public class ClientExchange extends Exchange implements
 	}
 	
 	public synchronized void deleteOffer(Offer offer) {
-		throw new UnsupportedOperationException("Not supported yet"); // TODO
+		if(gameMode == GAMEMODE_DIRECT)
+			net.sendMsg(new MsgClientOfferDeleteDirect(offer.stockId, offer.amount, offer.price, offer.sell, offer.sender));
+		else
+			net.sendMsg(new MsgClientOfferIndirect(offer.stockId, offer.amount, offer.price, offer.sell));
 	}
 
 	public synchronized void close() {
