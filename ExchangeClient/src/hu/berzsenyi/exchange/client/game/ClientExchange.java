@@ -135,6 +135,10 @@ public class ClientExchange extends Exchange implements
 		return myOffers.toArray(new Offer[myOffers.size()]);
 	}
 	
+	public synchronized String[] getPlayers() {
+		return playerNames;
+	}
+	
 	public synchronized boolean isBuyRequested() {
 		return buyRequested;
 	}

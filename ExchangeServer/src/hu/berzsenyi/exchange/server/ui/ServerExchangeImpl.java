@@ -119,6 +119,7 @@ public class ServerExchangeImpl extends JFrame implements ServerExchange.IServer
 			ServerExchange.INSTANCE.open(Integer.parseInt(JOptionPane.showInputDialog(this, "Port", "8080")),
 					JOptionPane.showOptionDialog(this, "Which gamemode?", "Choose gamemode", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]),
 					Double.parseDouble(JOptionPane.showInputDialog(this, "Startmoney", "10000")));
+			ServerExchange.INSTANCE.load(JOptionPane.showInputDialog(this, "Load backup from", "backup/save0.dat"));
 		} catch(Exception e) {
 			e.printStackTrace();
 			System.exit(1);
