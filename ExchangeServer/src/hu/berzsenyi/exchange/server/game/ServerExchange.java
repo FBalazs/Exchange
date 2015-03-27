@@ -142,6 +142,12 @@ public class ServerExchange extends Exchange implements
 			ObjectInputStream oin = new ObjectInputStream(din);
 			gameMode = din.readInt();
 			startMoney = din.readDouble();
+			for(int s = 0; s < stocks.length; s++) {
+				stocks[s].setIngame(din.readInt());
+				stocks[s].setPrice(din.readDouble());
+				stocks[s].setTradeAmount(din.readLong());
+				stocks[s].setTradeMoney(din.readDouble());
+			}
 			int n = din.readInt();
 			for(int p = 0; p < n; p++) {
 				ServerPlayer player = new ServerPlayer(din.readUTF(), din.readUTF(), null);
@@ -165,10 +171,17 @@ public class ServerExchange extends Exchange implements
 
 	public synchronized void save(String path) {
 		try {
+			new File(path.substring(0, path.lastIndexOf('/'))).mkdirs();
 			DataOutputStream dout = new DataOutputStream(new FileOutputStream(path));
 			ObjectOutputStream oout = new ObjectOutputStream(dout);
 			dout.writeInt(gameMode);
 			dout.writeDouble(startMoney);
+			for(int s = 0; s < stocks.length; s++) {
+				dout.writeInt(stocks[s].getIngame());
+				dout.writeDouble(stocks[s].getPrice());
+				dout.writeLong(stocks[s].getTradeAmount());
+				dout.writeDouble(stocks[s].getTradeMoney());
+			}
 			dout.writeInt(players.size());
 			for(int p = 0; p < players.size(); p++) {
 				dout.writeUTF(players.get(p).name);

@@ -120,6 +120,7 @@ public class ServerExchangeImpl extends JFrame implements ServerExchange.IServer
 					JOptionPane.showOptionDialog(this, "Which gamemode?", "Choose gamemode", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]),
 					Double.parseDouble(JOptionPane.showInputDialog(this, "Startmoney", "10000")));
 			ServerExchange.INSTANCE.load(JOptionPane.showInputDialog(this, "Load backup from", "backup/save0.dat"));
+			repaint();
 		} catch(Exception e) {
 			e.printStackTrace();
 			System.exit(1);
