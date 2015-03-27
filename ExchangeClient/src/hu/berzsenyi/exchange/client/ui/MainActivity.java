@@ -456,7 +456,7 @@ public class MainActivity extends ActionBarActivity {
 			});
 			return view;
 		}
-		
+
 		private View incomingOffers(ViewGroup container) {
 			View view = getLayoutInflater().inflate(
 					R.layout.activity_main_tab_exchange, container, false);
@@ -659,9 +659,11 @@ public class MainActivity extends ActionBarActivity {
 				if (convertView != null)
 					view = convertView;
 				else {
-					view = getLayoutInflater().inflate(
-							R.layout.activity_main_tab_exchange_new_offer_card,
-							parent, false);
+					view = getLayoutInflater()
+							.inflate(
+									mClient.getGameMode() == ClientExchange.GAMEMODE_DIRECT ? R.layout.activity_main_tab_exchange_indirect_new_offer_card
+											: R.layout.activity_main_tab_exchange_indirect_new_offer_card,
+									parent, false);
 
 					// ================== New offer ===================
 					// The View objects
