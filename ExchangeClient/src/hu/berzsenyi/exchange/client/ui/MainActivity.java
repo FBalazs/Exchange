@@ -67,11 +67,12 @@ public class MainActivity extends ActionBarActivity {
 
 	private ClientExchange mClient = ClientExchange.INSTANCE;
 	private NewsAdapter mNewsAdapter;
-	private OutgoingOfferAdapter mOutgoingOfferAdapter, mIncomingOfferAdapter; // TODO
+	private OutgoingOfferAdapter mOutgoingOfferAdapter, mIncomingOfferAdapter;
 	private NewOfferStockAdapter mNewOfferStockAdapter;
 	private StockAdapter mStockAdapter;
 	private TextView moneyTextView1, stocksValueTextView1, moneyTextView2,
 			stocksValueTextView2;
+	private PlayerAdapter mPlayerAdapter;
 
 	private ProgressDialog mSendingOfferDialog;
 
@@ -163,7 +164,6 @@ public class MainActivity extends ActionBarActivity {
 				public void run() {
 					mSendingOfferDialog.dismiss();
 					mOutgoingOfferAdapter.notifyDataSetChanged();
-					;
 				}
 			});
 		}
@@ -248,6 +248,27 @@ public class MainActivity extends ActionBarActivity {
 				@Override
 				public void run() {
 					mNewsAdapter.notifyDataSetChanged();
+				}
+			});
+		}
+
+		@Override
+		public void onPlayersChanged(ClientExchange exchange) {
+			runOnUiThread(new Runnable() {
+
+				@Override
+				public void run() {
+					mPlayerAdapter.notifyDataSetChanged();
+				}
+			});
+		}
+
+		@Override
+		public void onOfferDeleted(ClientExchange exchange) {
+			runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					mOutgoingOfferAdapter.notifyDataSetChanged();
 				}
 			});
 		}
@@ -661,7 +682,7 @@ public class MainActivity extends ActionBarActivity {
 				else {
 					view = getLayoutInflater()
 							.inflate(
-									mClient.getGameMode() == ClientExchange.GAMEMODE_DIRECT ? R.layout.activity_main_tab_exchange_indirect_new_offer_card
+									mClient.getGameMode() == ClientExchange.GAMEMODE_DIRECT ? R.layout.activity_main_tab_exchange_direct_new_offer_card
 											: R.layout.activity_main_tab_exchange_indirect_new_offer_card,
 									parent, false);
 
@@ -669,6 +690,9 @@ public class MainActivity extends ActionBarActivity {
 					// The View objects
 					final Spinner stocks = (Spinner) view
 							.findViewById(R.id.main_tab_exchange_new_offer_stock);
+					final Spinner player = mClient.getGameMode() == ClientExchange.GAMEMODE_DIRECT ? (Spinner) view
+							.findViewById(R.id.main_tab_exchange_new_offer_player)
+							: null;
 					final Spinner type = (Spinner) view
 							.findViewById(R.id.main_tab_exchange_new_offer_type);
 					final TextView price = (TextView) view
@@ -717,6 +741,12 @@ public class MainActivity extends ActionBarActivity {
 						}
 					});
 
+					if (mClient.getGameMode() == ClientExchange.GAMEMODE_DIRECT) {
+						// Player spinner
+						mPlayerAdapter = new PlayerAdapter();
+						player.setAdapter(mPlayerAdapter);
+					}
+
 					// Send Button
 					sendButton.setOnClickListener(new OnClickListener() {
 
@@ -727,16 +757,21 @@ public class MainActivity extends ActionBarActivity {
 										MainActivity.this, null,
 										getString(R.string.sending_offer),
 										true, false);
-								mClient.offer(
-										(int) stocks.getSelectedItemId(),
-										Integer.parseInt(amount.getText()
-												.toString()),
-										NumberFormat
-												.getInstance()
-												.parse(price.getText()
-														.toString())
-												.doubleValue(),
-										type.getSelectedItemPosition() == POSITION_INDIRECT_OFFER_TYPE_SELL);
+								int stockId = (int) stocks.getSelectedItemId(), amountValue = Integer
+										.parseInt(amount.getText().toString());
+								double priceValue = NumberFormat.getInstance()
+										.parse(price.getText().toString())
+										.doubleValue();
+								boolean sell = type.getSelectedItemPosition() == POSITION_INDIRECT_OFFER_TYPE_SELL;
+
+								if (mClient.getGameMode() == ClientExchange.GAMEMODE_DIRECT)
+									mClient.offerTo(stockId, amountValue,
+											priceValue, sell,
+											player.getSelectedItemPosition());
+								else
+									mClient.offer(stockId, amountValue,
+											priceValue, sell);
+
 							} catch (NumberFormatException e) {
 								e.printStackTrace();
 							} catch (ParseException e) {
@@ -896,6 +931,66 @@ public class MainActivity extends ActionBarActivity {
 			}
 			((TextView) view.findViewById(TEXT_VIEW_ID)).setText(mClient
 					.getStockName((int) getItemId(position)));
+			return view;
+		}
+
+	}
+
+	private class PlayerAdapter extends BaseAdapter {
+
+		private String[] players;
+		private int myId;
+
+		public PlayerAdapter() {
+			refreshPlayers();
+		}
+
+		@Override
+		public void notifyDataSetChanged() {
+			refreshPlayers();
+			super.notifyDataSetChanged();
+		}
+
+		private void refreshPlayers() {
+			myId = -1;
+			players = mClient.getPlayers();
+			if (players == null || players.length < 1)
+				players = new String[] { mClient.getName() };
+			for (int i = 0; i < players.length; i++)
+				if (players[i].equals(mClient.getName())) {
+					myId = i;
+					break;
+				}
+		}
+
+		@Override
+		public int getCount() {
+			return players.length - 1;
+		}
+
+		@Override
+		public String getItem(int position) {
+			return position < myId ? players[position] : players[position + 1];
+		}
+
+		@Override
+		public long getItemId(int position) {
+			return 0;
+		}
+
+		@Override
+		public View getView(int position, View convertView, ViewGroup parent) {
+			View view;
+			if (convertView != null)
+				view = convertView;
+			else {
+				view = getLayoutInflater().inflate(
+						android.R.layout.simple_spinner_dropdown_item, parent,
+						false);
+			}
+			((TextView) view.findViewById(android.R.id.text1))
+					.setText(getItem(position));
+			;
 			return view;
 		}
 

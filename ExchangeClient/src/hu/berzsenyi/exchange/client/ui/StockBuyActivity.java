@@ -146,6 +146,14 @@ public class StockBuyActivity extends ActionBarActivity {
 				}
 			}
 		}
+
+		@Override
+		public void onPlayersChanged(ClientExchange exchange) {
+		}
+
+		@Override
+		public void onOfferDeleted(ClientExchange exchange) {
+		}
 	};
 	private int COLOR_ILLEGAL = Color.RED;
 	private ColorStateList colorDefault;
@@ -194,6 +202,8 @@ public class StockBuyActivity extends ActionBarActivity {
 		mClient.removeListener(mListener);
 		if (mProgressDialog != null)
 			mProgressDialog.dismiss();
+		if (mSendingDialog != null)
+			mSendingDialog.dismiss();
 	}
 
 	private void onDoneButtonClick() {

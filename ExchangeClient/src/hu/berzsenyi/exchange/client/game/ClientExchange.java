@@ -10,8 +10,9 @@ import hu.berzsenyi.exchange.net.msg.*;
 
 public class ClientExchange extends Exchange implements
 		NetClient.INetClientListener {
-	private static final String TAG = "["+ClientExchange.class.getSimpleName()+"] ";
-	
+	private static final String TAG = "["
+			+ ClientExchange.class.getSimpleName() + "] ";
+
 	public static interface IClientExchangeListener {
 		public void onConnAccepted(ClientExchange exchange);
 
@@ -37,6 +38,8 @@ public class ClientExchange extends Exchange implements
 
 		public void onSentOfferRefused(ClientExchange exchange);
 
+		public void onOfferDeleted(ClientExchange exchange);
+
 		public void onOfferCame(ClientExchange exchange);
 
 		public void onTradeDirect(ClientExchange exchange, String partner,
@@ -46,6 +49,8 @@ public class ClientExchange extends Exchange implements
 				int amount, double price, boolean sold);
 
 		public void onEventsChanged(ClientExchange exchange);
+
+		public void onPlayersChanged(ClientExchange exchange);
 	}
 
 	public static final ClientExchange INSTANCE = new ClientExchange();
@@ -73,14 +78,12 @@ public class ClientExchange extends Exchange implements
 	}
 
 	public synchronized void addListener(IClientExchangeListener listener) {
-		System.out.println(TAG+"Adding listener: "
-				+ listener);
+		System.out.println(TAG + "Adding listener: " + listener);
 		listeners.add(listener);
 	}
 
 	public synchronized void removeListener(IClientExchangeListener listener) {
-		System.out.println(TAG+"Removing listener: "
-				+ listener);
+		System.out.println(TAG + "Removing listener: " + listener);
 		listeners.remove(listener);
 	}
 
@@ -134,11 +137,11 @@ public class ClientExchange extends Exchange implements
 	public synchronized Offer[] getIncomingOffers() {
 		return myOffers.toArray(new Offer[myOffers.size()]);
 	}
-	
+
 	public synchronized String[] getPlayers() {
 		return playerNames;
 	}
-	
+
 	public synchronized boolean isBuyRequested() {
 		return buyRequested;
 	}
@@ -184,29 +187,35 @@ public class ClientExchange extends Exchange implements
 		net.sendMsg(new MsgClientOfferDirect(stockId, amount, price, sell,
 				playerNames[playerId]));
 	}
-	
+
 	public synchronized void acceptOffer(Offer offer) {
-		if(gameMode == GAMEMODE_INDIRECT) {
+		if (gameMode == GAMEMODE_INDIRECT) {
 			new Exception("Wrong gamemode!").printStackTrace();
 			return;
 		}
-		net.sendMsg(new MsgClientOfferDirect(offer.stockId, offer.amount, offer.price, offer.sell, offer.sender));
+		net.sendMsg(new MsgClientOfferDirect(offer.stockId, offer.amount,
+				offer.price, offer.sell, offer.sender));
 	}
 
 	public synchronized void deleteOffer(Offer offer) {
-		if(gameMode == GAMEMODE_DIRECT) {
+		if (gameMode == GAMEMODE_DIRECT) {
 			new Exception("Wrong gamemode!").printStackTrace();
 			return;
 		}
-		net.sendMsg(new MsgClientOfferDeleteIndirect(offer.stockId, offer.amount, offer.price, offer.sell));
+		net.sendMsg(new MsgClientOfferDeleteIndirect(offer.stockId,
+				offer.amount, offer.price, offer.sell));
+		myOffers.remove(offer);
+		for (IClientExchangeListener listener : listeners)
+			listener.onOfferDeleted(this);
 	}
-	
+
 	public synchronized void denyOffer(Offer offer) {
-		if(gameMode == GAMEMODE_INDIRECT) {
+		if (gameMode == GAMEMODE_INDIRECT) {
 			new Exception("Wrong gamemode!").printStackTrace();
 			return;
 		}
-		net.sendMsg(new MsgClientOfferDeleteDirect(offer.stockId, offer.amount, offer.price, offer.sell, offer.sender));
+		net.sendMsg(new MsgClientOfferDeleteDirect(offer.stockId, offer.amount,
+				offer.price, offer.sell, offer.sender));
 	}
 
 	public synchronized void close() {
@@ -255,15 +264,17 @@ public class ClientExchange extends Exchange implements
 				listener.onBuyEnd(this);
 		} else if (msg instanceof MsgServerPlayers) {
 			playerNames = ((MsgServerPlayers) msg).playerNames;
+			for (IClientExchangeListener listener : listeners)
+				listener.onPlayersChanged(this);
 		} else if (msg instanceof MsgServerEvents) {
 			events = ((MsgServerEvents) msg).events;
 			if (events == null)
 				events = new String[0];
 			for (IClientExchangeListener listener : listeners)
 				listener.onEventsChanged(this);
-		} else if(msg instanceof MsgServerPlayerMoney) {
+		} else if (msg instanceof MsgServerPlayerMoney) {
 			myMoney = ((MsgServerPlayerMoney) msg).money;
-			for(IClientExchangeListener listener : listeners)
+			for (IClientExchangeListener listener : listeners)
 				listener.onMyMoneyChanged(this);
 		} else if (msg instanceof MsgServerStockUpdate) {
 			MsgServerStockUpdate msgUpdate = (MsgServerStockUpdate) msg;

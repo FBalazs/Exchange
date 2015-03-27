@@ -54,10 +54,10 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="0"
-                    android:text="@string/main_tab_exchange_new_offer_team_name" />
+                    android:text="@string/main_tab_exchange_new_offer_player" />
 
                 <Spinner
-                    android:id="@+id/main_tab_exchange_new_offer_team"
+                    android:id="@+id/main_tab_exchange_new_offer_player"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1" />

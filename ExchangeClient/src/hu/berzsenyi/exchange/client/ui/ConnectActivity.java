@@ -142,6 +142,14 @@ public class ConnectActivity extends ActionBarActivity {
 		@Override
 		public void onEventsChanged(ClientExchange exchange) {
 		}
+
+		@Override
+		public void onPlayersChanged(ClientExchange exchange) {
+		}
+
+		@Override
+		public void onOfferDeleted(ClientExchange exchange) {
+		}
 	};
 
 	@Override

@@ -78,7 +78,7 @@
 
     <!-- ActivityMain Exchange tab new offer -->
     <string name="main_tab_exchange_new_offer_stock_name">Részvény:</string>
-    <string name="main_tab_exchange_new_offer_team_name">Csapatnév:</string>
+    <string name="main_tab_exchange_new_offer_player">Csapatnév:</string>
     <string name="main_tab_exchange_new_offer_price">Ár:</string>
     <string name="main_tab_exchange_new_offer_amount">Mennyiség:</string>
     <string name="main_tab_exchange_new_offer_send">Küldés</string>
