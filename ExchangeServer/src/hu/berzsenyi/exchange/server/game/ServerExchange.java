@@ -125,6 +125,7 @@ public class ServerExchange extends Exchange implements
 				currentEvents.set(e, nextEvent);
 		}
 		currentEvents.add(events[shuffledEvents[(nextEventNumber++)%events.length]]);
+		save("backup/save"+nextEventNumber+".dat");
 		
 		String[] eventDescs = new String[currentEvents.size()];
 		for(int i = 0; i < currentEvents.size(); i++)
@@ -178,7 +179,11 @@ public class ServerExchange extends Exchange implements
 			}
 			dout.writeBoolean(started);
 			for(int e = 0; e < events.length; e++)
-				
+				dout.writeInt(shuffledEvents[e]);
+			dout.writeInt(currentEvents.size());
+			for(int e = 0; e < currentEvents.size(); e++)
+				oout.writeObject(currentEvents.get(e));
+			dout.writeInt(nextEventNumber);
 			oout.close();
 		} catch(Exception e) {
 			System.err.println(TAG+"Failed to save to file: "+path);
