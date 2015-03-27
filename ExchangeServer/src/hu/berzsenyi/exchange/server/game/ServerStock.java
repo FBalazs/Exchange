@@ -24,6 +24,22 @@ public class ServerStock extends Stock {
 		tradeMoney = tradeAmount*price;
 	}
 	
+	public long getTradeAmount() {
+		return tradeAmount;
+	}
+	
+	public void setTradeAmount(long value) {
+		tradeAmount = value;
+	}
+	
+	public double getTradeMoney() {
+		return tradeMoney;
+	}
+	
+	public void setTradeMoney(double value) {
+		tradeMoney = value;
+	}
+	
 	private void calculateOfferValues() {
 		minSellOffer = maxBuyOffer = -1;
 		for(int i = 0; i < offers.size(); i++)
