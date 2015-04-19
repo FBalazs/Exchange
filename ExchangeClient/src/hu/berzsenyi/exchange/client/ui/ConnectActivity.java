@@ -4,6 +4,7 @@ import hu.berzsenyi.exchange.client.R;
 import hu.berzsenyi.exchange.client.game.ClientExchange;
 import hu.berzsenyi.exchange.client.game.ClientExchange.IClientExchangeListener;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
@@ -25,6 +26,7 @@ public class ConnectActivity extends ActionBarActivity {
 	private Button mConnectButton;
 	private ProgressDialog mDialog;
 	private ClientExchange mClient = ClientExchange.INSTANCE;
+	private TestListener mTestListener;
 	private TextWatcher tw = new TextWatcher() {
 
 		@Override
@@ -51,10 +53,15 @@ public class ConnectActivity extends ActionBarActivity {
 				@Override
 				public void run() {
 					mDialog.dismiss();
-					new AlertDialog.Builder(ConnectActivity.this)
+					Dialog newDialog = new AlertDialog.Builder(
+							ConnectActivity.this)
 							.setMessage(R.string.could_not_connect)
-							.setPositiveButton(R.string.ok, null).create()
-							.show();
+							.setPositiveButton(R.string.ok, null).create();
+					newDialog.show();
+					if (mTestListener != null) {
+						mTestListener.onConnectingDialogGone(mDialog);
+						mTestListener.onCouldNotConnectDialogShow(newDialog);;
+					}
 				}
 			});
 		}
@@ -66,6 +73,8 @@ public class ConnectActivity extends ActionBarActivity {
 				@Override
 				public void run() {
 					mDialog.dismiss();
+					if (mTestListener != null)
+						mTestListener.onConnectingDialogGone(mDialog);
 					startActivity(new Intent(ConnectActivity.this,
 							MainActivity.class));
 				}
@@ -107,10 +116,16 @@ public class ConnectActivity extends ActionBarActivity {
 				@Override
 				public void run() {
 					mDialog.dismiss();
-					new AlertDialog.Builder(ConnectActivity.this)
+					Dialog newDialog = new AlertDialog.Builder(
+							ConnectActivity.this)
 							.setMessage(R.string.could_not_connect)
-							.setPositiveButton(R.string.ok, null).create()
-							.show();
+							.setPositiveButton(R.string.ok, null).create();
+					newDialog.show();
+					
+					if(mTestListener != null) {
+						mTestListener.onConnectingDialogGone(mDialog);
+						mTestListener.onCouldNotConnectDialogShow(newDialog);
+					}
 				}
 			});
 		}
@@ -192,6 +207,10 @@ public class ConnectActivity extends ActionBarActivity {
 		mClient.addListener(mListener);
 	}
 
+	public void setTestListener(TestListener testListener) {
+		mTestListener = testListener;
+	}
+
 	@Override
 	protected void onStop() {
 		super.onStop();
@@ -212,10 +231,18 @@ public class ConnectActivity extends ActionBarActivity {
 	private void connect() {
 		mDialog = ProgressDialog.show(this, null,
 				getString(R.string.connecting), true, false);
+		if (mTestListener != null)
+			mTestListener.onConnectingDialogShow(mDialog);
 
 		mClient.connect(mIp.getText().toString(), Integer.parseInt(mPort
 				.getText().toString()), mName.getText().toString(), mPassword
 				.getText().toString());
+	}
+
+	public static interface TestListener {
+		public void onCouldNotConnectDialogShow(Dialog dialog);
+		public void onConnectingDialogShow(Dialog dialog);
+		public void onConnectingDialogGone(Dialog dialog);
 	}
 
 }
