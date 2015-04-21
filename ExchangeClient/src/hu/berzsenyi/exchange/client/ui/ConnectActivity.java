@@ -60,7 +60,8 @@ public class ConnectActivity extends ActionBarActivity {
 					newDialog.show();
 					if (mTestListener != null) {
 						mTestListener.onConnectingDialogGone(mDialog);
-						mTestListener.onCouldNotConnectDialogShow(newDialog);;
+						mTestListener.onCouldNotConnectDialogShow(newDialog);
+						;
 					}
 				}
 			});
@@ -72,7 +73,8 @@ public class ConnectActivity extends ActionBarActivity {
 
 				@Override
 				public void run() {
-					mDialog.dismiss();
+					if (mDialog != null)
+						mDialog.dismiss();
 					if (mTestListener != null)
 						mTestListener.onConnectingDialogGone(mDialog);
 					startActivity(new Intent(ConnectActivity.this,
@@ -121,8 +123,8 @@ public class ConnectActivity extends ActionBarActivity {
 							.setMessage(R.string.could_not_connect)
 							.setPositiveButton(R.string.ok, null).create();
 					newDialog.show();
-					
-					if(mTestListener != null) {
+
+					if (mTestListener != null) {
 						mTestListener.onConnectingDialogGone(mDialog);
 						mTestListener.onCouldNotConnectDialogShow(newDialog);
 					}
@@ -241,7 +243,9 @@ public class ConnectActivity extends ActionBarActivity {
 
 	public static interface TestListener {
 		public void onCouldNotConnectDialogShow(Dialog dialog);
+
 		public void onConnectingDialogShow(Dialog dialog);
+
 		public void onConnectingDialogGone(Dialog dialog);
 	}
 

@@ -3,14 +3,26 @@ package hu.berzsenyi.exchange.client.test;
 import com.robotium.solo.Solo;
 
 import hu.berzsenyi.exchange.client.ui.ConnectActivity;
+import hu.berzsenyi.exchange.client.ui.MainActivity;
+import hu.berzsenyi.exchange.client.ui.StockBuyActivity;
 import android.app.Dialog;
+import android.app.Instrumentation;
+import android.app.Instrumentation.ActivityMonitor;
 import android.test.ActivityInstrumentationTestCase2;
 
 public class ConnectActivityTest extends
 		ActivityInstrumentationTestCase2<ConnectActivity> {
 
+	private static final String IP = "10.0.2.2";
+	private static final int PORT = 8080;
+
+	private static final String USER_NAME = "TheBroker", PASSWORD = "pswd";
+
 	private Solo mSolo;
-	private ConnectActivity mActivity;
+	private Instrumentation mInstrumentation;
+	private ConnectActivity mConnectActivity;
+	private MainActivity mMainActivity;
+	private StockBuyActivity mStockBuyActivity;
 
 	private Object mLock = new Object();
 	private String mFailMessage;
@@ -23,14 +35,17 @@ public class ConnectActivityTest extends
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		mActivity = getActivity();
-		mSolo = new Solo(getInstrumentation(), mActivity);
+		mInstrumentation = getInstrumentation();
+		mConnectActivity = getActivity();
+		mSolo = new Solo(getInstrumentation(), mConnectActivity);
 
 	}
 
 	public void testConnect_badIp() {
-		mSolo.typeText(0, "TheBroker");
-		mSolo.typeText(1, "pswd");
+		mSolo.clearEditText(0);
+		mSolo.typeText(0, USER_NAME);
+		mSolo.clearEditText(1);
+		mSolo.typeText(1, PASSWORD);
 		mSolo.clearEditText(2);
 		mSolo.typeText(2, "129.168.0.233");
 		mSolo.clearEditText(3);
@@ -40,7 +55,7 @@ public class ConnectActivityTest extends
 		mFailMessage = null;
 		mTestSucceeded = false;
 
-		mActivity.setTestListener(new ConnectActivity.TestListener() {
+		mConnectActivity.setTestListener(new ConnectActivity.TestListener() {
 
 			private boolean connectingShown = false, connectingGone = false;
 
@@ -93,13 +108,53 @@ public class ConnectActivityTest extends
 			}
 		}
 
-		mActivity.setTestListener(null);
+		mConnectActivity.setTestListener(null);
 
 		if (!mTestSucceeded && mFailMessage == null)
 			mFailMessage = "Timeout";
 
-		if (mFailMessage != null)
-			fail(mFailMessage);
+		assertNotNull(mFailMessage);
 	}
 
+	public void testConnect() {
+		mSolo.clearEditText(0);
+		mSolo.typeText(0, USER_NAME);
+		mSolo.clearEditText(1);
+		mSolo.typeText(1, PASSWORD);
+		mSolo.clearEditText(2);
+		mSolo.typeText(2, IP);
+		mSolo.clearEditText(3);
+		mSolo.typeText(3, PORT + "");
+
+		ActivityMonitor mainActivityMonitor = mInstrumentation.addMonitor(
+				MainActivity.class.getName(), null, false);
+		ActivityMonitor stockBuyActivityMonitor = mInstrumentation.addMonitor(
+				StockBuyActivity.class.getName(), null, false);
+
+		mSolo.clickOnButton(0);
+
+		try {
+
+			mMainActivity = (MainActivity) mainActivityMonitor
+					.waitForActivityWithTimeout(10000);
+
+			if (mMainActivity == null)
+				fail("Could not connect. MainActivity has not come.");
+
+			mStockBuyActivity = (StockBuyActivity) stockBuyActivityMonitor
+					.waitForActivityWithTimeout(2000);
+
+			if (mStockBuyActivity == null)
+				fail("StockBuyActivity has not appeared.");
+		} finally {
+
+			mInstrumentation.removeMonitor(mainActivityMonitor);
+			mInstrumentation.removeMonitor(stockBuyActivityMonitor);
+
+			if (mMainActivity != null)
+				mMainActivity.finish();
+			if (mStockBuyActivity != null)
+				mStockBuyActivity.finish();
+		}
+	}
 }
