@@ -20,12 +20,16 @@ import hu.berzsenyi.exchange.server.game.ServerStock.IOfferCallback;
 
 public class ServerExchange extends Exchange implements
 		NetServer.INetServerListener, IOfferCallback {
-	private static final String TAG = "["+ServerExchange.class.getSimpleName()+"] ";
-	
+	private static final String TAG = "["
+			+ ServerExchange.class.getSimpleName() + "] ";
+
 	public static interface IServerExchangeListener {
 		public void onOpened(ServerExchange exchange);
+
 		public void onEvent(ServerExchange exchange);
+
 		public void onMsgReceived(ServerExchange exchange);
+
 		public void onClosed(ServerExchange exchange);
 	}
 
@@ -59,7 +63,7 @@ public class ServerExchange extends Exchange implements
 	public synchronized void removeListener(IServerExchangeListener listener) {
 		listeners.remove(listener);
 	}
-	
+
 	public synchronized boolean isStarted() {
 		return started;
 	}
@@ -75,11 +79,11 @@ public class ServerExchange extends Exchange implements
 	public synchronized ServerStock getStock(int stockId) {
 		return stocks[stockId];
 	}
-	
+
 	public synchronized int getPlayerNumber() {
 		return players.size();
 	}
-	
+
 	public synchronized ServerPlayer getPlayer(int i) {
 		return players.get(i);
 	}
@@ -97,7 +101,7 @@ public class ServerExchange extends Exchange implements
 				return player;
 		return null;
 	}
-	
+
 	public synchronized void updateStocks() {
 		for (int i = 0; i < stocks.length; i++)
 			stocks[i].updatePrice(1);
@@ -109,26 +113,27 @@ public class ServerExchange extends Exchange implements
 			net.sendMsgToAll(new MsgServerBuyEnd(stocks));
 			started = true;
 		}
-		
+
 		for (int i = 0; i < stocks.length; i++) {
 			double multiplier = 1;
-			for(int e = 0; e < currentEvents.size(); e++)
+			for (int e = 0; e < currentEvents.size(); e++)
 				multiplier *= currentEvents.get(e).getMultiplier(i);
 			stocks[i].updatePrice(multiplier);
 		}
-		
-		for(int e = 0; e < currentEvents.size(); e++) {
+
+		for (int e = 0; e < currentEvents.size(); e++) {
 			EventQueue nextEvent = currentEvents.get(e).getNextEvent();
-			if(nextEvent == null)
+			if (nextEvent == null)
 				currentEvents.remove(e--);
 			else
 				currentEvents.set(e, nextEvent);
 		}
-		currentEvents.add(events[shuffledEvents[(nextEventNumber++)%events.length]]);
-		save("backup/save"+nextEventNumber+".dat");
-		
+		currentEvents.add(events[shuffledEvents[(nextEventNumber++)
+				% events.length]]);
+		save("backup/save" + nextEventNumber + ".dat");
+
 		String[] eventDescs = new String[currentEvents.size()];
-		for(int i = 0; i < currentEvents.size(); i++)
+		for (int i = 0; i < currentEvents.size(); i++)
 			eventDescs[i] = currentEvents.get(i).getDescription();
 		net.sendMsgToAll(new MsgServerEvents(eventDescs));
 		net.sendMsgToAll(new MsgServerStockUpdate(stocks));
@@ -142,29 +147,30 @@ public class ServerExchange extends Exchange implements
 			ObjectInputStream oin = new ObjectInputStream(din);
 			gameMode = din.readInt();
 			startMoney = din.readDouble();
-			for(int s = 0; s < stocks.length; s++) {
+			for (int s = 0; s < stocks.length; s++) {
 				stocks[s].setIngame(din.readInt());
 				stocks[s].setPrice(din.readDouble());
 				stocks[s].setTradeAmount(din.readLong());
 				stocks[s].setTradeMoney(din.readDouble());
 			}
 			int n = din.readInt();
-			for(int p = 0; p < n; p++) {
-				ServerPlayer player = new ServerPlayer(din.readUTF(), din.readUTF(), null);
+			for (int p = 0; p < n; p++) {
+				ServerPlayer player = new ServerPlayer(din.readUTF(),
+						din.readUTF(), null);
 				player.setMoney(din.readDouble());
-				for(int s = 0; s < stocks.length; s++)
+				for (int s = 0; s < stocks.length; s++)
 					player.setStockAmount(s, din.readInt());
 			}
 			started = din.readBoolean();
-			for(int e = 0; e < events.length; e++)
+			for (int e = 0; e < events.length; e++)
 				shuffledEvents[e] = din.readInt();
 			n = din.readInt();
-			for(int e = 0; e < n; e++)
-				currentEvents.add((EventQueue)oin.readObject());
+			for (int e = 0; e < n; e++)
+				currentEvents.add((EventQueue) oin.readObject());
 			nextEventNumber = din.readInt();
 			oin.close();
-		} catch(Exception e) {
-			System.err.println(TAG+"Failed to load from file: "+path);
+		} catch (Exception e) {
+			System.err.println(TAG + "Failed to load from file: " + path);
 			e.printStackTrace();
 		}
 	}
@@ -172,34 +178,35 @@ public class ServerExchange extends Exchange implements
 	public synchronized void save(String path) {
 		try {
 			new File(path.substring(0, path.lastIndexOf('/'))).mkdirs();
-			DataOutputStream dout = new DataOutputStream(new FileOutputStream(path));
+			DataOutputStream dout = new DataOutputStream(new FileOutputStream(
+					path));
 			ObjectOutputStream oout = new ObjectOutputStream(dout);
 			dout.writeInt(gameMode);
 			dout.writeDouble(startMoney);
-			for(int s = 0; s < stocks.length; s++) {
+			for (int s = 0; s < stocks.length; s++) {
 				dout.writeInt(stocks[s].getIngame());
 				dout.writeDouble(stocks[s].getPrice());
 				dout.writeLong(stocks[s].getTradeAmount());
 				dout.writeDouble(stocks[s].getTradeMoney());
 			}
 			dout.writeInt(players.size());
-			for(int p = 0; p < players.size(); p++) {
+			for (int p = 0; p < players.size(); p++) {
 				dout.writeUTF(players.get(p).name);
 				dout.writeUTF(players.get(p).password);
 				dout.writeDouble(players.get(p).getMoney());
-				for(int s = 0; s < stocks.length; s++)
+				for (int s = 0; s < stocks.length; s++)
 					dout.writeInt(players.get(p).getStockAmount(s));
 			}
 			dout.writeBoolean(started);
-			for(int e = 0; e < events.length; e++)
+			for (int e = 0; e < events.length; e++)
 				dout.writeInt(shuffledEvents[e]);
 			dout.writeInt(currentEvents.size());
-			for(int e = 0; e < currentEvents.size(); e++)
+			for (int e = 0; e < currentEvents.size(); e++)
 				oout.writeObject(currentEvents.get(e));
 			dout.writeInt(nextEventNumber);
 			oout.close();
-		} catch(Exception e) {
-			System.err.println(TAG+"Failed to save to file: "+path);
+		} catch (Exception e) {
+			System.err.println(TAG + "Failed to save to file: " + path);
 			e.printStackTrace();
 		}
 	}
@@ -231,8 +238,10 @@ public class ServerExchange extends Exchange implements
 			loadStocks("data/stocks");
 			players = new Vector<ServerPlayer>();
 			started = false;
-			events = EventParser.parseEvents(this, new FileReader("data/events/events.xml"));
-			shuffledEvents = ArrayHelper.createShuffledIntArray(events.length, rand);
+			events = EventParser.parseEvents(this, new FileReader(
+					"data/events/events.xml"));
+			shuffledEvents = ArrayHelper.createShuffledIntArray(events.length,
+					rand);
 			currentEvents = new Vector<EventQueue>();
 			nextEventNumber = 0;
 			net.open(port);
@@ -275,6 +284,11 @@ public class ServerExchange extends Exchange implements
 							player.getMoney(), player.getStocks()));
 					if (player.getMoney() == startMoney)
 						netClient.sendMsg(new MsgServerBuyRequest());
+
+					String[] playerNames = new String[players.size()];
+					for (int i = 0; i < players.size(); i++)
+						playerNames[i] = players.get(i).name;
+					net.sendMsgToAll(new MsgServerPlayers(playerNames));
 				} else {
 					netClient.sendMsg(new MsgServerConnRefuse(
 							MsgServerConnRefuse.NOT_0ROUND));
@@ -310,7 +324,8 @@ public class ServerExchange extends Exchange implements
 						player.setStocks(msgBuy.stocks);
 						player.setMoney(player.getMoney() - money);
 						netClient.sendMsg(new MsgServerBuyAccept());
-						netClient.sendMsg(new MsgServerPlayerMoney(player.getMoney()));
+						netClient.sendMsg(new MsgServerPlayerMoney(player
+								.getMoney()));
 					} else {
 						netClient.sendMsg(new MsgServerBuyRefuse());
 					}
@@ -321,11 +336,21 @@ public class ServerExchange extends Exchange implements
 		} else if (msg instanceof MsgClientOfferIndirect) {
 			if (gameMode == GAMEMODE_INDIRECT) {
 				MsgClientOfferIndirect msgOffer = (MsgClientOfferIndirect) msg;
-				ServerPlayer player = getPlayerByNetId(netClient.getId()); // TODO if connection not accepted, player could be null
-				if(player == null) {
+				ServerPlayer player = getPlayerByNetId(netClient.getId()); // TODO
+																			// if
+																			// connection
+																			// not
+																			// accepted,
+																			// player
+																			// could
+																			// be
+																			// null
+				if (player == null) {
 					// TODO error, client not connected
-				} else if ((msgOffer.sell && msgOffer.amount <= player.getStockAmount(msgOffer.stockId))
-						|| (!msgOffer.sell && msgOffer.price * msgOffer.amount <= player.getMoney())) {
+				} else if ((msgOffer.sell && msgOffer.amount <= player
+						.getStockAmount(msgOffer.stockId))
+						|| (!msgOffer.sell && msgOffer.price * msgOffer.amount <= player
+								.getMoney())) {
 					netClient.sendMsg(new MsgServerSentOfferIndirectAccept(
 							msgOffer.stockId, msgOffer.amount, msgOffer.price,
 							msgOffer.sell));
@@ -342,8 +367,10 @@ public class ServerExchange extends Exchange implements
 			if (gameMode == GAMEMODE_DIRECT) {
 				MsgClientOfferDirect msgOffer = (MsgClientOfferDirect) msg;
 				ServerPlayer player = getPlayerByNetId(netClient.getId());
-				if ((msgOffer.sell && msgOffer.amount <= player.getStockAmount(msgOffer.stockId))
-						|| (!msgOffer.sell && msgOffer.price * msgOffer.amount <= player.getMoney())) {
+				if ((msgOffer.sell && msgOffer.amount <= player
+						.getStockAmount(msgOffer.stockId))
+						|| (!msgOffer.sell && msgOffer.price * msgOffer.amount <= player
+								.getMoney())) {
 					netClient.sendMsg(new MsgServerSentOfferDirectAccept(
 							msgOffer.player, msgOffer.stockId, msgOffer.amount,
 							msgOffer.price, msgOffer.sell));
@@ -356,23 +383,30 @@ public class ServerExchange extends Exchange implements
 			} else {
 				// TODO error, wrong gamemode
 			}
-		} else if(msg instanceof MsgClientOfferDeleteIndirect) {
-			if(gameMode == GAMEMODE_INDIRECT) {
-				MsgClientOfferDeleteIndirect msgOfferDelete = (MsgClientOfferDeleteIndirect)msg;
-				stocks[msgOfferDelete.stockId].removeOffer(getPlayerByNetId(netClient.getId()).name, msgOfferDelete.amount, msgOfferDelete.price, msgOfferDelete.sell);
+		} else if (msg instanceof MsgClientOfferDeleteIndirect) {
+			if (gameMode == GAMEMODE_INDIRECT) {
+				MsgClientOfferDeleteIndirect msgOfferDelete = (MsgClientOfferDeleteIndirect) msg;
+				stocks[msgOfferDelete.stockId].removeOffer(
+						getPlayerByNetId(netClient.getId()).name,
+						msgOfferDelete.amount, msgOfferDelete.price,
+						msgOfferDelete.sell);
 			} else {
 				// TODO error, wrong gamemode
 			}
-		} else if(msg instanceof MsgClientOfferDeleteDirect) {
-			if(gameMode == GAMEMODE_INDIRECT) {
-				MsgClientOfferDeleteDirect msgOfferDelete = (MsgClientOfferDeleteDirect)msg;
-				stocks[msgOfferDelete.stockId].removeOfferTo(msgOfferDelete.player, getPlayerByNetId(netClient.getId()).name, msgOfferDelete.amount, msgOfferDelete.price, msgOfferDelete.sell);
+		} else if (msg instanceof MsgClientOfferDeleteDirect) {
+			if (gameMode == GAMEMODE_INDIRECT) {
+				MsgClientOfferDeleteDirect msgOfferDelete = (MsgClientOfferDeleteDirect) msg;
+				stocks[msgOfferDelete.stockId].removeOfferTo(
+						msgOfferDelete.player,
+						getPlayerByNetId(netClient.getId()).name,
+						msgOfferDelete.amount, msgOfferDelete.price,
+						msgOfferDelete.sell);
 			} else {
 				// TODO error, wrong gamemode
 			}
 		}
-		
-		for(IServerExchangeListener listener : listeners)
+
+		for (IServerExchangeListener listener : listeners)
 			listener.onMsgReceived(this);
 	}
 
@@ -392,15 +426,19 @@ public class ServerExchange extends Exchange implements
 			double price, int amount) {
 		ServerPlayer playerSeller = getPlayerByName(sellOffer.sender);
 		ServerPlayer playerBuyer = getPlayerByName(buyOffer.sender);
-		playerSeller.setStockAmount(buyOffer.stockId, playerSeller.getStockAmount(buyOffer.stockId)-amount);
-		playerBuyer.setStockAmount(buyOffer.stockId, playerBuyer.getStockAmount(buyOffer.stockId)+amount);
-		playerSeller.setMoney(playerSeller.getMoney()+amount*price);
-		playerBuyer.setMoney(playerBuyer.getMoney()-amount*price);
+		playerSeller.setStockAmount(buyOffer.stockId,
+				playerSeller.getStockAmount(buyOffer.stockId) - amount);
+		playerBuyer.setStockAmount(buyOffer.stockId,
+				playerBuyer.getStockAmount(buyOffer.stockId) + amount);
+		playerSeller.setMoney(playerSeller.getMoney() + amount * price);
+		playerBuyer.setMoney(playerBuyer.getMoney() - amount * price);
 		if (gameMode == GAMEMODE_DIRECT) {
 			net.sendMsgToXY(new MsgServerTradeDirect(playerSeller.name,
-					buyOffer.stockId, amount, price, false), playerBuyer.getNetId());
+					buyOffer.stockId, amount, price, false), playerBuyer
+					.getNetId());
 			net.sendMsgToXY(new MsgServerTradeDirect(playerBuyer.name,
-					buyOffer.stockId, amount, price, true), playerSeller.getNetId());
+					buyOffer.stockId, amount, price, true), playerSeller
+					.getNetId());
 		} else {
 			net.sendMsgToXY(new MsgServerTradeIndirect(buyOffer.stockId,
 					amount, price, false), playerBuyer.getNetId());
